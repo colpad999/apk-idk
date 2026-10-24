@@ -34,15 +34,26 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Generate Android project files
-        run: flutter create --platforms=android --org id.bycolpad --project-name apk_idk .
+      - name: Create a clean Flutter Android project
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter create --platforms=android --org id.bycolpad --project-name apk_idk build_project
+          cp pubspec.yaml build_project/pubspec.yaml
+          cp analysis_options.yaml build_project/analysis_options.yaml
+          rm -rf build_project/lib
+          cp -a lib build_project/lib
+          if [ -d test ]; then
+            rm -rf build_project/test
+            cp -a test build_project/test
+          fi
 
       - name: Set Android SDK levels
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p = Path('android/app/build.gradle.kts')
+          p = Path('build_project/android/app/build.gradle.kts')
           s = p.read_text()
           s = s.replace('compileSdk = flutter.compileSdkVersion', 'compileSdk = 36')
           s = s.replace('targetSdk = flutter.targetSdkVersion', 'targetSdk = 36')
@@ -51,21 +62,25 @@ jobs:
           PY
 
       - name: Install dependencies
+        working-directory: build_project
         run: flutter pub get
 
       - name: Analyze Dart code
+        working-directory: build_project
         run: flutter analyze
 
       - name: Run tests
+        working-directory: build_project
         run: flutter test
 
       - name: Build release APK
+        working-directory: build_project
         run: flutter build apk --release
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: colpad-android-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build_project/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 14
