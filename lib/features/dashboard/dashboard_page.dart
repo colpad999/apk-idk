@@ -198,7 +198,7 @@ class _EmptyTransactions extends StatelessWidget {
 
 class _GoalPreview extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(border: Border.all(color: Theme.of(context).colorScheme.outlineVariant), borderRadius: const BorderRadius.circular(18)), child: Row(children: [const Icon(Icons.flag_outlined, color: Color(0xFF48CFA7)), const SizedBox(width: 12), const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Target tabungan', style: TextStyle(fontWeight: FontWeight.w700)), SizedBox(height: 3), Text('Manajemen target menyusul pada tahap berikutnya.', style: TextStyle(fontSize: 12))]))]));
+  Widget build(BuildContext context) => Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(border: Border.all(color: Theme.of(context).colorScheme.outlineVariant), borderRadius: const BorderRadius.all(Radius.circular(18))), child: const Row(children: [Icon(Icons.flag_outlined, color: Color(0xFF48CFA7)), SizedBox(width: 12), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Target tabungan', style: TextStyle(fontWeight: FontWeight.w700)), SizedBox(height: 3), Text('Manajemen target menyusul pada tahap berikutnya.', style: TextStyle(fontSize: 12))]))]));
 }
 
 class _SummaryLoading extends StatelessWidget {
