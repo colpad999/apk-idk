@@ -1,5 +1,5 @@
 name: apk_idk
-description: A modern Flutter Android starter by Colpad.
+description: Pencatat dan perencana tabungan pribadi Colpad.
 publish_to: "none"
 version: 1.0.0+1
 
@@ -10,6 +10,11 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  drift: ^2.26.1
+  drift_flutter: ^0.2.4
+  fl_chart: ^0.70.2
+  flutter_riverpod: ^2.6.1
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
