@@ -2,16 +2,17 @@
 
 Pencatat tabungan pribadi offline-first untuk Android, dibuat dengan Flutter.
 
-## MVP saat ini
-- Dashboard saldo aset, kas, alokasi, uang masuk, dan uang keluar.
-- Penyimpanan transaksi lokal menggunakan SQLite melalui Drift.
-- Pencatatan uang masuk, pengeluaran, setoran, dan penarikan tabungan.
-- Validasi saldo kas/alokasi dan operasi tulis transaksional.
-- Riwayat 100 transaksi terbaru dengan pencarian.
-- Grafik aset dari transaksi aktual, privasi saldo, tema terang/gelap.
-- Tampilan dan format tanggal/mata uang Indonesia.
+## Fitur
+- Design system Neo-Brutalism dengan tema terang/gelap, komponen outline tebal, dan bayangan keras.
+- Dashboard saldo kas/alokasi, pemasukan, pengeluaran, aksi cepat, target prioritas, grafik mingguan, dan sumber pemasukan.
+- Transaksi lokal melalui Drift/SQLite: pemasukan, pengeluaran, setoran, dan penarikan; nominal memakai integer Rupiah.
+- Anggaran bulanan per kategori yang dihitung dari pengeluaran aktual tanpa mengurangi saldo lagi.
+- Target tabungan dan riwayat alokasi yang terhubung secara atomik dengan transaksi.
+- Simulasi tabungan harian, mingguan, atau bulanan dengan skenario Hemat, Normal, dan Agresif.
+- Navigasi Home, Budget, Goals, Activity, dan More; pencarian riwayat, penyamaran saldo, dan format Indonesia.
+- Migrasi database versi 1 ke versi 3 mempertahankan transaksi lama.
 
-Target tabungan, planner, tantangan, backup, notifikasi, dan statistik lanjutan belum tersedia pada MVP ini.
+Kalender keuangan, biaya berulang, jurnal, tantangan, celengan, achievement, wishlist, pengingat, backup/restore, dan ekspor CSV belum tersedia.
 
 ## Build APK
 1. Open **Actions**.
@@ -21,15 +22,14 @@ Target tabungan, planner, tantangan, backup, notifikasi, dan statistik lanjutan 
 
 Workflow menghasilkan platform Android dan APK dengan Flutter stable pada GitHub-hosted runner. Android SDK lokal tidak diperlukan.
 
-## Pengembangan lokal
-Lingkungan memerlukan Flutter stable dengan Dart SDK `>=3.6.0 <4.0.0`.
+## Pengembangan dan build lokal
+Lingkungan memerlukan Flutter stable dengan Dart SDK `>=3.6.0 <4.0.0`. Repository menyimpan source dan workflow membuat wrapper Android sementara; karena itu build release yang direkomendasikan adalah melalui GitHub Actions.
 
 ```sh
 flutter pub get
 dart format .
 flutter analyze
 flutter test
-flutter build apk --release
 ```
 
 ## Compatibility and release notes
