@@ -3,7 +3,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 class SavingsDatabase extends GeneratedDatabase {
   SavingsDatabase() : super(driftDatabase(name: 'colpad_savings'));
-  SavingsDatabase.forTesting(QueryExecutor executor) : super(executor);
+  SavingsDatabase.forTesting(super.executor);
 
   @override
   int get schemaVersion => 1;
