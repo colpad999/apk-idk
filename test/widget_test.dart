@@ -19,11 +19,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Colpad Savings'), findsOneWidget);
-    expect(find.text('Belum ada transaksi'), findsOneWidget);
     expect(find.text('TOTAL ASET TERCATAT'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Sembunyikan saldo'));
     await tester.pumpAndSettle();
     expect(find.text('••••••••'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('Belum ada transaksi'), 300);
+    expect(find.text('Belum ada transaksi'), findsOneWidget);
   });
 }
