@@ -75,6 +75,7 @@ class SavingGoal {
     required this.allocatedAmount,
     required this.createdAt,
     this.deadline,
+    this.coverPhotoPath,
   });
 
   final int id;
@@ -83,6 +84,7 @@ class SavingGoal {
   final int allocatedAmount;
   final DateTime createdAt;
   final DateTime? deadline;
+  final String? coverPhotoPath;
 
   double get progress => targetAmount <= 0
       ? 0

@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme/neo_theme.dart';
@@ -98,6 +102,16 @@ class _GoalTile extends StatelessWidget {
     final palette = NeoPalette.of(context);
     return NeoCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        if (goal.coverPhotoPath != null) ...[
+          ClipRRect(
+              borderRadius: BorderRadius.circular(2),
+              child: Image.file(File(goal.coverPhotoPath!),
+                  height: 130,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _GoalPlaceholder(goal: goal))),
+          const SizedBox(height: 12),
+        ],
         Row(children: [
           const Icon(Icons.flag_rounded),
           const SizedBox(width: 9),
@@ -152,6 +166,13 @@ class _CreateGoalSheetState extends ConsumerState<_CreateGoalSheet> {
   final _amountController = TextEditingController();
   DateTime? _deadline;
   bool _saving = false;
+  XFile? _cover;
+
+  Future<void> _pickCover() async {
+    final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery, maxWidth: 1600, imageQuality: 82);
+    if (picked != null && mounted) setState(() => _cover = picked);
+  }
 
   @override
   void dispose() {
@@ -174,10 +195,18 @@ class _CreateGoalSheetState extends ConsumerState<_CreateGoalSheet> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
     try {
+      String? coverPath;
+      if (_cover != null) {
+        final directory = await getApplicationDocumentsDirectory();
+        final target = File(
+            '${directory.path}/goal_${DateTime.now().microsecondsSinceEpoch}.jpg');
+        coverPath = (await File(_cover!.path).copy(target.path)).path;
+      }
       await ref.read(goalRepositoryProvider).create(
           name: _nameController.text,
           targetAmount: int.parse(_amountController.text),
-          deadline: _deadline);
+          deadline: _deadline,
+          coverPhotoPath: coverPath);
       ref.invalidate(savingGoalsProvider);
       if (mounted) Navigator.pop(context);
     } on Object {
@@ -232,6 +261,22 @@ class _CreateGoalSheetState extends ConsumerState<_CreateGoalSheet> {
                           ? 'Pilih deadline (opsional)'
                           : DateFormat('d MMMM yyyy', 'id_ID')
                               .format(_deadline!))),
+                  const SizedBox(height: 9),
+                  OutlinedButton.icon(
+                      onPressed: _pickCover,
+                      icon: const Icon(Icons.photo_outlined),
+                      label: Text(_cover == null
+                          ? 'Pilih foto cover (opsional)'
+                          : 'Ganti foto cover')),
+                  if (_cover != null) ...[
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                        borderRadius: BorderRadius.circular(3),
+                        child: Image.file(File(_cover!.path),
+                            height: 110,
+                            width: double.infinity,
+                            fit: BoxFit.cover)),
+                  ],
                   const SizedBox(height: 12),
                   SizedBox(
                       width: double.infinity,
@@ -241,4 +286,14 @@ class _CreateGoalSheetState extends ConsumerState<_CreateGoalSheet> {
                               _saving ? 'Menyimpan...' : 'Simpan target'))),
                 ])),
       );
+}
+
+class _GoalPlaceholder extends StatelessWidget {
+  const _GoalPlaceholder({required this.goal});
+  final SavingGoal goal;
+  @override
+  Widget build(BuildContext context) => Container(
+      height: 130,
+      color: NeoPalette.of(context).accent,
+      child: const Center(child: Icon(Icons.flag_rounded, size: 42)));
 }

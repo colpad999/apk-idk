@@ -14,6 +14,7 @@ import '../goals/goals_page.dart';
 import '../simulator/savings_simulator_page.dart';
 import '../transactions/add_transaction_sheet.dart';
 import '../transactions/transactions_page.dart';
+import '../habits/habits_page.dart';
 
 class SavingsHomePage extends ConsumerStatefulWidget {
   const SavingsHomePage({super.key});
@@ -96,6 +97,8 @@ class _SavingsHomePageState extends ConsumerState<SavingsHomePage> {
         const TransactionsPage(),
         _SettingsPage(
             onOpenActivity: () => setState(() => _selectedIndex = 3),
+            onOpenHabits: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const HabitsPage())),
             onOpenSimulator: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(
                     builder: (context) => const SavingsSimulatorPage()))),
@@ -622,9 +625,12 @@ class _InlineError extends StatelessWidget {
 
 class _SettingsPage extends ConsumerWidget {
   const _SettingsPage(
-      {required this.onOpenActivity, required this.onOpenSimulator});
+      {required this.onOpenActivity,
+      required this.onOpenSimulator,
+      required this.onOpenHabits});
   final VoidCallback onOpenActivity;
   final VoidCallback onOpenSimulator;
+  final VoidCallback onOpenHabits;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = NeoPalette.of(context);
@@ -674,6 +680,15 @@ class _SettingsPage extends ConsumerWidget {
                   title: const Text('Simulasi tabungan'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: onOpenSimulator)),
+          const SizedBox(height: 13),
+          NeoCard(
+              child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.checklist_rounded),
+                  title: const Text('Habit tracker'),
+                  subtitle: const Text('Kebiasaan dan pengingat menabung'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: onOpenHabits)),
           const SizedBox(height: 13),
           Text('By Colpad ⚡',
               textAlign: TextAlign.center,

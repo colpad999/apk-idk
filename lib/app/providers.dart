@@ -6,6 +6,7 @@ import '../data/planning_repository.dart';
 import '../data/goal_repository.dart';
 import '../data/savings_transaction.dart';
 import '../data/transaction_repository.dart';
+import '../data/habit_repository.dart';
 
 final savingsDatabaseProvider = Provider<SavingsDatabase>((ref) {
   final database = SavingsDatabase();
@@ -24,6 +25,10 @@ final planningRepositoryProvider = Provider<PlanningRepository>((ref) {
 final goalRepositoryProvider = Provider<GoalRepository>((ref) {
   return GoalRepository(ref.watch(savingsDatabaseProvider));
 });
+final habitRepositoryProvider = Provider<HabitRepository>(
+    (ref) => HabitRepository(ref.watch(savingsDatabaseProvider)));
+final habitsProvider = FutureProvider<List<Habit>>(
+    (ref) => ref.watch(habitRepositoryProvider).list());
 
 final savingGoalsProvider = FutureProvider((ref) {
   return ref.watch(goalRepositoryProvider).list();
