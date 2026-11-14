@@ -1,145 +1,80 @@
 import 'package:flutter/material.dart';
 
+/// Light-only editorial palette. [muted] is a readable ink tone; [mutedSurface]
+/// is the warm neutral used for backgrounds and separators.
 class NeoPalette {
-  const NeoPalette({
-    required this.background,
-    required this.surface,
-    required this.primary,
-    required this.secondary,
-    required this.accent,
-    required this.highlight,
-    required this.text,
-    required this.border,
-    required this.shadow,
-    required this.muted,
-  });
-
-  final Color background;
-  final Color surface;
-  final Color primary;
-  final Color secondary;
-  final Color accent;
-  final Color highlight;
-  final Color text;
-  final Color border;
-  final Color shadow;
-  final Color muted;
+  const NeoPalette({required this.background, required this.surface, required this.primary,
+    required this.secondary, required this.accent, required this.highlight,
+    required this.text, required this.border, required this.shadow, required this.muted,
+    required this.mutedSurface});
+  final Color background, surface, primary, secondary, accent, highlight;
+  final Color text, border, shadow, muted, mutedSurface;
 
   static const light = NeoPalette(
-    background: Color(0xFFF7F4EA),
-    surface: Color(0xFFFFFFFF),
-    primary: Color(0xFFB8F56A),
-    secondary: Color(0xFFFF6B4A),
-    accent: Color(0xFFA7C7FF),
-    highlight: Color(0xFFFFD84D),
-    text: Color(0xFF171717),
-    border: Color(0xFF171717),
-    shadow: Color(0xFF171717),
-    muted: Color(0xFF5D5A52),
+    background: Color(0xFFF5F0E6), surface: Color(0xFFFFFCF5),
+    primary: Color(0xFFC7F36B), secondary: Color(0xFFFF755E),
+    accent: Color(0xFFB6C9FF), highlight: Color(0xFFFFD66B),
+    text: Color(0xFF20201D), border: Color(0xFF20201D),
+    shadow: Color(0xFF20201D), muted: Color(0xFF605F58),
+    mutedSurface: Color(0xFFDAD5C9),
   );
-
-  static const dark = NeoPalette(
-    background: Color(0xFF151719),
-    surface: Color(0xFF222629),
-    primary: Color(0xFFB8F56A),
-    secondary: Color(0xFFFF8064),
-    accent: Color(0xFFA7C7FF),
-    highlight: Color(0xFFFFD84D),
-    text: Color(0xFFF7F4EA),
-    border: Color(0xFFF7F4EA),
-    shadow: Color(0xFFB8F56A),
-    muted: Color(0xFFC2BFB6),
-  );
-
-  static NeoPalette of(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark ? dark : light;
+  static NeoPalette of(BuildContext context) => light;
 }
 
 class NeoTheme {
-  static ThemeData light() => _build(NeoPalette.light, Brightness.light);
-  static ThemeData dark() => _build(NeoPalette.dark, Brightness.dark);
-
-  static ThemeData _build(NeoPalette palette, Brightness brightness) {
-    final scheme =
-        ColorScheme.fromSeed(seedColor: palette.primary, brightness: brightness)
-            .copyWith(
-      primary: palette.primary,
-      secondary: palette.secondary,
-      surface: palette.surface,
-      onPrimary: const Color(0xFF171717),
-      onSurface: palette.text,
-    );
+  static ThemeData light() {
+    const p = NeoPalette.light;
+    const ink = Color(0xFF20201D);
+    final scheme = ColorScheme.fromSeed(seedColor: p.primary, brightness: Brightness.light)
+        .copyWith(primary: p.primary, secondary: p.secondary, surface: p.surface,
+          onPrimary: ink, onSecondary: ink, onSurface: ink);
     final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(4),
-      borderSide: BorderSide(color: palette.border, width: 2),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide(color: p.mutedSurface, width: 1.2),
     );
-
+    const display = 'SpaceGrotesk';
     return ThemeData(
       useMaterial3: true,
-      brightness: brightness,
+      brightness: Brightness.light,
+      fontFamily: 'Manrope',
       colorScheme: scheme,
-      scaffoldBackgroundColor: palette.background,
-      appBarTheme: AppBarTheme(
-        backgroundColor: palette.background,
-        foregroundColor: palette.text,
-        elevation: 0,
-        titleTextStyle: TextStyle(
-            color: palette.text, fontSize: 19, fontWeight: FontWeight.w900),
+      scaffoldBackgroundColor: p.background,
+      appBarTheme: AppBarTheme(backgroundColor: p.background, foregroundColor: ink,
+        elevation: 0, scrolledUnderElevation: 0,
+        titleTextStyle: const TextStyle(fontFamily: display, color: ink, fontSize: 19, fontWeight: FontWeight.w700, letterSpacing: -.5)),
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(fontFamily: display, color: ink, fontSize: 48, fontWeight: FontWeight.w700, letterSpacing: -2, height: 1),
+        headlineLarge: TextStyle(fontFamily: display, color: ink, fontSize: 34, fontWeight: FontWeight.w700, letterSpacing: -1.5, height: 1.02),
+        headlineSmall: TextStyle(fontFamily: display, color: ink, fontSize: 26, fontWeight: FontWeight.w700, letterSpacing: -.8),
+        titleLarge: TextStyle(fontFamily: display, color: ink, fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: -.4),
+        titleMedium: TextStyle(fontFamily: display, color: ink, fontSize: 16, fontWeight: FontWeight.w700),
+        bodyLarge: TextStyle(color: ink, fontSize: 15, fontWeight: FontWeight.w500, height: 1.4),
+        bodyMedium: TextStyle(color: ink, fontSize: 13, fontWeight: FontWeight.w500, height: 1.4),
+        labelLarge: TextStyle(color: ink, fontSize: 13, fontWeight: FontWeight.w700),
       ),
-      textTheme: TextTheme(
-        headlineLarge: TextStyle(
-            color: palette.text,
-            fontSize: 30,
-            fontWeight: FontWeight.w900,
-            height: 1.05),
-        headlineSmall: TextStyle(
-            color: palette.text, fontSize: 23, fontWeight: FontWeight.w900),
-        titleLarge: TextStyle(
-            color: palette.text, fontSize: 20, fontWeight: FontWeight.w900),
-        titleMedium: TextStyle(
-            color: palette.text, fontSize: 16, fontWeight: FontWeight.w800),
-        bodyLarge: TextStyle(
-            color: palette.text, fontSize: 15, fontWeight: FontWeight.w600),
-        bodyMedium: TextStyle(
-            color: palette.text, fontSize: 13, fontWeight: FontWeight.w500),
-        labelLarge: TextStyle(
-            color: palette.text, fontSize: 13, fontWeight: FontWeight.w900),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: palette.surface,
-        border: border,
-        enabledBorder: border,
-        focusedBorder: border.copyWith(
-            borderSide: BorderSide(color: palette.secondary, width: 2.5)),
-        errorBorder: border.copyWith(
-            borderSide: const BorderSide(color: Color(0xFFC62828), width: 2)),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-      ),
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          backgroundColor: palette.primary,
-          foregroundColor: const Color(0xFF171717),
-          elevation: 0,
-          minimumSize: const Size(48, 48),
-          textStyle: const TextStyle(fontWeight: FontWeight.w900),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-              side: BorderSide(color: palette.border, width: 2)),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: palette.text,
-          minimumSize: const Size(44, 44),
-          side: BorderSide(color: palette.border, width: 2),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          textStyle: const TextStyle(fontWeight: FontWeight.w800),
-        ),
-      ),
-      dividerTheme: DividerThemeData(
-          color: palette.border.withValues(alpha: .25), thickness: 1),
+      inputDecorationTheme: InputDecorationTheme(filled: true, fillColor: p.surface,
+        border: border, enabledBorder: border,
+        focusedBorder: border.copyWith(borderSide: BorderSide(color: p.border, width: 2)),
+        errorBorder: border.copyWith(borderSide: const BorderSide(color: Color(0xFFB3261E), width: 1.5)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14)),
+      filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(
+        backgroundColor: p.primary, foregroundColor: ink, elevation: 0,
+        minimumSize: const Size(48, 48), textStyle: const TextStyle(fontWeight: FontWeight.w800),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(99)))),
+      outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(
+        foregroundColor: ink, minimumSize: const Size(48, 48),
+        side: BorderSide(color: p.border, width: 1.2),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(99)),
+        textStyle: const TextStyle(fontWeight: FontWeight.w700))),
+      chipTheme: ChipThemeData(backgroundColor: p.surface, selectedColor: p.primary,
+        side: BorderSide(color: p.mutedSurface), shape: const StadiumBorder()),
+      bottomSheetTheme: BottomSheetThemeData(backgroundColor: p.surface,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28)))),
+      dialogTheme: DialogThemeData(backgroundColor: p.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26))),
+      dividerTheme: DividerThemeData(color: p.mutedSurface, thickness: 1),
+      snackBarTheme: SnackBarThemeData(backgroundColor: ink, behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
     );
   }
 }

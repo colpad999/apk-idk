@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:drift/native.dart';
 import 'package:apk_idk/data/savings_database.dart';
@@ -102,5 +103,8 @@ void main() {
     await tester.tap(find.text('More'));
     await tester.pumpAndSettle();
     expect(find.text('Pengaturan'), findsOneWidget);
+    expect(find.text('Mode gelap'), findsNothing);
+    expect(Theme.of(tester.element(find.text('Pengaturan'))).brightness, Brightness.light);
+    expect(find.text('Sembunyikan nominal'), findsOneWidget);
   });
 }

@@ -18,20 +18,23 @@ class NeoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = NeoPalette.of(context);
+    final featured = color != null;
+    final radius = featured
+        ? const BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28), bottomLeft: Radius.circular(10), bottomRight: Radius.circular(28))
+        : BorderRadius.circular(22);
     return Container(
-      padding: padding,
       decoration: BoxDecoration(
         color: color ?? palette.surface,
-        border: Border.all(color: palette.border, width: 2.5),
-        borderRadius: BorderRadius.circular(4),
-        boxShadow: shadow
-            ? [BoxShadow(color: palette.shadow, offset: const Offset(4, 4))]
+        borderRadius: radius,
+        border: Border.all(color: featured ? palette.border.withValues(alpha: .75) : palette.mutedSurface, width: featured ? 1.3 : 1),
+        boxShadow: shadow && featured
+            ? [BoxShadow(color: palette.shadow, offset: const Offset(3, 4))]
             : null,
       ),
+      clipBehavior: Clip.antiAlias,
       child: Material(
-        type: MaterialType.transparency,
-        borderRadius: BorderRadius.circular(4),
-        child: child,
+        color: Colors.transparent,
+        child: Padding(padding: padding, child: child),
       ),
     );
   }
@@ -64,8 +67,7 @@ class NeoTag extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
           color: color ?? palette.highlight,
-          border: Border.all(color: palette.border, width: 1.5),
-          borderRadius: BorderRadius.circular(3)),
+          borderRadius: BorderRadius.circular(99)),
       child: Text(label,
           style: TextStyle(
               color: palette.text, fontSize: 10, fontWeight: FontWeight.w900)),
@@ -82,17 +84,20 @@ class NeoProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = NeoPalette.of(context);
-    return Container(
-      height: 18,
-      decoration: BoxDecoration(
-          color: palette.surface,
-          border: Border.all(color: palette.border, width: 2)),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: FractionallySizedBox(
-          widthFactor: progress.clamp(0, 1).toDouble(),
-          child: Container(color: color ?? palette.primary),
-        ),
+    final reduced = MediaQuery.disableAnimationsOf(context);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(99),
+      child: SizedBox(
+        height: 10,
+        child: LayoutBuilder(builder: (context, constraints) => Stack(children: [
+          Positioned.fill(child: ColoredBox(color: palette.mutedSurface.withValues(alpha: .55))),
+          AnimatedContainer(
+            duration: reduced ? Duration.zero : const Duration(milliseconds: 350),
+            curve: Curves.easeOutCubic,
+            width: constraints.maxWidth * progress.clamp(0, 1).toDouble(),
+            decoration: BoxDecoration(color: color ?? palette.primary, borderRadius: BorderRadius.circular(99)),
+          ),
+        ])),
       ),
     );
   }
@@ -115,24 +120,22 @@ class NeoActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = NeoPalette.of(context);
     return Material(
-      color: color ?? palette.primary,
+      color: Colors.transparent,
       child: InkWell(
+        borderRadius: BorderRadius.circular(22),
         onTap: onPressed,
         child: Ink(
           decoration: BoxDecoration(
-              border: Border.all(color: palette.border, width: 2.5),
-              borderRadius: BorderRadius.circular(4)),
+            color: color ?? palette.primary,
+            borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24), bottomLeft: Radius.circular(8), bottomRight: Radius.circular(24)),
+          ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 13),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(icon, color: palette.text, size: 22),
-              const SizedBox(height: 6),
-              Text(label,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: palette.text,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900)),
+              Icon(icon, color: palette.text, size: 23),
+              const SizedBox(height: 7),
+              Text(label, textAlign: TextAlign.center, maxLines: 1,
+                style: TextStyle(color: palette.text, fontSize: 10, fontWeight: FontWeight.w800)),
             ]),
           ),
         ),
@@ -159,4 +162,24 @@ class NeoErrorCard extends StatelessWidget {
               icon: const Icon(Icons.refresh, color: Color(0xFF171717))),
         ]),
       );
+}
+
+/// A compact ring for progress; the semantic label keeps the value accessible.
+class NeoProgressRing extends StatelessWidget {
+  const NeoProgressRing({required this.progress, this.size = 74, this.color, this.label, super.key});
+  final double progress, size;
+  final Color? color;
+  final String? label;
+  @override
+  Widget build(BuildContext context) {
+    final palette = NeoPalette.of(context);
+    return Semantics(label: label ?? 'Progres ${(progress.clamp(0, 1) * 100).round()} persen',
+      child: SizedBox(width: size, height: size, child: Stack(alignment: Alignment.center, children: [
+        SizedBox.expand(child: CircularProgressIndicator(value: progress.clamp(0, 1).toDouble(),
+          strokeWidth: 7, strokeCap: StrokeCap.round,
+          backgroundColor: palette.text.withValues(alpha: .12), color: color ?? palette.text)),
+        Text('${(progress.clamp(0, 1) * 100).round()}%', style: Theme.of(context).textTheme.titleMedium),
+      ])),
+    );
+  }
 }

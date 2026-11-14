@@ -60,7 +60,7 @@ class _SavingsHomePageState extends ConsumerState<SavingsHomePage> {
               height: 32,
               decoration: BoxDecoration(
                   color: palette.primary,
-                  border: Border.all(color: palette.border, width: 2)),
+                  borderRadius: BorderRadius.circular(12)),
               child: Icon(Icons.bolt_rounded, color: palette.text, size: 21)),
           const SizedBox(width: 9),
           const Text('COLPAD SAVINGS'),
@@ -76,15 +76,10 @@ class _SavingsHomePageState extends ConsumerState<SavingsHomePage> {
                   ? Icons.visibility_off_outlined
                   : Icons.visibility_outlined)),
           IconButton(
-              tooltip: 'Ubah tema',
-              onPressed: () {
-                final current = ref.read(themeModeProvider);
-                ref.read(themeModeProvider.notifier).state =
-                    current == ThemeMode.dark
-                        ? ThemeMode.light
-                        : ThemeMode.dark;
-              },
-              icon: const Icon(Icons.brightness_6_outlined)),
+              tooltip: 'Pengingat habit',
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => const HabitsPage())),
+              icon: const Icon(Icons.notifications_none_rounded)),
           const SizedBox(width: 5),
         ],
       ),
@@ -115,8 +110,8 @@ class _SavingsHomePageState extends ConsumerState<SavingsHomePage> {
               backgroundColor: palette.primary,
               foregroundColor: palette.text,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                  side: BorderSide(color: palette.border, width: 2.5)),
+                  borderRadius: BorderRadius.circular(99),
+                  side: BorderSide(color: palette.border, width: 1.5)),
               elevation: 0)
           : null,
       bottomNavigationBar: _NeoNavigationBar(
@@ -151,10 +146,13 @@ class _NeoNavigationBar extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(5, 7, 5, 5),
+        margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+        padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
         decoration: BoxDecoration(
             color: palette.surface,
-            border: Border(top: BorderSide(color: palette.border, width: 2.5))),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: palette.mutedSurface),
+            boxShadow: [BoxShadow(color: palette.text.withValues(alpha: .12), blurRadius: 18, offset: const Offset(0, 6))]),
         child: Row(children: [
           for (var index = 0; index < destinations.length; index++)
             Expanded(
@@ -163,19 +161,14 @@ class _NeoNavigationBar extends StatelessWidget {
                 child: InkWell(
                   onTap: () => onSelect(index),
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 120),
+                    duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 180),
                     curve: Curves.easeOut,
                     padding: const EdgeInsets.symmetric(vertical: 7),
                     decoration: BoxDecoration(
                         color: index == selectedIndex
                             ? palette.primary
                             : Colors.transparent,
-                        border: Border.all(
-                            color: index == selectedIndex
-                                ? palette.border
-                                : Colors.transparent,
-                            width: 2),
-                        borderRadius: BorderRadius.circular(3)),
+                        borderRadius: BorderRadius.circular(22)),
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
                       Icon(
                           index == selectedIndex
@@ -232,10 +225,17 @@ class DashboardPage extends ConsumerWidget {
       child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
           children: [
-            Text('UANGMU, RENCANAMU.',
-                style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 3),
-            Text(dateLabel, style: TextStyle(color: palette.muted)),
+            Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('HALO, PENABUNG ✳', style: TextStyle(color: palette.muted, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
+                const SizedBox(height: 4),
+                Text('Uangmu,
+ceritamu.', style: Theme.of(context).textTheme.headlineLarge),
+                const SizedBox(height: 6),
+                Text(dateLabel, style: TextStyle(color: palette.muted)),
+              ])),
+              Container(width: 58, height: 58, decoration: BoxDecoration(color: palette.accent, borderRadius: const BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32), bottomLeft: Radius.circular(32), bottomRight: Radius.circular(8))), child: Icon(Icons.person_outline_rounded, color: palette.text, size: 30)),
+            ]),
             const SizedBox(height: 14),
             summary.when(
               loading: () => const NeoCard(
@@ -314,11 +314,19 @@ class DashboardPage extends ConsumerWidget {
                             onPressed: () => onOpenTab(2),
                             child: const Text('Buat'))
                       ]))
-                  : _GoalPreview(
-                      goal: items.first,
-                      onDeposit: () => onAdd(
-                          type: TransactionType.deposit,
-                          goalId: items.first.id)),
+                  : SizedBox(
+                      height: 330,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: items.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        itemBuilder: (context, index) => SizedBox(
+                          width: MediaQuery.sizeOf(context).width * .76,
+                          child: _GoalPreview(goal: items[index], hidden: hidden, onDeposit: () => onAdd(
+                            type: TransactionType.deposit, goalId: items[index].id)),
+                        ),
+                      ),
+                    )
             ),
             const SizedBox(height: 20),
             NeoSectionTitle('SUMBER PEMASUKAN',
@@ -409,14 +417,14 @@ class _HeroBalance extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                       fontSize: 12,
                       letterSpacing: .6))),
-          const Icon(Icons.bolt_rounded, size: 25)
+          Container(width: 42, height: 42, decoration: BoxDecoration(color: palette.highlight, shape: BoxShape.circle, border: Border.all(color: palette.text, width: 1.3)), child: const Icon(Icons.bolt_rounded, size: 25))
         ]),
         const SizedBox(height: 7),
         FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: Text(hidden ? '••••••••' : formatRupiah(summary.totalAssets),
-                style: Theme.of(context).textTheme.headlineLarge)),
+                style: Theme.of(context).textTheme.displayLarge)),
         const SizedBox(height: 14),
         Container(height: 2, color: palette.border),
         const SizedBox(height: 10),
@@ -440,10 +448,10 @@ class _HeroBalance extends StatelessWidget {
                   'Kas ${hidden ? '••••' : formatRupiah(summary.cashBalance)}',
                   style: const TextStyle(
                       fontSize: 11, fontWeight: FontWeight.w800))),
-          Text(
+          Expanded(child: Text(
               'Dialokasikan ${hidden ? '••••' : formatRupiah(summary.allocatedBalance)}',
-              style:
-                  const TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
+              textAlign: TextAlign.end, overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800))),
         ]),
       ]),
     );
@@ -581,8 +589,9 @@ class _Legend extends StatelessWidget {
 }
 
 class _GoalPreview extends StatelessWidget {
-  const _GoalPreview({required this.goal, required this.onDeposit});
+  const _GoalPreview({required this.goal, required this.hidden, required this.onDeposit});
   final SavingGoal goal;
+  final bool hidden;
   final VoidCallback onDeposit;
   @override
   Widget build(BuildContext context) => NeoCard(
@@ -601,10 +610,12 @@ class _GoalPreview extends StatelessWidget {
             ]),
             const SizedBox(height: 8),
             Text(
-                '${formatRupiah(goal.allocatedAmount)} / ${formatRupiah(goal.targetAmount)}',
+                hidden ? '•••• / ••••' : '${formatRupiah(goal.allocatedAmount)} / ${formatRupiah(goal.targetAmount)}',
                 style: Theme.of(context).textTheme.bodyLarge),
             const SizedBox(height: 8),
             NeoProgressBar(progress: goal.progress),
+            const SizedBox(height: 5),
+            Text(hidden ? 'Sisa ••••' : 'Sisa ${formatRupiah(goal.remaining)}', style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 9),
             Align(
                 alignment: Alignment.centerRight,
@@ -654,15 +665,6 @@ class _SettingsPage extends ConsumerWidget {
           const SizedBox(height: 14),
           NeoCard(
               child: Column(children: [
-            SwitchListTile(
-                title: const Text('Mode gelap',
-                    style: TextStyle(fontWeight: FontWeight.w800)),
-                value: ref.watch(themeModeProvider) == ThemeMode.dark,
-                onChanged: (value) => ref
-                    .read(themeModeProvider.notifier)
-                    .state = value ? ThemeMode.dark : ThemeMode.light,
-                activeThumbColor: palette.primary),
-            const Divider(),
             SwitchListTile(
                 title: const Text('Sembunyikan nominal',
                     style: TextStyle(fontWeight: FontWeight.w800)),

@@ -42,7 +42,7 @@ class BudgetPage extends ConsumerWidget {
         return ListView(
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 110),
           children: [
-            Text('Anggaran', style: Theme.of(context).textTheme.headlineSmall),
+            Text('Anggaran', style: Theme.of(context).textTheme.headlineLarge),
             const SizedBox(height: 4),
             Text('Pantau batas bulanan berdasarkan transaksi pengeluaran.',
                 style: TextStyle(color: palette.muted)),
@@ -116,12 +116,16 @@ class _BudgetCategoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = NeoPalette.of(context);
+    final accents = [palette.primary, palette.accent, palette.highlight, palette.secondary];
+    final categoryColor = accents[line.category.codeUnits.fold<int>(0, (sum, value) => sum + value) % accents.length];
     return NeoCard(
       padding: const EdgeInsets.all(14),
       child: InkWell(
         onTap: onTap,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
+            Container(width: 36, height: 36, decoration: BoxDecoration(color: categoryColor, shape: BoxShape.circle), child: const Icon(Icons.pie_chart_outline_rounded, size: 18)),
+            const SizedBox(width: 10),
             Expanded(
                 child: Text(line.category,
                     style: Theme.of(context).textTheme.titleMedium)),
@@ -141,7 +145,7 @@ class _BudgetCategoryTile extends StatelessWidget {
                 progress: line.progress,
                 color: line.spent > line.limit
                     ? palette.secondary
-                    : palette.primary),
+                    : categoryColor),
             const SizedBox(height: 7),
             Row(children: [
               Expanded(

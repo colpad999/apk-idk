@@ -44,12 +44,13 @@ class GoalsPage extends ConsumerWidget {
             data: (items) => items.isEmpty
                 ? NeoEmptyGoals(onCreate: () => _createGoal(context))
                 : Column(children: [
-                    for (final goal in items) ...[
+                    for (var index = 0; index < items.length; index++) ...[
                       _GoalTile(
-                        goal: goal,
+                        goal: items[index],
+                        featured: index == 0,
                         hidden: hidden,
-                        onAllocate: () => onAllocate(TransactionType.deposit, goal.id),
-                        onWithdraw: () => onAllocate(TransactionType.withdrawal, goal.id),
+                        onAllocate: () => onAllocate(TransactionType.deposit, items[index].id),
+                        onWithdraw: () => onAllocate(TransactionType.withdrawal, items[index].id),
                       ),
                       const SizedBox(height: 14),
                     ],
@@ -85,9 +86,9 @@ class NeoEmptyGoals extends StatelessWidget {
 }
 
 class _GoalTile extends StatelessWidget {
-  const _GoalTile({required this.goal, required this.hidden, required this.onAllocate, required this.onWithdraw});
+  const _GoalTile({required this.goal, required this.featured, required this.hidden, required this.onAllocate, required this.onWithdraw});
   final SavingGoal goal;
-  final bool hidden;
+  final bool hidden, featured;
   final VoidCallback onAllocate, onWithdraw;
 
   @override
@@ -102,14 +103,14 @@ class _GoalTile extends StatelessWidget {
               if (type == TransactionType.deposit) { onAllocate(); } else { onWithdraw(); }
             }))),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          GoalCover(path: goal.coverPhotoPath, name: goal.name, height: 145),
+          GoalCover(path: goal.coverPhotoPath, name: goal.name, height: featured ? 210 : 120),
           Padding(
             padding: const EdgeInsets.all(14),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
                 Expanded(child: Text(goal.name, style: Theme.of(context).textTheme.titleLarge, maxLines: 2, overflow: TextOverflow.ellipsis)),
                 const SizedBox(width: 7),
-                NeoTag('${(goal.progress * 100).round()}%', color: palette.primary),
+                NeoProgressRing(progress: goal.progress, size: 54),
               ]),
               const SizedBox(height: 10),
               Text(money(goal.allocatedAmount), style: Theme.of(context).textTheme.headlineSmall),
@@ -121,6 +122,8 @@ class _GoalTile extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text('Deadline ${DateFormat('d MMM yyyy', 'id_ID').format(goal.deadline!)}', style: TextStyle(color: palette.muted, fontSize: 11)),
               ],
+              const SizedBox(height: 8),
+              Text('Lihat detail  ↗', style: TextStyle(color: palette.muted, fontWeight: FontWeight.w700, fontSize: 11)),
               const SizedBox(height: 13),
               Row(children: [
                 Expanded(child: FilledButton.icon(onPressed: onAllocate, icon: const Icon(Icons.add, size: 18), label: const Text('Setor'))),

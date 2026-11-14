@@ -55,7 +55,7 @@ class _HabitsPageState extends ConsumerState<HabitsPage> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 32),
           children: [
-            Text('KEBIASAAN KECIL.\nPROGRES NYATA.',
+            Text('Build Better\nHabits.',
                 style: Theme.of(context).textTheme.headlineLarge),
             const SizedBox(height: 7),
             Text(DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(today),
@@ -106,24 +106,30 @@ class _HabitsPageState extends ConsumerState<HabitsPage> {
                 return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   NeoCard(
                     color: palette.primary,
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Row(children: [
-                        const Icon(Icons.bolt_rounded, color: Color(0xFF171717), size: 28),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text('HARI INI: $dailyDone/$dailyTarget',
-                              style: const TextStyle(color: Color(0xFF171717), fontSize: 20, fontWeight: FontWeight.w900)),
-                        ),
-                      ]),
-                      const SizedBox(height: 10),
-                      NeoProgressBar(progress: dailyTarget == 0 ? 0 : dailyDone / dailyTarget, color: const Color(0xFF171717)),
-                      const SizedBox(height: 8),
-                      Text(dailyTarget == 0
-                          ? 'Tidak ada jadwal aktif hari ini. Istirahat juga bagian dari ritme.'
-                          : 'Minggu ini: $weeklyDone/$weeklyTarget target tercatat.',
-                          style: const TextStyle(color: Color(0xFF171717), fontSize: 12, fontWeight: FontWeight.w700)),
+                    child: Row(children: [
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        const Text('RITME HARI INI', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1)),
+                        const SizedBox(height: 6),
+                        Text('$dailyDone / $dailyTarget', style: Theme.of(context).textTheme.headlineLarge),
+                        const SizedBox(height: 5),
+                        Text(dailyTarget == 0 ? 'Istirahat juga bagian dari ritme.' : 'Minggu ini: $weeklyDone/$weeklyTarget target tercatat.', style: const TextStyle(fontSize: 12)),
+                      ])),
+                      const SizedBox(width: 12),
+                      NeoProgressRing(progress: dailyTarget == 0 ? 0 : dailyDone / dailyTarget, size: 82),
                     ]),
                   ),
+                  const SizedBox(height: 17),
+                  Text('MINGGU INI', style: TextStyle(color: palette.muted, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1)),
+                  const SizedBox(height: 8),
+                  Row(children: [
+                    for (var index = 0; index < 7; index++)
+                      Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 2), child: Column(children: [
+                        Text(weekdayLabels[index], style: TextStyle(fontSize: 10, color: palette.muted)),
+                        const SizedBox(height: 5),
+                        Container(height: 34, decoration: BoxDecoration(shape: BoxShape.circle, color: today.weekday == index + 1 ? palette.secondary : palette.surface),
+                          child: Center(child: Text('${DateTime(today.year, today.month, today.day - today.weekday + index + 1).day}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800)))),
+                      ]))),
+                  ]),
                   const SizedBox(height: 17),
                   SegmentedButton<int>(
                     segments: [
@@ -164,6 +170,8 @@ class _HabitCard extends ConsumerWidget {
     final stats = calculateHabitStatistics(habit);
     return NeoCard(
       padding: EdgeInsets.zero,
+      color: habit.id.isEven ? palette.surface : null,
+      shadow: false,
       child: InkWell(
         onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
             builder: (_) => HabitDetailPage(habitId: habit.id))),
@@ -189,7 +197,7 @@ class _HabitCard extends ConsumerWidget {
             ],
             const SizedBox(height: 12),
             Row(children: [
-              Expanded(child: Text('🔥 ${stats.streak} ${stats.streakUnit} konsisten', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12))),
+              Expanded(child: Row(children: [Text('${stats.streak}', style: Theme.of(context).textTheme.headlineSmall), const SizedBox(width: 6), Expanded(child: Text('${stats.streakUnit} konsisten', style: const TextStyle(fontSize: 11)))])),
               Text('Minggu ${stats.weekly.label}', style: TextStyle(color: palette.muted, fontSize: 11)),
             ]),
             const SizedBox(height: 7),

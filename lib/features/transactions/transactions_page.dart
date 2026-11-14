@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme/neo_theme.dart';
@@ -23,15 +24,16 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
     final palette = NeoPalette.of(context);
     return Column(children: [
       Padding(
-          padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
-          child: NeoCard(
-              padding: const EdgeInsets.all(8),
-              child: TextField(
-                  onChanged: (value) =>
-                      setState(() => _query = value.trim().toLowerCase()),
-                  decoration: const InputDecoration(
-                      hintText: 'Cari kategori atau catatan',
-                      prefixIcon: Icon(Icons.search_rounded))))),
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 14),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Jejak uang.', style: Theme.of(context).textTheme.headlineLarge),
+          const SizedBox(height: 5),
+          Text('Semua cerita keuanganmu, satu per satu.', style: TextStyle(color: palette.muted)),
+          const SizedBox(height: 15),
+          TextField(onChanged: (value) => setState(() => _query = value.trim().toLowerCase()),
+            decoration: const InputDecoration(hintText: 'Cari kategori atau catatan', prefixIcon: Icon(Icons.search_rounded))),
+        ]),
+      ),
       Expanded(
         child: transactions.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -63,15 +65,22 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                 ref.invalidate(transactionsProvider);
                 await ref.read(transactionsProvider.future);
               },
-              child: ListView.separated(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 110),
+              child: ListView.builder(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 110),
                 itemCount: filtered.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 8),
-                itemBuilder: (context, index) => NeoCard(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 9, vertical: 2),
-                    child: TransactionTile(
-                        transaction: filtered[index], hidden: hidden)),
+                itemBuilder: (context, index) {
+                  final item = filtered[index];
+                  final previous = index == 0 ? null : filtered[index - 1].createdAt;
+                  final date = item.createdAt;
+                  final showDate = previous == null || previous.year != date.year || previous.month != date.month || previous.day != date.day;
+                  return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    if (showDate) Padding(padding: const EdgeInsets.only(top: 15, bottom: 8),
+                      child: Text(DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(date).toUpperCase(),
+                        style: TextStyle(color: palette.muted, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: .8))),
+                    TransactionTile(transaction: item, hidden: hidden),
+                    Divider(color: palette.mutedSurface.withValues(alpha: .7), height: 1, indent: 55),
+                  ]);
+                },
               ),
             );
           },
