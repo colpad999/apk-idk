@@ -72,7 +72,7 @@ jobs:
           result=$?
           cat /tmp/colpad-test.txt
           if [ "$result" -ne 0 ]; then
-            tail -100 /tmp/colpad-test.txt | while IFS= read -r line; do echo "::error::$line"; done
+            grep -E -m 9 "(\[E\]|Expected:|Actual:|Which:|Error:|Exception:|failed|Some tests|The following assertion)" /tmp/colpad-test.txt | while IFS= read -r line; do echo "::error::$line"; done
           fi
           exit "$result"
 
