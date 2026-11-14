@@ -11,6 +11,8 @@ import '../../shared/neo_components.dart';
 import '../../shared/transaction_tile.dart';
 import '../budget/budget_page.dart';
 import '../goals/goals_page.dart';
+import '../goals/goal_cover.dart';
+import '../backup/backup_page.dart';
 import '../simulator/savings_simulator_page.dart';
 import '../transactions/add_transaction_sheet.dart';
 import '../transactions/transactions_page.dart';
@@ -97,6 +99,8 @@ class _SavingsHomePageState extends ConsumerState<SavingsHomePage> {
         const TransactionsPage(),
         _SettingsPage(
             onOpenActivity: () => setState(() => _selectedIndex = 3),
+            onOpenBackup: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const BackupPage())),
             onOpenHabits: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(builder: (_) => const HabitsPage())),
             onOpenSimulator: () => Navigator.of(context).push(
@@ -582,27 +586,34 @@ class _GoalPreview extends StatelessWidget {
   final VoidCallback onDeposit;
   @override
   Widget build(BuildContext context) => NeoCard(
-      color: NeoPalette.of(context).accent,
+      padding: EdgeInsets.zero,
+      color: NeoPalette.of(context).surface,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Expanded(
-              child: Text(goal.name,
-                  style: Theme.of(context).textTheme.titleMedium)),
-          NeoTag('${(goal.progress * 100).round()}%')
-        ]),
-        const SizedBox(height: 8),
-        Text(
-            '${formatRupiah(goal.allocatedAmount)} / ${formatRupiah(goal.targetAmount)}',
-            style: Theme.of(context).textTheme.bodyLarge),
-        const SizedBox(height: 8),
-        NeoProgressBar(progress: goal.progress),
-        const SizedBox(height: 9),
-        Align(
-            alignment: Alignment.centerRight,
-            child: FilledButton.icon(
-                onPressed: onDeposit,
-                icon: const Icon(Icons.add),
-                label: const Text('Setor'))),
+        GoalCover(path: goal.coverPhotoPath, name: goal.name, height: 100),
+        Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Expanded(
+                  child: Text(goal.name,
+                      style: Theme.of(context).textTheme.titleMedium)),
+              NeoTag('${(goal.progress * 100).round()}%')
+            ]),
+            const SizedBox(height: 8),
+            Text(
+                '${formatRupiah(goal.allocatedAmount)} / ${formatRupiah(goal.targetAmount)}',
+                style: Theme.of(context).textTheme.bodyLarge),
+            const SizedBox(height: 8),
+            NeoProgressBar(progress: goal.progress),
+            const SizedBox(height: 9),
+            Align(
+                alignment: Alignment.centerRight,
+                child: FilledButton.icon(
+                    onPressed: onDeposit,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Setor'))),
+          ]),
+        ),
       ]));
 }
 
@@ -627,10 +638,12 @@ class _SettingsPage extends ConsumerWidget {
   const _SettingsPage(
       {required this.onOpenActivity,
       required this.onOpenSimulator,
-      required this.onOpenHabits});
+      required this.onOpenHabits,
+      required this.onOpenBackup});
   final VoidCallback onOpenActivity;
   final VoidCallback onOpenSimulator;
   final VoidCallback onOpenHabits;
+  final VoidCallback onOpenBackup;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = NeoPalette.of(context);
@@ -689,6 +702,15 @@ class _SettingsPage extends ConsumerWidget {
                   subtitle: const Text('Kebiasaan dan pengingat menabung'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: onOpenHabits)),
+          const SizedBox(height: 13),
+          NeoCard(
+              child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.backup_outlined),
+                  title: const Text('Backup & restore'),
+                  subtitle: const Text('Catatan keuangan, habit, dan foto target'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: onOpenBackup)),
           const SizedBox(height: 13),
           Text('By Colpad ⚡',
               textAlign: TextAlign.center,

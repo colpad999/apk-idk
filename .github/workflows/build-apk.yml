@@ -14,10 +14,9 @@ concurrency:
 
 jobs:
   build:
-    name: Build release APK
+    name: Analyze, test, and build release APK
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-
+    timeout-minutes: 40
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -31,56 +30,85 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.47.9'
           channel: stable
           cache: true
 
-      - name: Create a clean Flutter Android project
+      - name: Restore the ignored Gradle wrapper without replacing Android config
         shell: bash
         run: |
           set -euo pipefail
-          flutter create --platforms=android --org id.bycolpad --project-name apk_idk build_project
-          cp pubspec.yaml build_project/pubspec.yaml
-          cp analysis_options.yaml build_project/analysis_options.yaml
-          rm -rf build_project/lib
-          cp -a lib build_project/lib
-          if [ -d test ]; then
-            rm -rf build_project/test
-            cp -a test build_project/test
-          fi
-
-      - name: Set Android SDK levels
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('build_project/android/app/build.gradle.kts')
-          s = p.read_text()
-          s = s.replace('compileSdk = flutter.compileSdkVersion', 'compileSdk = 36')
-          s = s.replace('targetSdk = flutter.targetSdkVersion', 'targetSdk = 36')
-          s = s.replace('minSdk = flutter.minSdkVersion', 'minSdk = 24')
-          p.write_text(s)
-          PY
+          flutter create --platforms=android --project-name apk_idk "$RUNNER_TEMP/android-wrapper"
+          cp "$RUNNER_TEMP/android-wrapper/android/gradlew" android/gradlew
+          cp "$RUNNER_TEMP/android-wrapper/android/gradlew.bat" android/gradlew.bat
+          cp "$RUNNER_TEMP/android-wrapper/android/gradle/wrapper/gradle-wrapper.jar" android/gradle/wrapper/gradle-wrapper.jar
+          chmod +x android/gradlew
 
       - name: Install dependencies
-        working-directory: build_project
         run: flutter pub get
 
+      - name: Format Dart source
+        run: dart format .
+
       - name: Analyze Dart code
-        working-directory: build_project
-        run: flutter analyze
+        shell: bash
+        run: |
+          set +e
+          flutter analyze --no-pub > /tmp/colpad-analyze.txt 2>&1
+          result=$?
+          cat /tmp/colpad-analyze.txt
+          if [ "$result" -ne 0 ]; then
+            while IFS= read -r line; do
+              echo "::error::$line"
+            done < /tmp/colpad-analyze.txt
+          fi
+          exit "$result"
 
       - name: Run tests
-        working-directory: build_project
-        run: flutter test
+        shell: bash
+        run: |
+          set +e
+          flutter test --reporter expanded > /tmp/colpad-test.txt 2>&1
+          result=$?
+          cat /tmp/colpad-test.txt
+          if [ "$result" -ne 0 ]; then
+            python3 - <<'PYCODE'
+          import re
+          text = open('/tmp/colpad-test.txt').read()
+          for i, part in enumerate(re.split(r'═{8,} EXCEPTION', text)[1:5]):
+              lines = [line for line in part.splitlines()[:25] if line.strip() and not line.startswith('#')]
+              message = (' '.join(lines)[:3000]).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              print(f'::error::Exception {i + 1}: {message}')
+          for i, match in enumerate(re.finditer(r'\[E\]', text)):
+              fragment = text[max(0, match.start()-20000):match.start()]
+              lines = [line for line in fragment.splitlines() if not line.startswith('#') and not line.startswith('  #') and line.strip()]
+              message = (' | '.join(lines[-35:])[-6000:]).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              print(f'::error::Failure {i + 1}: {message}')
+          PYCODE
+          fi
+          exit "$result"
 
       - name: Build release APK
-        working-directory: build_project
-        run: flutter build apk --release
+        shell: bash
+        run: |
+          set +e
+          flutter build apk --release > /tmp/colpad-build.txt 2>&1
+          result=$?
+          cat /tmp/colpad-build.txt
+          if [ "$result" -ne 0 ]; then
+            python3 - <<'PYCODE'
+          text = open('/tmp/colpad-build.txt').read()
+          for i in range(0, min(len(text), 32000), 5000):
+              message = text[i:i+5000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              print(f'::error::Build log {i//5000 + 1}: {message}')
+          PYCODE
+          fi
+          exit "$result"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: colpad-android-apk
-          path: build_project/build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 14

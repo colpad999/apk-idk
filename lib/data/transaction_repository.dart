@@ -122,7 +122,7 @@ class TransactionRepository {
       var goalAllocated = 0;
       if (goalId != null) {
         final goalRow = await _database.customSelect(
-          'SELECT id FROM saving_goals WHERE id = ?',
+          'SELECT id FROM saving_goals WHERE id = ? AND deleted_at IS NULL',
           variables: [Variable.withInt(goalId)],
         ).getSingleOrNull();
         if (goalRow == null) {

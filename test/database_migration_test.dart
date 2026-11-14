@@ -6,6 +6,33 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:apk_idk/data/savings_database.dart';
 
 void main() {
+  test('upgrades legacy v5 habits, reminders and logs without deleting data', () async {
+    final directory = await Directory.systemTemp.createTemp('colpad_v5_');
+    final file = File('${directory.path}/savings.sqlite');
+    final fixture = SavingsDatabase.forTesting(NativeDatabase(file));
+    await fixture.customSelect('SELECT 1').getSingle();
+    await fixture.customStatement("INSERT INTO habits (name, frequency, scheduled_days, start_date, is_active, reminder_enabled, reminder_minutes, reminder_days, created_at) VALUES ('Tabung', 'weekly_days', '1,3', '2026-01-01', 1, 1, 1140, '1,3', 1)");
+    await fixture.customStatement("INSERT INTO habit_completions (habit_id, completion_date, created_at) VALUES (1, '2026-01-05', 1)");
+    await fixture.customStatement("INSERT INTO savings_transactions (type, amount, category, created_at) VALUES ('income', 10000, 'Uang saku', 1)");
+    await fixture.customStatement('DROP TABLE habit_reminders');
+    await fixture.customStatement('DROP TABLE habit_pauses');
+    await fixture.customStatement('DROP TABLE app_settings');
+    await fixture.customStatement('PRAGMA user_version = 5');
+    await fixture.close();
+    final migrated = SavingsDatabase.forTesting(NativeDatabase(file));
+    try {
+      final reminder = await migrated.customSelect('SELECT * FROM habit_reminders').getSingle();
+      expect(reminder.read<int>('minutes'), 1140);
+      expect(reminder.read<String>('days'), '1,3');
+      expect(reminder.read<int>('enabled'), 1);
+      expect(await migrated.customSelect('SELECT * FROM habit_completions').get(), hasLength(1));
+      expect(await migrated.customSelect('SELECT * FROM savings_transactions').get(), hasLength(1));
+    } finally {
+      await migrated.close();
+      await directory.delete(recursive: true);
+    }
+  });
+
   test('upgrades v1 without deleting transactions', () async {
     final directory =
         await Directory.systemTemp.createTemp('colpad_migration_');

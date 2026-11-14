@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:drift/native.dart';
+import 'package:apk_idk/data/savings_database.dart';
+import 'support/fake_notification_gateway.dart';
 import 'package:apk_idk/app/colpad_app.dart';
 import 'package:apk_idk/app/providers.dart';
 import 'package:apk_idk/data/planning_repository.dart';
@@ -13,6 +16,12 @@ void main() {
       (tester) async {
     await tester.pumpWidget(ProviderScope(
       overrides: [
+        savingsDatabaseProvider.overrideWith((ref) {
+          final db = SavingsDatabase.forTesting(NativeDatabase.memory());
+          ref.onDispose(db.close);
+          return db;
+        }),
+        habitNotificationGatewayProvider.overrideWith((ref) => FakeHabitNotificationGateway()),
         savingsSummaryProvider.overrideWith((ref) async => const SavingsSummary(
             cashBalance: 0,
             allocatedBalance: 0,
@@ -57,6 +66,12 @@ void main() {
       (tester) async {
     await tester.pumpWidget(ProviderScope(
       overrides: [
+        savingsDatabaseProvider.overrideWith((ref) {
+          final db = SavingsDatabase.forTesting(NativeDatabase.memory());
+          ref.onDispose(db.close);
+          return db;
+        }),
+        habitNotificationGatewayProvider.overrideWith((ref) => FakeHabitNotificationGateway()),
         savingsSummaryProvider.overrideWith((ref) async => const SavingsSummary(
             cashBalance: 0,
             allocatedBalance: 0,

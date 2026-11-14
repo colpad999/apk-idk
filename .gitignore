@@ -20,3 +20,6 @@ android/key.properties
 .vscode/
 *.iml
 .DS_Store
+
+# Local tooling downloads
+.cache/
