@@ -9,7 +9,6 @@ import '../../data/habit.dart';
 import '../../domain/habit_statistics.dart';
 import '../../shared/neo_components.dart';
 import 'habit_actions.dart';
-import 'habit_widgets.dart';
 
 class HabitHistoryPage extends ConsumerStatefulWidget {
   const HabitHistoryPage({required this.habitId, super.key});
@@ -37,7 +36,7 @@ class _HabitHistoryPageState extends ConsumerState<HabitHistoryPage> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, __) => Center(child: NeoErrorCard(onRetry: () => ref.invalidate(habitsProvider))),
         data: (habit) {
-          if (habit == null) return const Center(child: Text('Habit tidak tersedia.'));
+          if (habit == null) { return const Center(child: Text('Habit tidak tersedia.')); }
           final first = DateTime(_month.year, _month.month);
           final daysInMonth = DateTime(_month.year, _month.month + 1, 0).day;
           final leading = first.weekday - 1;
@@ -87,14 +86,14 @@ class _HabitHistoryPageState extends ConsumerState<HabitHistoryPage> {
                       height: rows * cellWidth * .98,
                       child: GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 7,
                           childAspectRatio: 1 / .98,
                         ),
                         itemCount: rows * 7,
                         itemBuilder: (context, index) {
                           final dayNumber = index - leading + 1;
-                          if (dayNumber < 1 || dayNumber > daysInMonth) return const SizedBox.shrink();
+                          if (dayNumber < 1 || dayNumber > daysInMonth) { return const SizedBox.shrink(); }
                           final date = DateTime(_month.year, _month.month, dayNumber);
                           return _CalendarDay(
                             habit: habit,

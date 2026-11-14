@@ -107,7 +107,7 @@ class _HabitSettingsPageState extends ConsumerState<HabitSettingsPage> {
                       ? null
                       : () async {
                           await ensureHabitNotificationPermission(context, ref);
-                          if (mounted) setState(() => _permissionRevision++);
+                          if (mounted) { setState(() => _permissionRevision++); }
                         },
                   icon: const Icon(Icons.notifications_active_outlined, size: 18),
                   label: const Text('Periksa / minta izin'),

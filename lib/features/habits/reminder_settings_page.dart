@@ -103,6 +103,7 @@ class _ReminderSettingsPageState extends ConsumerState<ReminderSettingsPage> {
     try {
       final global = await ref.read(habitNotificationServiceProvider).globallyEnabled();
       if (global && reminders.any((reminder) => reminder.enabled)) {
+        if (!mounted) return;
         await ensureHabitNotificationPermission(context, ref);
       }
       if (widget.draftMode) {
@@ -160,7 +161,7 @@ class _ReminderSettingsPageState extends ConsumerState<ReminderSettingsPage> {
     }
     await ensureHabitNotificationPermission(context, ref);
     final habit = await ref.read(habitRepositoryProvider).get(widget.habitId!);
-    if (habit == null) return;
+    if (habit == null || !mounted) return;
     await guardNeoAction(context, () async {
       final result = await ref
           .read(habitNotificationServiceProvider)
