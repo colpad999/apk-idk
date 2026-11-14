@@ -7,7 +7,6 @@ import 'package:timezone/timezone.dart' as tz;
 
 import '../core/utils/civil_date.dart';
 import '../data/app_settings_repository.dart';
-import '../data/habit.dart';
 import '../data/habit_repository.dart';
 
 class HabitNotificationRequest {
@@ -139,7 +138,7 @@ class AndroidHabitNotificationGateway implements HabitNotificationGateway {
     final android = _details(request).android!;
     await _android?.createNotificationChannel(AndroidNotificationChannel(
       android.channelId,
-      android.channelName ?? 'Pengingat habit',
+      android.channelName,
       description: android.channelDescription,
       importance: Importance.defaultImportance,
       playSound: request.sound,
@@ -386,7 +385,9 @@ DateTime? nextReminderOccurrence({
   required DateTime now,
   required int weekday,
 }) {
-  if (weekday < 1 || weekday > 7 || !reminder.days.contains(weekday)) return null;
+  if (weekday < 1 || weekday > 7 || !reminder.days.contains(weekday)) {
+    return null;
+  }
   var day = CivilDate.max(CivilDate.from(now), reminder.startDate);
   day = CivilDate.max(day, habit.startDate);
   final end = habit.endDate;
