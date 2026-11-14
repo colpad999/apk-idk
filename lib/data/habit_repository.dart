@@ -47,7 +47,7 @@ class HabitRepository {
             startDate: CivilDate.parse(row.read<String>('start_date')),
             endDate: row.read<String?>('end_date') == null
                 ? null
-                : CivilDate.parse(row.read<String>('end_date')!),
+                : CivilDate.parse(row.read<String>('end_date')),
           ));
     }
     return rows
@@ -119,7 +119,7 @@ class HabitRepository {
       if (id != null) {
         final existing = await _database.customSelect(
           'SELECT id, created_at, is_active FROM habits WHERE id = ?',
-          variables: [Variable.withInt(id)],
+          variables: [Variable.withInt(id!)],
         ).getSingleOrNull();
         if (existing == null) throw StateError('Habit tidak ditemukan.');
         createdAt = existing.read<int>('created_at');
@@ -137,11 +137,11 @@ class HabitRepository {
             Variable.withString(start.key),
             Variable<String>(end?.key),
             Variable.withInt(isActive ? 1 : 0),
-            Variable.withInt(id),
+            Variable.withInt(id!),
           ],
         );
         if ((existing.read<int>('is_active') == 1) != isActive) {
-          await _recordPauseTransition(id, isActive, today);
+          await _recordPauseTransition(id!, isActive, today);
         }
       } else {
         id = await _database.customInsert(
@@ -163,7 +163,7 @@ class HabitRepository {
           ],
         );
         if (!isActive) {
-          await _insertPause(id, CivilDate.max(today, start));
+          await _insertPause(id!, CivilDate.max(today, start));
         }
       }
 
@@ -324,7 +324,7 @@ class HabitRepository {
       startDate: CivilDate.parse(row.read<String>('start_date')),
       endDate: row.read<String?>('end_date') == null
           ? null
-          : CivilDate.parse(row.read<String>('end_date')!),
+          : CivilDate.parse(row.read<String>('end_date')),
       isActive: row.read<int>('is_active') == 1,
       createdAt: DateTime.fromMillisecondsSinceEpoch(row.read<int>('created_at')),
       completedDates: completions,

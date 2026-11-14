@@ -43,7 +43,7 @@ class GoalRepository {
                   DateTime.fromMillisecondsSinceEpoch(row.read<int>('created_at')),
               deadline: row.read<int?>('deadline') == null
                   ? null
-                  : DateTime.fromMillisecondsSinceEpoch(row.read<int>('deadline')!),
+                  : DateTime.fromMillisecondsSinceEpoch(row.read<int>('deadline')),
               coverPhotoPath: row.read<String?>('cover_photo_path'),
             ))
         .toList();
