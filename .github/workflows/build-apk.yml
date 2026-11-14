@@ -80,7 +80,9 @@ jobs:
               message = (' '.join(lines)[:3000]).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
               print(f'::error::Exception {i + 1}: {message}')
           for i, match in enumerate(re.finditer(r'\[E\]', text)):
-              message = text[match.start():match.start()+3500].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              fragment = text[max(0, match.start()-20000):match.start()]
+              lines = [line for line in fragment.splitlines() if not line.startswith('#') and not line.startswith('  #') and line.strip()]
+              message = (' | '.join(lines[-35:])[-6000:]).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
               print(f'::error::Failure {i + 1}: {message}')
           PYCODE
           fi
