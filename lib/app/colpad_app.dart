@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/habits/habit_detail_page.dart';
 import '../features/home/savings_home_page.dart';
+import '../services/habit_notification_service.dart';
 import 'providers.dart';
 import 'theme/neo_theme.dart';
 
@@ -15,12 +16,13 @@ class ColpadApp extends ConsumerStatefulWidget {
 class _ColpadAppState extends ConsumerState<ColpadApp>
     with WidgetsBindingObserver {
   final _navigatorKey = GlobalKey<NavigatorState>();
+  late final HabitNotificationService _notifications;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    final notifications = ref.read(habitNotificationServiceProvider);
+    final notifications = _notifications = ref.read(habitNotificationServiceProvider);
     notifications.onHabitSelected = _openHabit;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -33,7 +35,7 @@ class _ColpadAppState extends ConsumerState<ColpadApp>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    ref.read(habitNotificationServiceProvider).onHabitSelected = null;
+    _notifications.onHabitSelected = null;
     super.dispose();
   }
 
