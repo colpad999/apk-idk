@@ -63,7 +63,7 @@ class _SavingsHomePageState extends ConsumerState<SavingsHomePage> {
                   borderRadius: BorderRadius.circular(12)),
               child: Icon(Icons.bolt_rounded, color: palette.text, size: 21)),
           const SizedBox(width: 9),
-          const Text('COLPAD SAVINGS'),
+          const Expanded(child: FittedBox(alignment: Alignment.centerLeft, fit: BoxFit.scaleDown, child: Text('COLPAD SAVINGS'))),
         ]),
         actions: [
           IconButton(
