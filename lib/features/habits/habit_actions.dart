@@ -39,7 +39,7 @@ Future<void> toggleHabitCompletion(
           'Penyelesaian ${DateFormat('d MMMM yyyy', 'id_ID').format(date)} akan dihapus dari riwayat. Progres dihitung ulang.',
       confirmLabel: 'Batalkan selesai',
     );
-    if (!confirmed) return;
+    if (!confirmed || !context.mounted) return;
   }
   await guardNeoAction(context, () async {
     await ref
@@ -59,7 +59,7 @@ Future<void> changeHabitActive(
           'Pengingat dihentikan sementara. Hari selama jeda tidak dianggap gagal dan tidak memutus streak.',
       confirmLabel: 'Jeda',
     );
-    if (!confirmed) return;
+    if (!confirmed || !context.mounted) return;
   }
   await guardNeoAction(context, () async {
     await ref.read(habitRepositoryProvider).setActive(habit.id, active);
@@ -83,7 +83,7 @@ Future<bool> deleteHabit(
     confirmLabel: 'Hapus habit',
     destructive: true,
   );
-  if (!confirmed) return false;
+  if (!confirmed || !context.mounted) return false;
   final result = await guardNeoAction<bool>(context, () async {
     await ref.read(habitRepositoryProvider).delete(habit.id);
     await ref.read(habitNotificationServiceProvider).cancelHabit(habit.id);

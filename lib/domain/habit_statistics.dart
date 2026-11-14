@@ -160,7 +160,9 @@ HabitProgress _monthlyProgress(Habit habit, CivilDate today) {
       if (day.month == today.month &&
           day.year == today.year &&
           habit.isOpportunity(day.value) &&
-          habit.isComplete(day.value)) inMonth++;
+          habit.isComplete(day.value)) {
+        inMonth++;
+      }
     }
     completed += inMonth.clamp(0, progress.target);
     week = week.addDays(7);

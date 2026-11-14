@@ -83,7 +83,9 @@ class _GoalEditorPageState extends ConsumerState<GoalEditorPage> {
     final repository = ref.read(goalRepositoryProvider);
     String? newPath;
     try {
-      if (_newPhoto != null) newPath = await storage.savePrepared(_newPhoto!.bytes);
+      if (_newPhoto != null) {
+        newPath = await storage.savePrepared(_newPhoto!.bytes);
+      }
       final effectivePath = _newPhoto != null
           ? newPath
           : _removePhoto

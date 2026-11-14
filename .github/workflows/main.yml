@@ -65,7 +65,16 @@ jobs:
           exit "$result"
 
       - name: Run tests
-        run: flutter test
+        shell: bash
+        run: |
+          set +e
+          flutter test --reporter expanded > /tmp/colpad-test.txt 2>&1
+          result=$?
+          cat /tmp/colpad-test.txt
+          if [ "$result" -ne 0 ]; then
+            tail -100 /tmp/colpad-test.txt | while IFS= read -r line; do echo "::error::$line"; done
+          fi
+          exit "$result"
 
       - name: Build release APK
         run: flutter build apk --release

@@ -85,6 +85,7 @@ class _HabitEditorPageState extends ConsumerState<HabitEditorPage> {
     try {
       if (_reminders.any((reminder) => reminder.enabled) &&
           await ref.read(habitNotificationServiceProvider).globallyEnabled()) {
+        if (!mounted) return;
         await ensureHabitNotificationPermission(context, ref);
       }
       final id = await ref.read(habitRepositoryProvider).save(

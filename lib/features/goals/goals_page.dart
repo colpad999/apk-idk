@@ -98,7 +98,9 @@ class _GoalTile extends StatelessWidget {
       padding: EdgeInsets.zero,
       child: InkWell(
         onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
-            builder: (_) => GoalDetailPage(goalId: goal.id, onAllocate: onAllocate))),
+            builder: (_) => GoalDetailPage(goalId: goal.id, onAllocate: (type, _) {
+              if (type == TransactionType.deposit) { onAllocate(); } else { onWithdraw(); }
+            }))),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           GoalCover(path: goal.coverPhotoPath, name: goal.name, height: 145),
           Padding(
