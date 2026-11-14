@@ -288,7 +288,7 @@ class DashboardPage extends ConsumerWidget {
                       child: Center(child: CircularProgressIndicator()))),
               error: (error, stack) => _InlineError(
                   onRetry: () => ref.invalidate(weeklyActivityProvider)),
-              data: (value) => _WeeklyCard(activity: value),
+              data: (value) => _WeeklyCard(activity: value, hidden: hidden),
             ),
             const SizedBox(height: 20),
             NeoSectionTitle('TARGET PRIORITAS',
@@ -419,11 +419,16 @@ class _HeroBalance extends StatelessWidget {
           Container(width: 42, height: 42, decoration: BoxDecoration(color: palette.highlight, shape: BoxShape.circle, border: Border.all(color: palette.text, width: 1.3)), child: const Icon(Icons.bolt_rounded, size: 25))
         ]),
         const SizedBox(height: 7),
-        FittedBox(
+        TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: summary.totalAssets.toDouble()),
+          duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 500),
+          curve: Curves.easeOutCubic,
+          builder: (context, value, _) => FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
-            child: Text(hidden ? '••••••••' : formatRupiah(summary.totalAssets),
-                style: Theme.of(context).textTheme.displayLarge)),
+            child: Text(hidden ? '••••••••' : formatRupiah(value.round()),
+              style: Theme.of(context).textTheme.displayLarge)),
+        ),
         const SizedBox(height: 14),
         Container(height: 2, color: palette.border),
         const SizedBox(height: 10),
@@ -484,8 +489,9 @@ class _HeroMetric extends StatelessWidget {
 }
 
 class _WeeklyCard extends StatelessWidget {
-  const _WeeklyCard({required this.activity});
+  const _WeeklyCard({required this.activity, required this.hidden});
   final WeeklyFinancialActivity activity;
+  final bool hidden;
 
   @override
   Widget build(BuildContext context) {
@@ -497,14 +503,12 @@ class _WeeklyCard extends StatelessWidget {
               toY: activity.days[index].deposits.toDouble(),
               color: palette.primary,
               width: 8,
-              borderRadius: BorderRadius.zero,
-              borderSide: BorderSide(color: palette.border, width: 1)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(8))),
           BarChartRodData(
               toY: activity.days[index].expenses.toDouble(),
               color: palette.secondary,
               width: 8,
-              borderRadius: BorderRadius.zero,
-              borderSide: BorderSide(color: palette.border, width: 1)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(8))),
         ])
     ];
     return NeoCard(
@@ -548,16 +552,16 @@ class _WeeklyCard extends StatelessWidget {
         Expanded(
             child: _Legend(
                 color: palette.primary,
-                label: 'Setoran ${formatRupiah(activity.deposits)}')),
+                label: 'Setoran ${hidden ? '••••' : formatRupiah(activity.deposits)}')),
         const SizedBox(width: 8),
         Expanded(
             child: _Legend(
                 color: palette.secondary,
-                label: 'Keluar ${formatRupiah(activity.expenses)}')),
+                label: 'Keluar ${hidden ? '••••' : formatRupiah(activity.expenses)}')),
       ]),
       const SizedBox(height: 6),
       Text(
-          'Minggu lalu: setoran ${formatRupiah(activity.previousDeposits)} · keluar ${formatRupiah(activity.previousExpenses)}',
+          'Minggu lalu: setoran ${hidden ? '••••' : formatRupiah(activity.previousDeposits)} · keluar ${hidden ? '••••' : formatRupiah(activity.previousExpenses)}',
           style: TextStyle(color: palette.muted, fontSize: 10),
           textAlign: TextAlign.center),
     ]));
@@ -603,7 +607,7 @@ class _GoalPreview extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Expanded(
-                  child: Text(goal.name,
+                  child: Text(goal.name, maxLines: 1, overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleMedium)),
               NeoTag('${(goal.progress * 100).round()}%')
             ]),

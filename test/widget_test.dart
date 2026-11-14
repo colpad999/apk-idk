@@ -107,4 +107,38 @@ void main() {
     expect(Theme.of(tester.element(find.text('Pengaturan'))).brightness, Brightness.light);
     expect(find.text('Sembunyikan nominal'), findsOneWidget);
   });
+  testWidgets('small screens keep navigation, goal cards and privacy usable', (tester) async {
+    tester.view.physicalSize = const Size(320, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(ProviderScope(overrides: [
+      savingsDatabaseProvider.overrideWith((ref) {
+        final db = SavingsDatabase.forTesting(NativeDatabase.memory());
+        ref.onDispose(db.close);
+        return db;
+      }),
+      habitNotificationGatewayProvider.overrideWith((ref) => FakeHabitNotificationGateway()),
+      savingsSummaryProvider.overrideWith((ref) async => const SavingsSummary(cashBalance: 100000, allocatedBalance: 50000, totalIncome: 200000, totalExpense: 50000)),
+      transactionsProvider.overrideWith((ref) async => const <SavingsTransaction>[]),
+      budgetsProvider.overrideWith((ref) async => const <BudgetLine>[]),
+      savingGoalsProvider.overrideWith((ref) async => [SavingGoal(id: 1, name: 'Laptop untuk sekolah dan bekerja', targetAmount: 9000000, allocatedAmount: 50000, createdAt: DateTime(2026))]),
+      incomeSourcesProvider.overrideWith((ref) async => const <IncomeSourceTotal>[]),
+      weeklyActivityProvider.overrideWith((ref) async => const WeeklyFinancialActivity(days: [], previousDeposits: 0, previousExpenses: 0)),
+    ], child: const ColpadApp()));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('TARGET PRIORITAS'), 300);
+    await tester.pumpAndSettle();
+    expect(find.text('Laptop untuk sekolah dan bekerja'), findsWidgets);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('Goals'));
+    await tester.pumpAndSettle();
+    expect(find.text('Target tabungan'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    expect(find.text('Mode gelap'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
 }
