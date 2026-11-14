@@ -3,12 +3,13 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 import 'budget_categories.dart';
 
+/// Incremental migrations only. Never recreate or clear an existing database.
 class SavingsDatabase extends GeneratedDatabase {
   SavingsDatabase() : super(driftDatabase(name: 'colpad_savings'));
   SavingsDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   Iterable<TableInfo<Table, Object?>> get allTables => const [];
@@ -33,12 +34,22 @@ class SavingsDatabase extends GeneratedDatabase {
           await _createPlanningTables();
           await _createGoalTables();
           await _createHabitTables();
+          await _createHabitSchedulingTables();
+          await _createSettingsTable();
         },
         onUpgrade: (migrator, from, to) async {
+          // Drift runs this upgrade in a transaction. A failed statement leaves
+          // the previous schema/data intact rather than a half-migrated DB.
           if (from < 2) await _createPlanningTables();
           if (from < 3) await _createGoalTables();
           if (from < 4) await _addGoalCoverPhoto();
           if (from < 5) await _createHabitTables();
+          if (from < 6) {
+            await _addGoalDeletedAt();
+            await _createHabitSchedulingTables();
+            await _createSettingsTable();
+            await _migrateLegacyReminders();
+          }
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
@@ -112,13 +123,20 @@ class SavingsDatabase extends GeneratedDatabase {
     await customStatement(
         'CREATE INDEX goal_allocations_goal_idx ON goal_allocations (goal_id, created_at)');
     await _addGoalCoverPhoto();
+    await _addGoalDeletedAt();
   }
 
-  Future<void> _addGoalCoverPhoto() async {
-    final columns = await customSelect('PRAGMA table_info(saving_goals)').get();
-    if (!columns.any((row) => row.read<String>('name') == 'cover_photo_path')) {
-      await customStatement(
-          'ALTER TABLE saving_goals ADD COLUMN cover_photo_path TEXT');
+  Future<void> _addGoalCoverPhoto() => _addColumnIfMissing(
+      'saving_goals', 'cover_photo_path', 'TEXT');
+
+  Future<void> _addGoalDeletedAt() =>
+      _addColumnIfMissing('saving_goals', 'deleted_at', 'INTEGER');
+
+  Future<void> _addColumnIfMissing(
+      String table, String column, String type) async {
+    final columns = await customSelect('PRAGMA table_info($table)').get();
+    if (!columns.any((row) => row.read<String>('name') == column)) {
+      await customStatement('ALTER TABLE $table ADD COLUMN $column $type');
     }
   }
 
@@ -155,5 +173,67 @@ class SavingsDatabase extends GeneratedDatabase {
     ''');
     await customStatement(
         'CREATE INDEX IF NOT EXISTS habit_completions_date_idx ON habit_completions (habit_id, completion_date)');
+  }
+
+  Future<void> _createHabitSchedulingTables() async {
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS habit_reminders (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        habit_id INTEGER NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
+        minutes INTEGER NOT NULL CHECK (minutes BETWEEN 0 AND 1439),
+        days TEXT NOT NULL,
+        start_date TEXT NOT NULL,
+        recurrence TEXT NOT NULL DEFAULT 'weekly' CHECK (recurrence IN ('daily', 'weekly')),
+        enabled INTEGER NOT NULL DEFAULT 1 CHECK (enabled IN (0, 1)),
+        sound INTEGER NOT NULL DEFAULT 1 CHECK (sound IN (0, 1)),
+        vibration INTEGER NOT NULL DEFAULT 1 CHECK (vibration IN (0, 1)),
+        title TEXT NOT NULL,
+        body TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      )
+    ''');
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS habit_reminders_habit_idx ON habit_reminders (habit_id)');
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS habit_pauses (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        habit_id INTEGER NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
+        start_date TEXT NOT NULL,
+        end_date TEXT,
+        CHECK (end_date IS NULL OR end_date >= start_date)
+      )
+    ''');
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS habit_pauses_habit_idx ON habit_pauses (habit_id)');
+  }
+
+  Future<void> _createSettingsTable() async {
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS app_settings (
+        key TEXT NOT NULL PRIMARY KEY,
+        value TEXT NOT NULL
+      )
+    ''');
+  }
+
+  Future<void> _migrateLegacyReminders() async {
+    // The v5 draft accidentally wrote camelCase enum names for weekly days.
+    await customStatement(
+        "UPDATE habits SET frequency = 'weekly_days' WHERE frequency = 'weeklyDays'");
+    // Preserve the old single reminder as a disabled/enabled configuration in
+    // the new table. Legacy columns remain untouched for rollback safety.
+    await customStatement('''
+      INSERT INTO habit_reminders
+        (habit_id, minutes, days, start_date, recurrence, enabled, sound,
+         vibration, title, body, created_at)
+      SELECT h.id, h.reminder_minutes, h.reminder_days, h.start_date, 'weekly',
+        h.reminder_enabled, 1, 1, h.reminder_title, h.reminder_body, h.created_at
+      FROM habits h
+      WHERE NOT EXISTS (SELECT 1 FROM habit_reminders r WHERE r.habit_id = h.id)
+    ''');
+    await customStatement('''
+      INSERT INTO habit_pauses (habit_id, start_date)
+      SELECT id, start_date FROM habits WHERE is_active = 0
+    ''');
   }
 }

@@ -140,3 +140,23 @@ class NeoActionButton extends StatelessWidget {
     );
   }
 }
+
+class NeoErrorCard extends StatelessWidget {
+  const NeoErrorCard({required this.onRetry, this.message = 'Data gagal dimuat.', super.key});
+  final VoidCallback onRetry;
+  final String message;
+  @override
+  Widget build(BuildContext context) => NeoCard(
+        color: NeoPalette.of(context).secondary,
+        child: Row(children: [
+          Expanded(
+              child: Text(message,
+                  style: const TextStyle(
+                      color: Color(0xFF171717), fontWeight: FontWeight.w800))),
+          IconButton(
+              tooltip: 'Coba lagi',
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh, color: Color(0xFF171717))),
+        ]),
+      );
+}

@@ -16,9 +16,12 @@ dependencies:
   flutter_riverpod: ^2.6.1
   intl: ^0.20.2
   image_picker: ^1.1.2
+  image: ^4.5.4
   path_provider: ^2.1.5
   flutter_local_notifications: ^19.4.1
   timezone: ^0.10.1
+  flutter_timezone: ^5.0.0
+  file_picker: ^10.3.8
 
 dev_dependencies:
   flutter_test:
