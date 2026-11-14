@@ -51,7 +51,18 @@ jobs:
         run: dart format .
 
       - name: Analyze Dart code
-        run: flutter analyze
+        shell: bash
+        run: |
+          set +e
+          flutter analyze --no-pub > /tmp/colpad-analyze.txt 2>&1
+          result=$?
+          cat /tmp/colpad-analyze.txt
+          if [ "$result" -ne 0 ]; then
+            while IFS= read -r line; do
+              echo "::error::$line"
+            done < /tmp/colpad-analyze.txt
+          fi
+          exit "$result"
 
       - name: Run tests
         run: flutter test
