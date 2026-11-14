@@ -79,9 +79,9 @@ jobs:
               lines = [line for line in part.splitlines()[:25] if line.strip() and not line.startswith('#')]
               message = (' '.join(lines)[:3000]).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
               print(f'::error::Exception {i + 1}: {message}')
-          for line in text.splitlines():
-              if '[E]' in line or 'Expected:' in line or 'Actual:' in line or 'Error:' in line:
-                  print('::error::' + line.replace('%', '%25'))
+          for i, match in enumerate(re.finditer(r'\[E\]', text)):
+              message = text[match.start():match.start()+3500].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              print(f'::error::Failure {i + 1}: {message}')
           PYCODE
           fi
           exit "$result"
