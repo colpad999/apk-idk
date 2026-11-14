@@ -89,7 +89,21 @@ jobs:
           exit "$result"
 
       - name: Build release APK
-        run: flutter build apk --release
+        shell: bash
+        run: |
+          set +e
+          flutter build apk --release > /tmp/colpad-build.txt 2>&1
+          result=$?
+          cat /tmp/colpad-build.txt
+          if [ "$result" -ne 0 ]; then
+            python3 - <<'PYCODE'
+          text = open('/tmp/colpad-build.txt').read()
+          for i in range(0, min(len(text), 32000), 5000):
+              message = text[i:i+5000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              print(f'::error::Build log {i//5000 + 1}: {message}')
+          PYCODE
+          fi
+          exit "$result"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
