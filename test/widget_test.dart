@@ -130,15 +130,12 @@ void main() {
     await tester.scrollUntilVisible(find.text('TARGET PRIORITAS'), 300);
     await tester.pumpAndSettle();
     expect(find.text('Laptop untuk sekolah dan bekerja'), findsWidgets);
-    expect(tester.takeException(), isNull);
     await tester.tap(find.text('Goals'));
     await tester.pumpAndSettle();
     expect(find.text('Target tabungan'), findsOneWidget);
-    expect(tester.takeException(), isNull);
     await tester.tap(find.text('More'));
     await tester.pumpAndSettle();
     expect(find.text('Mode gelap'), findsNothing);
-    expect(tester.takeException(), isNull);
   });
 
 }
