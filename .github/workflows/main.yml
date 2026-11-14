@@ -72,7 +72,17 @@ jobs:
           result=$?
           cat /tmp/colpad-test.txt
           if [ "$result" -ne 0 ]; then
-            grep -E -m 9 "(\[E\]|Expected:|Actual:|Which:|Error:|Exception:|failed|Some tests|The following assertion)" /tmp/colpad-test.txt | while IFS= read -r line; do echo "::error::$line"; done
+            python3 - <<'PYCODE'
+          import re
+          text = open('/tmp/colpad-test.txt').read()
+          for i, part in enumerate(re.split(r'═{8,} EXCEPTION', text)[1:5]):
+              lines = [line for line in part.splitlines()[:25] if line.strip() and not line.startswith('#')]
+              message = (' '.join(lines)[:3000]).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              print(f'::error::Exception {i + 1}: {message}')
+          for line in text.splitlines():
+              if '[E]' in line or 'Expected:' in line or 'Actual:' in line or 'Error:' in line:
+                  print('::error::' + line.replace('%', '%25'))
+          PYCODE
           fi
           exit "$result"
 
