@@ -229,8 +229,7 @@ class DashboardPage extends ConsumerWidget {
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('HALO, PENABUNG ✳', style: TextStyle(color: palette.muted, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
                 const SizedBox(height: 4),
-                Text('Uangmu,
-ceritamu.', style: Theme.of(context).textTheme.headlineLarge),
+                Text('Uangmu,\nceritamu.', style: Theme.of(context).textTheme.headlineLarge),
                 const SizedBox(height: 6),
                 Text(dateLabel, style: TextStyle(color: palette.muted)),
               ])),
