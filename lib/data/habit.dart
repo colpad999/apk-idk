@@ -6,10 +6,8 @@ enum ReminderRecurrence { daily, weekly }
 
 const allWeekdays = <int>{1, 2, 3, 4, 5, 6, 7};
 const weekdayLabels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
-const defaultReminderTitle = '⚡ Waktunya menabung!';
-const defaultReminderBody =
-    'Sempatkan mencatat tabungan hari ini dan lanjutkan progres tujuanmu. '
-    'Kalau dana belum tersedia, cukup tinjau rencanamu—tidak perlu memaksakan setoran.';
+const defaultReminderTitle = '⚡ Waktunya melakukan kebiasaanmu!';
+const defaultReminderBody = 'Luangkan waktu untuk kebiasaan yang kamu pilih. Lakukan sesuai kemampuanmu.';
 
 class HabitReminder {
   const HabitReminder({

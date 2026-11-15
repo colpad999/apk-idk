@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../../app/providers.dart';
 import '../../app/theme/neo_theme.dart';
 import '../../services/backup_service.dart';
+import '../../services/transaction_csv_service.dart';
 import '../../shared/neo_components.dart';
 import '../../shared/neo_feedback.dart';
 
@@ -48,6 +49,24 @@ class _BackupPageState extends ConsumerState<BackupPage> {
       } else {
         showNeoMessage(context, 'Backup tersimpan, termasuk foto target yang tersedia.');
       }
+    } catch (error) {
+      if (mounted) showNeoMessage(context, friendlyError(error));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _exportCsv() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final bytes = await TransactionCsvService(ref.read(savingsDatabaseProvider)).export();
+      final saved = await FilePicker.platform.saveFile(
+        dialogTitle: 'Ekspor transaksi CSV',
+        fileName: 'colpad-transaksi-${DateFormat('yyyyMMdd-HHmm').format(DateTime.now())}.csv',
+        type: FileType.custom, allowedExtensions: ['csv'], bytes: bytes,
+      );
+      if (mounted) showNeoMessage(context, saved == null ? 'Ekspor CSV dibatalkan.' : 'CSV transaksi tersimpan.');
     } catch (error) {
       if (mounted) showNeoMessage(context, friendlyError(error));
     } finally {
@@ -155,6 +174,14 @@ class _BackupPageState extends ConsumerState<BackupPage> {
               ),
             ]),
           ),
+          const SizedBox(height: 14),
+          NeoCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const NeoSectionTitle('EKSPOR TRANSAKSI CSV'),
+            const SizedBox(height: 8),
+            const Text('Seluruh transaksi dan alokasi tujuan. Teks yang menyerupai rumus spreadsheet diberi awalan apostrof demi keamanan. CSV bukan backup penuh.'),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(onPressed: _busy ? null : _exportCsv, icon: const Icon(Icons.table_chart_outlined), label: const Text('Ekspor CSV')),
+          ])),
           const SizedBox(height: 14),
           NeoCard(
             color: palette.highlight,

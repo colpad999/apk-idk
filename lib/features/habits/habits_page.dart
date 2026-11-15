@@ -73,26 +73,30 @@ class _HabitsPageState extends ConsumerState<HabitsPage> {
                     NeoEmptyState(
                       icon: Icons.auto_awesome_outlined,
                       title: 'Mulai dari satu kebiasaan.',
-                      message: 'Menabung, mencatat pengeluaran, atau meninjau anggaran—pilih yang paling mudah dilakukan hari ini.',
+                      message: 'Ibadah, kesehatan, belajar, atau kegiatan lainnya—pilih yang sesuai dengan hidupmu.',
                       actionLabel: 'Buat habit pertama',
                       onAction: () => _openEditor(),
                     ),
                     const SizedBox(height: 18),
                     const NeoSectionTitle('CONTOH UNTUKMU'),
                     const SizedBox(height: 9),
-                    Wrap(spacing: 7, runSpacing: 7, children: [
-                      for (final example in [
-                        'Menabung setiap hari',
-                        'Mencatat pengeluaran setiap malam',
-                        'Mengevaluasi anggaran setiap minggu',
-                        'Menyisihkan uang saku',
-                        'Memeriksa progres tujuan',
-                      ])
-                        ActionChip(
-                          label: Text(example),
-                          onPressed: () => _openEditor(null, example),
-                        ),
-                    ]),
+                    const Text('Contoh inspirasi—nama bisa diubah sebelum disimpan.', style: TextStyle(fontSize: 12)),
+                    for (final group in <String, List<String>>{
+                      'IBADAH': ['Sholat Subuh', 'Sholat Dzuhur', 'Sholat Ashar', 'Sholat Maghrib', 'Sholat Isya', 'Membaca Al-Qur’an', 'Berdoa'],
+                      'KESEHATAN': ['Minum air putih', 'Makan teratur', 'Olahraga', 'Tidur tepat waktu', 'Menjaga kebersihan diri'],
+                      'PENDIDIKAN': ['Mengerjakan tugas sekolah', 'Belajar', 'Membaca buku', 'Mengulang pelajaran', 'Mempelajari hal baru'],
+                      'PRODUKTIVITAS': ['Merapikan kamar', 'Membersihkan rumah', 'Membantu keluarga', 'Menyelesaikan pekerjaan', 'Mengatur jadwal'],
+                      'PENGEMBANGAN DIRI': ['Membaca', 'Menulis jurnal', 'Belajar keterampilan baru', 'Mengurangi distraksi'],
+                      'KEUANGAN': ['Menabung setiap hari', 'Mencatat pengeluaran'],
+                    }.entries) ...[
+                      const SizedBox(height: 12),
+                      Text(group.key, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900)),
+                      const SizedBox(height: 5),
+                      Wrap(spacing: 7, runSpacing: 7, children: [
+                        for (final example in group.value)
+                          ActionChip(label: Text(example), onPressed: () => _openEditor(null, example)),
+                      ]),
+                    ],
                   ]);
                 }
                 final active = items.where((habit) => habit.isActive).toList();

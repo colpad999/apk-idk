@@ -18,6 +18,7 @@ import '../transactions/add_transaction_sheet.dart';
 import '../transactions/transactions_page.dart';
 import '../habits/habits_page.dart';
 import '../statistics/statistics_page.dart';
+import '../navigation/navigation_center_page.dart';
 
 class SavingsHomePage extends ConsumerStatefulWidget {
   const SavingsHomePage({super.key});
@@ -92,6 +93,7 @@ class _SavingsHomePageState extends ConsumerState<SavingsHomePage> {
         const TransactionsPage(),
         const StatisticsPage(),
         _SettingsPage(
+            onOpenCenter: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => NavigationCenterPage(openTab: (index) => setState(() => _selectedIndex = index)))),
             onOpenBudget: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => Scaffold(appBar: AppBar(title: const Text('BUDGET PLANNER')), body: const BudgetPage()))),
             onOpenActivity: () => setState(() => _selectedIndex = 2),
             onOpenBackup: () => Navigator.of(context).push(
@@ -677,11 +679,13 @@ class _InlineError extends StatelessWidget {
 
 class _SettingsPage extends ConsumerWidget {
   const _SettingsPage(
-      {required this.onOpenBudget,
+      {required this.onOpenCenter,
+      required this.onOpenBudget,
       required this.onOpenActivity,
       required this.onOpenSimulator,
       required this.onOpenHabits,
       required this.onOpenBackup});
+  final VoidCallback onOpenCenter;
   final VoidCallback onOpenBudget;
   final VoidCallback onOpenActivity;
   final VoidCallback onOpenSimulator;
@@ -694,6 +698,8 @@ class _SettingsPage extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(18, 12, 18, 100),
         children: [
           Text('MORE ⚡', style: Theme.of(context).textTheme.headlineLarge),
+          const SizedBox(height: 12),
+          FilledButton.icon(onPressed: onOpenCenter, icon: const Icon(Icons.search), label: const Text('Cari di pusat fitur')),
           const SizedBox(height: 6),
           Text('Semua alat untuk uang dan kebiasaanmu.', style: TextStyle(color: palette.muted)),
           const SizedBox(height: 16),
@@ -741,7 +747,7 @@ class _SettingsPage extends ConsumerWidget {
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.checklist_rounded),
                   title: const Text('Habit tracker'),
-                  subtitle: const Text('Kebiasaan dan pengingat menabung'),
+                  subtitle: const Text('Kebiasaan dan pengingat sehari-hari'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: onOpenHabits)),
           const SizedBox(height: 13),

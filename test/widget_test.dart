@@ -104,6 +104,13 @@ void main() {
     expect(find.text('Mode gelap'), findsNothing);
     expect(Theme.of(tester.element(find.text('Pengaturan'))).brightness, Brightness.light);
     expect(find.text('Sembunyikan nominal'), findsOneWidget);
+    await tester.tap(find.text('Cari di pusat fitur'));
+    await tester.pumpAndSettle();
+    expect(find.text('PUSAT FITUR'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).last, 'alarm manual');
+    await tester.pumpAndSettle();
+    expect(find.text('Alarm manual stop'), findsOneWidget);
+    expect(find.text('Belum tersedia'), findsOneWidget);
   });
   testWidgets('small screens keep navigation, goal cards and privacy usable', (tester) async {
     tester.view.physicalSize = const Size(320, 700);

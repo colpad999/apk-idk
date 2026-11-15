@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import '../../shared/neo_feedback.dart';
 
 import '../../app/providers.dart';
 import '../../data/budget_categories.dart';
@@ -28,6 +30,7 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
   late TransactionType _type;
   int? _goalId;
   bool _saving = false;
+  DateTime _date = DateTime.now();
 
   @override
   void initState() {
@@ -50,14 +53,18 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate() || _saving) return;
+    final confirmed = await confirmNeoAction(context, title: 'Simpan transaksi?',
+      message: 'Transaksi ${_type.label.toLowerCase()} Rp${_amountController.text} akan dicatat. Periksa nominal dan tanggal sebelum melanjutkan.',
+      confirmLabel: 'Simpan');
+    if (!confirmed || !mounted) return;
     setState(() => _saving = true);
     try {
       await ref.read(transactionRepositoryProvider).add(
             type: _type,
             amount: int.parse(_amountController.text),
             category: _categoryController.text,
-            createdAt: DateTime.now(),
+            createdAt: _date,
             note: _noteController.text,
             goalId: _goalId,
           );
@@ -230,6 +237,18 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
                         ),
                       ),
                 ],
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final selected = await showDatePicker(context: context, initialDate: _date,
+                      firstDate: DateTime(2000), lastDate: DateTime(2100));
+                    if (selected != null && mounted) {
+                      setState(() => _date = DateTime(selected.year, selected.month, selected.day, _date.hour, _date.minute));
+                    }
+                  },
+                  icon: const Icon(Icons.calendar_today_outlined),
+                  label: Text('Tanggal: ${DateFormat('d MMM yyyy', 'id_ID').format(_date)}'),
+                ),
                 const SizedBox(height: 12),
                 TextField(
                     controller: _noteController,
