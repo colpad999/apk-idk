@@ -63,10 +63,10 @@ class _EntryEditorState extends ConsumerState<_EntryEditor> {
   void dispose() { _journal.dispose(); _note.dispose(); super.dispose(); }
 
   Future<void> _save() async {
-    if (_busy) return;
+    if (_busy) { return; }
     // Prevent accidentally overwriting another day when creating a new entry.
     final existing = await ref.read(lifeRepositoryProvider).list();
-    if (!mounted) return;
+    if (!mounted) { return; }
     if (widget.entry == null && existing.any((e) => e.date.key == '${_date.year.toString().padLeft(4, '0')}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}')) {
       showNeoMessage(context, 'Tanggal ini sudah ada. Buka catatan tersebut untuk mengedit.');
       return;
@@ -75,10 +75,10 @@ class _EntryEditorState extends ConsumerState<_EntryEditor> {
     try {
       await ref.read(lifeRepositoryProvider).save(_date, _journal.text, _mood, _note.text);
       ref.invalidate(lifeEntriesProvider);
-      if (mounted) Navigator.pop(context);
+      if (mounted) { Navigator.pop(context); }
     } catch (error) {
       if (mounted) { showNeoMessage(context, friendlyError(error)); }
-    } finally { if (mounted) setState(() => _busy = false); }
+    } finally { if (mounted) { setState(() => _busy = false); } }
   }
 
   @override
@@ -89,7 +89,7 @@ class _EntryEditorState extends ConsumerState<_EntryEditor> {
         NeoCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           OutlinedButton.icon(onPressed: widget.entry != null ? null : () async {
             final date = await showDatePicker(context: context, initialDate: _date, firstDate: DateTime(2000), lastDate: DateTime(2100));
-            if (date != null && mounted) setState(() => _date = date);
+            if (date != null && mounted) { setState(() => _date = date); }
           }, icon: const Icon(Icons.calendar_today), label: Text(DateFormat('d MMMM yyyy', 'id_ID').format(_date))),
           const SizedBox(height: 12),
           TextField(controller: _journal, maxLength: 10000, minLines: 4, maxLines: 8, decoration: const InputDecoration(labelText: 'Jurnal dan kegiatan')),
@@ -102,11 +102,11 @@ class _EntryEditorState extends ConsumerState<_EntryEditor> {
           NeoButton(label: 'Simpan', onPressed: _busy ? null : _save, loading: _busy, color: p.primary),
           if (widget.entry != null) TextButton.icon(onPressed: _busy ? null : () async {
             final confirmed = await confirmNeoAction(context, title: 'Hapus catatan?', message: 'Jurnal dan mood pada tanggal ini akan dihapus.', confirmLabel: 'Hapus', destructive: true);
-            if (!confirmed || !context.mounted) return;
+            if (!confirmed || !context.mounted) { return; }
             try {
               await ref.read(lifeRepositoryProvider).delete(_date);
               ref.invalidate(lifeEntriesProvider);
-              if (context.mounted) Navigator.pop(context);
+              if (context.mounted) { Navigator.pop(context); }
             } catch (error) { if (context.mounted) { showNeoMessage(context, friendlyError(error)); } }
           }, icon: const Icon(Icons.delete_outline), label: const Text('Hapus catatan')),
         ])),
