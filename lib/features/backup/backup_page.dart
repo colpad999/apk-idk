@@ -66,7 +66,9 @@ class _BackupPageState extends ConsumerState<BackupPage> {
         fileName: 'colpad-transaksi-${DateFormat('yyyyMMdd-HHmm').format(DateTime.now())}.csv',
         type: FileType.custom, allowedExtensions: ['csv'], bytes: bytes,
       );
-      if (mounted) showNeoMessage(context, saved == null ? 'Ekspor CSV dibatalkan.' : 'CSV transaksi tersimpan.');
+      if (mounted) {
+        showNeoMessage(context, saved == null ? 'Ekspor CSV dibatalkan.' : 'CSV transaksi tersimpan.');
+      }
     } catch (error) {
       if (mounted) showNeoMessage(context, friendlyError(error));
     } finally {
