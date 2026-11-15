@@ -31,10 +31,10 @@ List<HabitAchievement> habitAchievements(List<Habit> habits, DateTime now) {
   final perDay = <String, int>{};
   for (final habit in habits) {
     final stats = calculateHabitStatistics(habit, now: now);
-    if (!habit.isFlexible && stats.bestStreak > bestDays) bestDays = stats.bestStreak;
+    if (!habit.isFlexible && stats.bestStreak > bestDays) { bestDays = stats.bestStreak; }
     for (final key in habit.completedDates) {
       final date = CivilDate.parse(key);
-      if (date.isAfter(reference) || !habit.isOpportunity(date.value)) continue;
+      if (date.isAfter(reference) || !habit.isOpportunity(date.value)) { continue; }
       any = true;
       perDay[key] = (perDay[key] ?? 0) + 1;
     }
