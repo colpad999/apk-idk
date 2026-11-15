@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/app_settings_repository.dart';
@@ -95,5 +94,4 @@ final weeklyActivityProvider = FutureProvider<WeeklyFinancialActivity>((ref) =>
 final savingsSummaryProvider = FutureProvider<SavingsSummary>(
     (ref) => ref.watch(transactionRepositoryProvider).summary());
 
-final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.dark);
 final hideBalanceProvider = StateProvider<bool>((ref) => false);

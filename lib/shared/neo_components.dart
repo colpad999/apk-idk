@@ -18,20 +18,72 @@ class NeoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = NeoPalette.of(context);
+    final featured = color != null;
+    final radius = featured
+        ? const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8), bottomLeft: Radius.circular(8), bottomRight: Radius.circular(20))
+        : BorderRadius.circular(8);
     return Container(
-      padding: padding,
       decoration: BoxDecoration(
         color: color ?? palette.surface,
-        border: Border.all(color: palette.border, width: 2.5),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: radius,
+        border: Border.all(color: palette.border, width: 2),
         boxShadow: shadow
             ? [BoxShadow(color: palette.shadow, offset: const Offset(4, 4))]
             : null,
       ),
+      clipBehavior: Clip.antiAlias,
       child: Material(
-        type: MaterialType.transparency,
-        borderRadius: BorderRadius.circular(4),
-        child: child,
+        color: Colors.transparent,
+        child: Padding(padding: padding, child: child),
+      ),
+    );
+  }
+}
+
+/// Tactile button inspired by the reference's translated hard shadow.
+/// Disabled/loading buttons remain visible but cannot trigger an action.
+class NeoButton extends StatefulWidget {
+  const NeoButton({required this.label, required this.onPressed, this.color,
+    this.icon, this.loading = false, super.key});
+  final String label;
+  final VoidCallback? onPressed;
+  final Color? color;
+  final IconData? icon;
+  final bool loading;
+
+  @override
+  State<NeoButton> createState() => _NeoButtonState();
+}
+
+class _NeoButtonState extends State<NeoButton> {
+  bool _pressed = false;
+  @override
+  Widget build(BuildContext context) {
+    final p = NeoPalette.of(context);
+    final enabled = widget.onPressed != null && !widget.loading;
+    final pressed = enabled && _pressed;
+    return AnimatedContainer(
+      duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 90),
+      transform: Matrix4.translationValues(pressed ? 3 : 0, pressed ? 3 : 0, 0),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(6),
+        boxShadow: enabled && !pressed ? [BoxShadow(color: p.shadow, offset: const Offset(3, 3))] : null),
+      child: Material(
+        color: enabled ? (widget.color ?? p.primary) : p.mutedSurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6), side: BorderSide(color: p.border, width: 2)),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: enabled ? widget.onPressed : null,
+          onHighlightChanged: (value) => setState(() => _pressed = value),
+          child: Semantics(button: true, enabled: enabled, child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
+                if (widget.loading) ...[SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: p.text)), const SizedBox(width: 8)]
+                else if (widget.icon != null) ...[Icon(widget.icon, color: p.text, size: 19), const SizedBox(width: 8)],
+                Flexible(child: Text(widget.label, textAlign: TextAlign.center, style: TextStyle(color: p.text, fontWeight: FontWeight.w800))),
+              ])),
+          )),
+        ),
       ),
     );
   }
@@ -64,8 +116,8 @@ class NeoTag extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
           color: color ?? palette.highlight,
-          border: Border.all(color: palette.border, width: 1.5),
-          borderRadius: BorderRadius.circular(3)),
+          border: Border.all(color: palette.border, width: 2),
+          borderRadius: BorderRadius.circular(99)),
       child: Text(label,
           style: TextStyle(
               color: palette.text, fontSize: 10, fontWeight: FontWeight.w900)),
@@ -82,59 +134,63 @@ class NeoProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = NeoPalette.of(context);
-    return Container(
-      height: 18,
-      decoration: BoxDecoration(
-          color: palette.surface,
-          border: Border.all(color: palette.border, width: 2)),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: FractionallySizedBox(
-          widthFactor: progress.clamp(0, 1).toDouble(),
-          child: Container(color: color ?? palette.primary),
-        ),
+    final reduced = MediaQuery.disableAnimationsOf(context);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(5),
+      child: SizedBox(
+        height: 16,
+        child: LayoutBuilder(builder: (context, constraints) => Stack(children: [
+          Positioned.fill(child: ColoredBox(color: palette.mutedSurface)),
+          AnimatedContainer(
+            duration: reduced ? Duration.zero : const Duration(milliseconds: 350),
+            curve: Curves.easeOutCubic,
+            width: constraints.maxWidth * progress.clamp(0, 1).toDouble(),
+            decoration: BoxDecoration(color: color ?? palette.primary),
+          ),
+          Positioned.fill(child: IgnorePointer(child: DecoratedBox(decoration: BoxDecoration(border: Border.all(color: palette.border, width: 2), borderRadius: BorderRadius.circular(5))))),
+        ])),
       ),
     );
   }
 }
 
-class NeoActionButton extends StatelessWidget {
-  const NeoActionButton(
-      {required this.icon,
-      required this.label,
-      required this.onPressed,
-      this.color,
-      super.key});
-
+class NeoActionButton extends StatefulWidget {
+  const NeoActionButton({required this.icon, required this.label, required this.onPressed, this.color, super.key});
   final IconData icon;
   final String label;
   final VoidCallback onPressed;
   final Color? color;
+  @override
+  State<NeoActionButton> createState() => _NeoActionButtonState();
+}
 
+class _NeoActionButtonState extends State<NeoActionButton> {
+  bool _pressed = false;
   @override
   Widget build(BuildContext context) {
     final palette = NeoPalette.of(context);
-    return Material(
-      color: color ?? palette.primary,
-      child: InkWell(
-        onTap: onPressed,
-        child: Ink(
-          decoration: BoxDecoration(
-              border: Border.all(color: palette.border, width: 2.5),
-              borderRadius: BorderRadius.circular(4)),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 12),
+    final duration = MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 90);
+    return AnimatedContainer(
+      duration: duration,
+      transform: Matrix4.translationValues(_pressed ? 2 : 0, _pressed ? 2 : 0, 0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: _pressed ? [] : [BoxShadow(color: palette.shadow, offset: const Offset(3, 3))],
+      ),
+      child: Material(
+        color: widget.color ?? palette.primary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide(color: palette.border, width: 2)),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: widget.onPressed,
+          onHighlightChanged: (value) => setState(() => _pressed = value),
+          child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 13),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(icon, color: palette.text, size: 22),
-              const SizedBox(height: 6),
-              Text(label,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: palette.text,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900)),
-            ]),
-          ),
+              Icon(widget.icon, color: palette.text, size: 23),
+              const SizedBox(height: 7),
+              Text(widget.label, textAlign: TextAlign.center, maxLines: 1,
+                style: TextStyle(color: palette.text, fontSize: 10, fontWeight: FontWeight.w800)),
+            ])),
         ),
       ),
     );
@@ -159,4 +215,24 @@ class NeoErrorCard extends StatelessWidget {
               icon: const Icon(Icons.refresh, color: Color(0xFF171717))),
         ]),
       );
+}
+
+/// A compact ring for progress; the semantic label keeps the value accessible.
+class NeoProgressRing extends StatelessWidget {
+  const NeoProgressRing({required this.progress, this.size = 74, this.color, this.label, super.key});
+  final double progress, size;
+  final Color? color;
+  final String? label;
+  @override
+  Widget build(BuildContext context) {
+    final palette = NeoPalette.of(context);
+    return Semantics(label: label ?? 'Progres ${(progress.clamp(0, 1) * 100).round()} persen',
+      child: SizedBox(width: size, height: size, child: Stack(alignment: Alignment.center, children: [
+        SizedBox.expand(child: CircularProgressIndicator(value: progress.clamp(0, 1).toDouble(),
+          strokeWidth: 7, strokeCap: StrokeCap.round,
+          backgroundColor: palette.text.withValues(alpha: .12), color: color ?? palette.text)),
+        Text('${(progress.clamp(0, 1) * 100).round()}%', style: Theme.of(context).textTheme.titleMedium),
+      ])),
+    );
+  }
 }

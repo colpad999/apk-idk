@@ -48,7 +48,20 @@ jobs:
         run: flutter pub get
 
       - name: Format Dart source
-        run: dart format .
+        shell: bash
+        run: |
+          set +e
+          dart format . > /tmp/format-log 2>&1
+          status=$?
+          cat /tmp/format-log
+          if [ "$status" -ne 0 ]; then
+            python3 - <<'PYCODE'
+          text = open('/tmp/format-log').read()
+          message = text[-8000:].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+          print('::error::' + message)
+          PYCODE
+          fi
+          exit "$status"
 
       - name: Analyze Dart code
         shell: bash

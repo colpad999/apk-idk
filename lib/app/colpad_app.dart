@@ -67,14 +67,11 @@ class _ColpadAppState extends ConsumerState<ColpadApp>
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = ref.watch(themeModeProvider);
     return MaterialApp(
       title: 'Colpad Savings',
       debugShowCheckedModeBanner: false,
       navigatorKey: _navigatorKey,
-      themeMode: themeMode,
       theme: NeoTheme.light(),
-      darkTheme: NeoTheme.dark(),
       home: const SavingsHomePage(),
     );
   }
