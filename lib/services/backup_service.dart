@@ -126,7 +126,9 @@ class BackupService {
     }
     final data = _map(document['data'], 'data');
     if (document['version'] == 1) data['life_entries'] = <Object?>[];
-    if (document['version'] == 1 || document['version'] == 2) data['habit_checkins'] = <Object?>[];
+    if (document['version'] == 1 || document['version'] == 2) {
+      data['habit_checkins'] = <Object?>[];
+    }
     final rows = _validateData(data);
     final photos = _validatePhotos(document['photos'], rows['saving_goals']!);
 

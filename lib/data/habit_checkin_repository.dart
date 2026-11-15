@@ -26,7 +26,7 @@ class HabitCheckinRepository {
   }
 
   Future<int> add(int habitId, String note) async {
-    if (note.length > 500) throw ArgumentError('Catatan maksimal 500 karakter.');
+    if (note.length > 500) { throw ArgumentError('Catatan maksimal 500 karakter.'); }
     final now = clock();
     return database.customInsert('INSERT INTO habit_checkins (habit_id, recorded_at, local_date, note) VALUES (?, ?, ?, ?)',
       variables: [Variable.withInt(habitId), Variable.withInt(now.millisecondsSinceEpoch),
@@ -34,15 +34,15 @@ class HabitCheckinRepository {
   }
 
   Future<void> edit(int habitId, int id, String note) async {
-    if (note.length > 500) throw ArgumentError('Catatan maksimal 500 karakter.');
+    if (note.length > 500) { throw ArgumentError('Catatan maksimal 500 karakter.'); }
     final changed = await database.customUpdate('UPDATE habit_checkins SET note = ? WHERE habit_id = ? AND id = ?',
       variables: [Variable.withString(note.trim()), Variable.withInt(habitId), Variable.withInt(id)]);
-    if (changed == 0) throw StateError('Check-in tidak ditemukan.');
+    if (changed == 0) { throw StateError('Check-in tidak ditemukan.'); }
   }
 
   Future<void> delete(int habitId, int id) async {
     final changed = await database.customUpdate('DELETE FROM habit_checkins WHERE habit_id = ? AND id = ?',
       variables: [Variable.withInt(habitId), Variable.withInt(id)]);
-    if (changed == 0) throw StateError('Check-in tidak ditemukan.');
+    if (changed == 0) { throw StateError('Check-in tidak ditemukan.'); }
   }
 }
