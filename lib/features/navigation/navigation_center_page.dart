@@ -4,6 +4,7 @@ import '../../app/theme/neo_theme.dart';
 import '../../shared/neo_components.dart';
 import '../backup/backup_page.dart';
 import '../budget/budget_page.dart';
+import '../calendar/activity_calendar_page.dart';
 import '../habits/habit_settings_page.dart';
 import '../habits/habits_page.dart';
 import '../life/life_journal_page.dart';
@@ -37,6 +38,7 @@ class _NavigationCenterPageState extends State<NavigationCenterPage> {
       ('FINANCIAL', 'Statistics', Icons.bar_chart, () => _tab(3)),
       ('FINANCIAL', 'Virtual Money Jar', Icons.savings_outlined, null),
       ('PRODUCTIVITY', 'Habit Tracker', Icons.checklist, () => _page(const HabitsPage())),
+      ('PRODUCTIVITY', 'Kalender aktivitas', Icons.calendar_month, () => _page(const ActivityCalendarPage())),
       ('PRODUCTIVITY', 'Saving Challenge', Icons.emoji_events_outlined, null),
       ('PRODUCTIVITY', 'Wishlist', Icons.favorite_border, null),
       ('PRODUCTIVITY', 'Financial Calendar', Icons.calendar_month, null),

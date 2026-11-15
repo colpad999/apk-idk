@@ -8,10 +8,11 @@ Aplikasi Android offline-first untuk mencatat keuangan dan kebiasaan, dibangun d
 - Transaksi pemasukan/pengeluaran dan setoran/penarikan tujuan, pilihan tanggal dan konfirmasi; anggaran berdasarkan pengeluaran aktual.
 - Tujuan tabungan dengan foto tersimpan lokal, riwayat alokasi, dan simulasi tabungan.
 - Habit dengan jadwal harian, hari tertentu atau target mingguan, jeda, riwayat kalender per habit, streak dan beberapa pengingat notifikasi biasa.
+- Kalender aktivitas bulanan untuk habit terjadwal, jurnal dan mood dengan ringkasan mingguan/bulanan.
 - Jurnal harian dan mood lokal dengan riwayat, edit dan hapus; bukan diagnosis.
 - Backup/restore JSON tervalidasi termasuk foto tujuan yang tersedia, dan ekspor CSV transaksi (CSV bukan backup penuh).
 
-**Belum tersedia:** alarm yang berbunyi sampai dimatikan, multiple check-in/counter, kalender gabungan, statistik mood, achievement, wishlist, dan tantangan. Pengingat habit adalah notifikasi biasa, bukan alarm. Lihat [status alarm](docs/alarm-status.md).
+**Belum tersedia:** alarm yang berbunyi sampai dimatikan, multiple check-in/counter, statistik mood, achievement, wishlist, dan tantangan. Pengingat habit adalah notifikasi biasa, bukan alarm. Lihat [status alarm](docs/alarm-status.md).
 
 ## Teknologi dan struktur
 
