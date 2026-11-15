@@ -40,6 +40,55 @@ class NeoCard extends StatelessWidget {
   }
 }
 
+/// Tactile button inspired by the reference's translated hard shadow.
+/// Disabled/loading buttons remain visible but cannot trigger an action.
+class NeoButton extends StatefulWidget {
+  const NeoButton({required this.label, required this.onPressed, this.color,
+    this.icon, this.loading = false, super.key});
+  final String label;
+  final VoidCallback? onPressed;
+  final Color? color;
+  final IconData? icon;
+  final bool loading;
+
+  @override
+  State<NeoButton> createState() => _NeoButtonState();
+}
+
+class _NeoButtonState extends State<NeoButton> {
+  bool _pressed = false;
+  @override
+  Widget build(BuildContext context) {
+    final p = NeoPalette.of(context);
+    final enabled = widget.onPressed != null && !widget.loading;
+    final pressed = enabled && _pressed;
+    return AnimatedContainer(
+      duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 90),
+      transform: Matrix4.translationValues(pressed ? 3 : 0, pressed ? 3 : 0, 0),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(6),
+        boxShadow: enabled && !pressed ? [BoxShadow(color: p.shadow, offset: const Offset(3, 3))] : null),
+      child: Material(
+        color: enabled ? (widget.color ?? p.primary) : p.mutedSurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6), side: BorderSide(color: p.border, width: 2)),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: enabled ? widget.onPressed : null,
+          onHighlightChanged: (value) => setState(() => _pressed = value),
+          child: Semantics(button: true, enabled: enabled, child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
+                if (widget.loading) ...[SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: p.text)), const SizedBox(width: 8)]
+                else if (widget.icon != null) ...[Icon(widget.icon, color: p.text, size: 19), const SizedBox(width: 8)],
+                Flexible(child: Text(widget.label, textAlign: TextAlign.center, style: TextStyle(color: p.text, fontWeight: FontWeight.w800))),
+              ])),
+          )),
+        ),
+      ),
+    );
+  }
+}
+
 class NeoSectionTitle extends StatelessWidget {
   const NeoSectionTitle(this.title, {this.trailing, super.key});
 

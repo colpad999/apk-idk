@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app/theme/neo_theme.dart';
+import 'neo_components.dart';
 
 void showNeoMessage(BuildContext context, String message) {
   if (!context.mounted) return;
@@ -34,12 +35,10 @@ Future<bool> confirmNeoAction(
         TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Batal')),
-        FilledButton(
-          style: destructive
-              ? FilledButton.styleFrom(backgroundColor: palette.secondary)
-              : null,
+        NeoButton(
+          color: destructive ? palette.secondary : null,
           onPressed: () => Navigator.pop(context, true),
-          child: Text(confirmLabel),
+          label: confirmLabel,
         ),
       ],
     ),

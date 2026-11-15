@@ -224,6 +224,7 @@ class DashboardPage extends ConsumerWidget {
         ref.invalidate(weeklyActivityProvider);
         ref.invalidate(savingGoalsProvider);
         ref.invalidate(incomeSourcesProvider);
+        ref.invalidate(habitsProvider);
         await ref.read(savingsSummaryProvider.future);
       },
       child: ListView(
@@ -399,7 +400,18 @@ class DashboardPage extends ConsumerWidget {
                 final today = DateTime.now();
                 final scheduled = habits.where((habit) => habit.isActive && habit.isOpportunity(today)).toList();
                 final done = scheduled.where((habit) => habit.isComplete(today)).length;
-                return NeoCard(color: palette.highlight, child: Text(scheduled.isEmpty ? 'Tidak ada jadwal habit hari ini.' : '$done / ${scheduled.length} habit selesai hari ini', style: const TextStyle(fontWeight: FontWeight.w900)));
+                final active = habits.where((habit) => habit.isActive).length;
+                return NeoCard(color: palette.highlight, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(scheduled.isEmpty ? 'Tidak ada jadwal habit hari ini.' : '$done / ${scheduled.length} habit selesai hari ini', style: const TextStyle(fontWeight: FontWeight.w900)),
+                  const SizedBox(height: 10),
+                  NeoProgressBar(progress: scheduled.isEmpty ? 0 : done / scheduled.length),
+                  const SizedBox(height: 10),
+                  Wrap(spacing: 8, runSpacing: 8, children: [
+                    NeoTag('$active AKTIF', color: palette.surface),
+                    NeoTag('${scheduled.length - done} BELUM SELESAI', color: palette.surface),
+                    NeoTag('$done SELESAI', color: palette.surface),
+                  ]),
+                ]));
               },
             ),
             const SizedBox(height: 20),
@@ -699,7 +711,7 @@ class _SettingsPage extends ConsumerWidget {
         children: [
           Text('MORE ⚡', style: Theme.of(context).textTheme.headlineLarge),
           const SizedBox(height: 12),
-          FilledButton.icon(onPressed: onOpenCenter, icon: const Icon(Icons.search), label: const Text('Cari di pusat fitur')),
+          NeoButton(onPressed: onOpenCenter, icon: Icons.search, label: 'Cari di pusat fitur'),
           const SizedBox(height: 6),
           Text('Semua alat untuk uang dan kebiasaanmu.', style: TextStyle(color: palette.muted)),
           const SizedBox(height: 16),

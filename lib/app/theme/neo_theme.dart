@@ -66,6 +66,21 @@ class NeoTheme {
         side: BorderSide(color: p.border, width: 2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(99)),
         textStyle: const TextStyle(fontWeight: FontWeight.w700))),
+      checkboxTheme: CheckboxThemeData(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+        side: BorderSide(color: p.border, width: 2),
+        fillColor: WidgetStateProperty.resolveWith((states) =>
+            states.contains(WidgetState.selected) ? p.primary : p.surface),
+        checkColor: WidgetStatePropertyAll(ink),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) =>
+            states.contains(WidgetState.selected) ? p.primary : p.surface),
+        trackColor: WidgetStateProperty.resolveWith((states) =>
+            states.contains(WidgetState.selected) ? p.highlight : p.mutedSurface),
+        trackOutlineColor: WidgetStatePropertyAll(p.border),
+        trackOutlineWidth: const WidgetStatePropertyAll(2),
+      ),
       chipTheme: ChipThemeData(backgroundColor: p.surface, selectedColor: p.primary,
         side: BorderSide(color: p.border, width: 2), shape: const StadiumBorder()),
       bottomSheetTheme: BottomSheetThemeData(backgroundColor: p.surface,
