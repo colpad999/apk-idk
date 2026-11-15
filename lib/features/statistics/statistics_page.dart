@@ -54,7 +54,7 @@ class StatisticsPage extends ConsumerWidget {
         ])),
       ),
       const SizedBox(height: 22),
-      const NeoSectionTitle('ANGGARAN BULAN INI'),
+      const NeoSectionTitle('ANGGARAN PERIODE TERPILIH'),
       const SizedBox(height: 10),
       ref.watch(budgetsProvider).when(
         loading: () => const Center(child: CircularProgressIndicator()),

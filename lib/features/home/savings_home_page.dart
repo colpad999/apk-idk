@@ -372,7 +372,7 @@ class DashboardPage extends ConsumerWidget {
                         ]
                       ]))),
             const SizedBox(height: 20),
-            NeoSectionTitle('ANGGARAN BULAN INI', trailing: TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => Scaffold(appBar: AppBar(title: const Text('BUDGET PLANNER')), body: const BudgetPage()))), child: const Text('Lihat'))),
+            NeoSectionTitle('ANGGARAN TERPILIH', trailing: TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => Scaffold(appBar: AppBar(title: const Text('BUDGET PLANNER')), body: const BudgetPage()))), child: const Text('Lihat'))),
             const SizedBox(height: 8),
             ref.watch(budgetsProvider).when(
               loading: () => const LinearProgressIndicator(),

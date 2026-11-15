@@ -105,43 +105,43 @@ class NeoProgressBar extends StatelessWidget {
   }
 }
 
-class NeoActionButton extends StatelessWidget {
-  const NeoActionButton(
-      {required this.icon,
-      required this.label,
-      required this.onPressed,
-      this.color,
-      super.key});
-
+class NeoActionButton extends StatefulWidget {
+  const NeoActionButton({required this.icon, required this.label, required this.onPressed, this.color, super.key});
   final IconData icon;
   final String label;
   final VoidCallback onPressed;
   final Color? color;
+  @override
+  State<NeoActionButton> createState() => _NeoActionButtonState();
+}
 
+class _NeoActionButtonState extends State<NeoActionButton> {
+  bool _pressed = false;
   @override
   Widget build(BuildContext context) {
     final palette = NeoPalette.of(context);
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
+    final duration = MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 90);
+    return AnimatedContainer(
+      duration: duration,
+      transform: Matrix4.translationValues(_pressed ? 2 : 0, _pressed ? 2 : 0, 0),
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        onTap: onPressed,
-        child: Ink(
-          decoration: BoxDecoration(
-            color: color ?? palette.primary,
-            border: Border.all(color: palette.border, width: 2),
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [BoxShadow(color: palette.shadow, offset: const Offset(3, 3))],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 13),
+        boxShadow: _pressed ? [] : [BoxShadow(color: palette.shadow, offset: const Offset(3, 3))],
+      ),
+      child: Material(
+        color: widget.color ?? palette.primary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide(color: palette.border, width: 2)),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: widget.onPressed,
+          onHighlightChanged: (value) => setState(() => _pressed = value),
+          child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 13),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(icon, color: palette.text, size: 23),
+              Icon(widget.icon, color: palette.text, size: 23),
               const SizedBox(height: 7),
-              Text(label, textAlign: TextAlign.center, maxLines: 1,
+              Text(widget.label, textAlign: TextAlign.center, maxLines: 1,
                 style: TextStyle(color: palette.text, fontSize: 10, fontWeight: FontWeight.w800)),
-            ]),
-          ),
+            ])),
         ),
       ),
     );
