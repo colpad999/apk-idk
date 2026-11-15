@@ -71,7 +71,7 @@ class NeoTheme {
         side: BorderSide(color: p.border, width: 2),
         fillColor: WidgetStateProperty.resolveWith((states) =>
             states.contains(WidgetState.selected) ? p.primary : p.surface),
-        checkColor: WidgetStatePropertyAll(ink),
+        checkColor: const WidgetStatePropertyAll(ink),
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) =>
