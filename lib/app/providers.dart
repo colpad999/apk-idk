@@ -4,6 +4,7 @@ import '../data/app_settings_repository.dart';
 import '../data/goal_repository.dart';
 import '../data/habit_repository.dart';
 import '../data/habit_checkin_repository.dart';
+import '../data/habit_counter_repository.dart';
 import '../data/life_repository.dart';
 import '../data/planning_repository.dart';
 import '../data/savings_database.dart';
@@ -107,3 +108,10 @@ final habitCheckinRepositoryProvider = Provider<HabitCheckinRepository>(
     (ref) => HabitCheckinRepository(ref.watch(savingsDatabaseProvider)));
 final habitCheckinsProvider = FutureProvider.family<List<HabitCheckin>, int>(
     (ref, id) => ref.watch(habitCheckinRepositoryProvider).list(id));
+
+final habitCounterRepositoryProvider = Provider<HabitCounterRepository>(
+    (ref) => HabitCounterRepository(ref.watch(savingsDatabaseProvider)));
+final habitCounterProvider = FutureProvider.family<HabitCounter?, int>(
+    (ref, id) => ref.watch(habitCounterRepositoryProvider).get(id));
+final habitCounterHistoryProvider = FutureProvider.family<List<CounterDay>, int>(
+    (ref, id) => ref.watch(habitCounterRepositoryProvider).history(id));

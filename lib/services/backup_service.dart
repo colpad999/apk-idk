@@ -9,7 +9,7 @@ import '../data/savings_database.dart';
 import 'goal_photo_storage.dart';
 
 const backupFormat = 'colpad_savings_backup';
-const backupVersion = 3;
+const backupVersion = 4;
 const maxBackupBytes = 50 * 1024 * 1024;
 
 class BackupExport {
@@ -54,6 +54,8 @@ class BackupService {
     'app_settings',
     'life_entries',
     'habit_checkins',
+    'habit_counters',
+    'habit_counter_days',
   ];
 
   Future<BackupExport> export() async {
@@ -121,13 +123,17 @@ class BackupService {
     }
     final document = _map(decoded, 'backup');
     if (document['format'] != backupFormat ||
-        ![1, 2, backupVersion].contains(document['version'])) {
+        ![1, 2, 3, backupVersion].contains(document['version'])) {
       throw const FormatException('Format atau versi backup tidak didukung.');
     }
     final data = _map(document['data'], 'data');
     if (document['version'] == 1) data['life_entries'] = <Object?>[];
     if (document['version'] == 1 || document['version'] == 2) {
       data['habit_checkins'] = <Object?>[];
+    }
+    if ([1, 2, 3].contains(document['version'])) {
+      data['habit_counters'] = <Object?>[];
+      data['habit_counter_days'] = <Object?>[];
     }
     final rows = _validateData(data);
     final photos = _validatePhotos(document['photos'], rows['saving_goals']!);
@@ -194,6 +200,8 @@ class BackupService {
             ['id', 'habit_id', 'completion_date', 'created_at']);
         await _insertRows('habit_pauses', rows['habit_pauses']!,
             ['id', 'habit_id', 'start_date', 'end_date']);
+        await _insertRows('habit_counters', rows['habit_counters']!, ['habit_id', 'target', 'unit']);
+        await _insertRows('habit_counter_days', rows['habit_counter_days']!, ['habit_id', 'local_date', 'amount', 'updated_at']);
         await _insertRows('habit_checkins', rows['habit_checkins']!,
             ['id', 'habit_id', 'recorded_at', 'local_date', 'note']);
         await _insertRows('life_entries', rows['life_entries']!,
@@ -254,6 +262,8 @@ class BackupService {
       'app_settings': 100,
       'life_entries': 100000,
       'habit_checkins': 500000,
+      'habit_counters': 10000,
+      'habit_counter_days': 500000,
     };
     for (final table in _tables) {
       final list = _list(data[table], table);
@@ -398,6 +408,26 @@ class BackupService {
       if (end != null && end.isBefore(start)) {
         throw const FormatException('Rentang jeda backup tidak valid.');
       }
+    }
+    final counterIds = <int>{};
+    for (final row in result['habit_counters']!) {
+      final habitId = _integer(row['habit_id'], 'habit_id');
+      final target = _integer(row['target'], 'target');
+      final unit = _string(row['unit'], empty: false);
+      if (!habitIds.contains(habitId) || !counterIds.add(habitId) ||
+          target < 1 || target > 1000000 || unit.length > 30) {
+        throw const FormatException('Target counter tidak valid.');
+      }
+    }
+    final counterDates = <String>{};
+    for (final row in result['habit_counter_days']!) {
+      final habitId = _integer(row['habit_id'], 'habit_id');
+      final date = _date(row['local_date']).key;
+      final amount = _integer(row['amount'], 'amount');
+      if (!counterIds.contains(habitId) || !counterDates.add('$habitId:$date') || amount < 0 || amount > 1000000) {
+        throw const FormatException('Riwayat counter tidak valid.');
+      }
+      _integer(row['updated_at'], 'updated_at');
     }
     for (final row in result['habit_checkins']!) {
       if (!habitIds.contains(row['habit_id']) || _string(row['note']).length > 500) {

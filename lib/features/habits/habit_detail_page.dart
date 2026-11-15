@@ -10,6 +10,7 @@ import '../../shared/neo_components.dart';
 import 'habit_actions.dart';
 import 'habit_editor_page.dart';
 import 'habit_checkins_page.dart';
+import 'habit_counter_page.dart';
 import 'habit_history_page.dart';
 import 'habit_widgets.dart';
 import 'reminder_settings_page.dart';
@@ -108,6 +109,12 @@ class HabitDetailPage extends ConsumerWidget {
                       builder: (_) => HabitHistoryPage(habitId: habit.id))),
                   icon: const Icon(Icons.calendar_month_outlined, size: 18),
                   label: const Text('Riwayat'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                      builder: (_) => HabitCounterPage(habitId: habit.id, habitName: habit.name))),
+                  icon: const Icon(Icons.add_chart_outlined, size: 18),
+                  label: const Text('Counter'),
                 ),
                 OutlinedButton.icon(
                   onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(

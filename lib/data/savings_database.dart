@@ -9,7 +9,7 @@ class SavingsDatabase extends GeneratedDatabase {
   SavingsDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   Iterable<TableInfo<Table, Object?>> get allTables => const [];
@@ -38,6 +38,7 @@ class SavingsDatabase extends GeneratedDatabase {
           await _createSettingsTable();
           await _createLifeEntries();
           await _createHabitCheckins();
+          await _createHabitCounters();
         },
         onUpgrade: (migrator, from, to) async {
           // Drift runs this upgrade in a transaction. A failed statement leaves
@@ -54,11 +55,31 @@ class SavingsDatabase extends GeneratedDatabase {
           }
           if (from < 7) await _createLifeEntries();
           if (from < 8) await _createHabitCheckins();
+          if (from < 9) await _createHabitCounters();
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
         },
       );
+
+  Future<void> _createHabitCounters() async {
+    await customStatement("""
+      CREATE TABLE IF NOT EXISTS habit_counters (
+        habit_id INTEGER NOT NULL PRIMARY KEY REFERENCES habits(id) ON DELETE CASCADE,
+        target INTEGER NOT NULL CHECK (target BETWEEN 1 AND 1000000),
+        unit TEXT NOT NULL CHECK (length(unit) BETWEEN 1 AND 30)
+      )
+    """);
+    await customStatement("""
+      CREATE TABLE IF NOT EXISTS habit_counter_days (
+        habit_id INTEGER NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
+        local_date TEXT NOT NULL,
+        amount INTEGER NOT NULL CHECK (amount BETWEEN 0 AND 1000000),
+        updated_at INTEGER NOT NULL,
+        PRIMARY KEY (habit_id, local_date)
+      )
+    """);
+  }
 
   Future<void> _createHabitCheckins() async {
     await customStatement("""

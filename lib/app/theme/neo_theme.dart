@@ -12,8 +12,8 @@ class NeoPalette {
 
   static const light = NeoPalette(
     background: Color(0xFFFFFEFA), surface: Color(0xFFFFFFFF),
-    primary: Color(0xFFFFED84), secondary: Color(0xFFFFB4EE),
-    accent: Color(0xFFC4D9FF), highlight: Color(0xFFD0F7AA),
+    primary: Color(0xFFFFF09A), secondary: Color(0xFFFFC5F1),
+    accent: Color(0xFFD4E4FF), highlight: Color(0xFFDBFAC0),
     text: Color(0xFF171717), border: Color(0xFF171717),
     shadow: Color(0xFF171717), muted: Color(0xFF605F58),
     mutedSurface: Color(0xFFF1EEE4),
