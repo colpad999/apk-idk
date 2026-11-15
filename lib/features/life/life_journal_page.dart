@@ -77,7 +77,7 @@ class _EntryEditorState extends ConsumerState<_EntryEditor> {
       ref.invalidate(lifeEntriesProvider);
       if (mounted) Navigator.pop(context);
     } catch (error) {
-      if (mounted) showNeoMessage(context, friendlyError(error));
+      if (mounted) { showNeoMessage(context, friendlyError(error)); }
     } finally { if (mounted) setState(() => _busy = false); }
   }
 
@@ -107,7 +107,7 @@ class _EntryEditorState extends ConsumerState<_EntryEditor> {
               await ref.read(lifeRepositoryProvider).delete(_date);
               ref.invalidate(lifeEntriesProvider);
               if (context.mounted) Navigator.pop(context);
-            } catch (error) { if (context.mounted) showNeoMessage(context, friendlyError(error)); }
+            } catch (error) { if (context.mounted) { showNeoMessage(context, friendlyError(error)); } }
           }, icon: const Icon(Icons.delete_outline), label: const Text('Hapus catatan')),
         ])),
       ]));
