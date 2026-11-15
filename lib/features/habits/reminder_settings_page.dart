@@ -339,7 +339,7 @@ class _ReminderSettingsPageState extends ConsumerState<ReminderSettingsPage> {
             label: const Text('Uji pengingat'),
           ),
         ),
-        Text('Pesan default tidak mewajibkan menabung saat dana belum tersedia.',
+        Text('Pesan pengingat dapat disesuaikan untuk kegiatan apa pun.',
             style: TextStyle(color: palette.muted, fontSize: 11)),
       ]),
     );

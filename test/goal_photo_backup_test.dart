@@ -105,6 +105,30 @@ void main() {
     }
   });
 
+  test('invalid relationships leave existing records unchanged', () async {
+    final source = SavingsDatabase.forTesting(NativeDatabase.memory());
+    try {
+      final repository = HabitRepository(source, clock: () => DateTime(2026, 1, 14));
+      final id = await repository.save(name: 'Belajar', startDate: DateTime(2026, 1, 1));
+      await repository.complete(id, DateTime(2026, 1, 14));
+      final exported = await BackupService(database: source, photos: photos).export();
+      final document = jsonDecode(utf8.decode(exported.bytes)) as Map<String, dynamic>;
+      final data = document['data'] as Map<String, dynamic>;
+      final completions = data['habit_completions'] as List<dynamic>;
+      (completions.single as Map<String, dynamic>)['habit_id'] = 999999;
+      await goals.create(name: 'Data lama', targetAmount: 1000);
+      await expectLater(
+        BackupService(database: db, photos: photos).restore(
+          Uint8List.fromList(utf8.encode(jsonEncode(document)))),
+        throwsFormatException,
+      );
+      expect((await goals.list()).single.name, 'Data lama');
+      expect(await HabitRepository(db).list(), isEmpty);
+    } finally {
+      await source.close();
+    }
+  });
+
   test('corrupt backup is rejected without modifying the database', () async {
     final service = BackupService(database: db, photos: photos);
     await expectLater(service.restore(Uint8List.fromList(utf8.encode('{"format":"wrong","version":1}'))), throwsFormatException);

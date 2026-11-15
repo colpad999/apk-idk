@@ -55,11 +55,16 @@ class BackupService {
   ];
 
   Future<BackupExport> export() async {
-    final data = <String, Object?>{};
-    for (final table in _tables) {
-      final rows = await _database.customSelect('SELECT * FROM $table').get();
-      data[table] = rows.map((row) => Map<String, Object?>.from(row.data)).toList();
-    }
+    // Read all related tables in one SQLite snapshot. Otherwise a concurrent
+    // transaction can leave an export with dangling or missing relationships.
+    final data = await _database.transaction(() async {
+      final snapshot = <String, Object?>{};
+      for (final table in _tables) {
+        final rows = await _database.customSelect('SELECT * FROM $table').get();
+        snapshot[table] = rows.map((row) => Map<String, Object?>.from(row.data)).toList();
+      }
+      return snapshot;
+    });
     final goals = (data['saving_goals']! as List).cast<Map<String, Object?>>();
     final photoEntries = <Map<String, Object?>>[];
     final missing = <String>[];
@@ -121,17 +126,7 @@ class BackupService {
     final rows = _validateData(data);
     final photos = _validatePhotos(document['photos'], rows['saving_goals']!);
 
-    for (final table in [
-      'savings_transactions', 'budgets', 'income_sources', 'saving_goals', 'habits'
-    ]) {
-      final count = await _database
-          .customSelect('SELECT COUNT(*) AS total FROM $table')
-          .getSingle();
-      if (count.read<int>('total') > 0) {
-        throw StateError(
-            'Restore hanya ke database kosong. Data yang ada tidak boleh ditimpa.');
-      }
-    }
+    await _ensureRestoreTargetEmpty();
 
     final written = <String>[];
     final restoredPaths = <String, String?>{};
@@ -149,6 +144,9 @@ class BackupService {
         restoredPaths[entry.key] = path;
       }
       await _database.transaction(() async {
+        // Recheck under the write transaction: the target may have changed
+        // while photos were processed after the initial validation.
+        await _ensureRestoreTargetEmpty();
         await _insertRows('savings_transactions', rows['savings_transactions']!,
             ['id', 'type', 'amount', 'category', 'note', 'created_at']);
         final categoryMap = await _restoreCategories(rows['budget_categories']!);
@@ -212,6 +210,20 @@ class BackupService {
         }
       }
       rethrow;
+    }
+  }
+
+  Future<void> _ensureRestoreTargetEmpty() async {
+    for (final table in [
+      'savings_transactions', 'budgets', 'income_sources', 'saving_goals', 'habits'
+    ]) {
+      final count = await _database
+          .customSelect('SELECT COUNT(*) AS total FROM $table')
+          .getSingle();
+      if (count.read<int>('total') > 0) {
+        throw StateError(
+            'Restore hanya ke database kosong. Data yang ada tidak boleh ditimpa.');
+      }
     }
   }
 

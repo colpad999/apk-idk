@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:drift/native.dart';
 import 'package:apk_idk/data/savings_database.dart';
@@ -91,16 +92,55 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Budget'));
-    await tester.pumpAndSettle();
-    expect(find.text('Anggaran'), findsOneWidget);
-
-    await tester.tap(find.text('Goals'));
+    await tester.tap(find.text('Savings'));
     await tester.pumpAndSettle();
     expect(find.text('Target tabungan'), findsOneWidget);
-
+    await tester.tap(find.text('Statistics'));
+    await tester.pumpAndSettle();
+    expect(find.text('STATISTICS ⚡'), findsOneWidget);
     await tester.tap(find.text('More'));
     await tester.pumpAndSettle();
     expect(find.text('Pengaturan'), findsOneWidget);
+    expect(find.text('Mode gelap'), findsNothing);
+    expect(Theme.of(tester.element(find.text('Pengaturan'))).brightness, Brightness.light);
+    expect(find.text('Sembunyikan nominal'), findsOneWidget);
+    await tester.tap(find.text('Cari di pusat fitur'));
+    await tester.pumpAndSettle();
+    expect(find.text('PUSAT FITUR'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).last, 'alarm manual');
+    await tester.pumpAndSettle();
+    expect(find.text('Alarm manual stop'), findsOneWidget);
+    expect(find.text('Belum tersedia'), findsOneWidget);
   });
+  testWidgets('small screens keep navigation, goal cards and privacy usable', (tester) async {
+    tester.view.physicalSize = const Size(320, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(ProviderScope(overrides: [
+      savingsDatabaseProvider.overrideWith((ref) {
+        final db = SavingsDatabase.forTesting(NativeDatabase.memory());
+        ref.onDispose(db.close);
+        return db;
+      }),
+      habitNotificationGatewayProvider.overrideWith((ref) => FakeHabitNotificationGateway()),
+      savingsSummaryProvider.overrideWith((ref) async => const SavingsSummary(cashBalance: 100000, allocatedBalance: 50000, totalIncome: 200000, totalExpense: 50000)),
+      transactionsProvider.overrideWith((ref) async => const <SavingsTransaction>[]),
+      budgetsProvider.overrideWith((ref) async => const <BudgetLine>[]),
+      savingGoalsProvider.overrideWith((ref) async => [SavingGoal(id: 1, name: 'Laptop untuk sekolah dan bekerja', targetAmount: 9000000, allocatedAmount: 50000, createdAt: DateTime(2026))]),
+      incomeSourcesProvider.overrideWith((ref) async => const <IncomeSourceTotal>[]),
+      weeklyActivityProvider.overrideWith((ref) async => const WeeklyFinancialActivity(days: [], previousDeposits: 0, previousExpenses: 0)),
+    ], child: const ColpadApp()));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('TARGET PRIORITAS'), 300);
+    await tester.pumpAndSettle();
+    expect(find.text('Laptop untuk sekolah dan bekerja'), findsWidgets);
+    await tester.tap(find.text('Savings'));
+    await tester.pumpAndSettle();
+    expect(find.text('Target tabungan'), findsOneWidget);
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    expect(find.text('Mode gelap'), findsNothing);
+  });
+
 }
