@@ -92,14 +92,12 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Budget'));
-    await tester.pumpAndSettle();
-    expect(find.text('Anggaran'), findsOneWidget);
-
-    await tester.tap(find.text('Goals'));
+    await tester.tap(find.text('Savings'));
     await tester.pumpAndSettle();
     expect(find.text('Target tabungan'), findsOneWidget);
-
+    await tester.tap(find.text('Statistics'));
+    await tester.pumpAndSettle();
+    expect(find.text('STATISTICS ⚡'), findsOneWidget);
     await tester.tap(find.text('More'));
     await tester.pumpAndSettle();
     expect(find.text('Pengaturan'), findsOneWidget);
@@ -130,7 +128,7 @@ void main() {
     await tester.scrollUntilVisible(find.text('TARGET PRIORITAS'), 300);
     await tester.pumpAndSettle();
     expect(find.text('Laptop untuk sekolah dan bekerja'), findsWidgets);
-    await tester.tap(find.text('Goals'));
+    await tester.tap(find.text('Savings'));
     await tester.pumpAndSettle();
     expect(find.text('Target tabungan'), findsOneWidget);
     await tester.tap(find.text('More'));

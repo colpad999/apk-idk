@@ -17,6 +17,7 @@ import '../simulator/savings_simulator_page.dart';
 import '../transactions/add_transaction_sheet.dart';
 import '../transactions/transactions_page.dart';
 import '../habits/habits_page.dart';
+import '../statistics/statistics_page.dart';
 
 class SavingsHomePage extends ConsumerStatefulWidget {
   const SavingsHomePage({super.key});
@@ -44,12 +45,10 @@ class _SavingsHomePageState extends ConsumerState<SavingsHomePage> {
     final palette = NeoPalette.of(context);
     final destinations = [
       const _Destination('Home', Icons.home_outlined, Icons.home_rounded),
-      const _Destination(
-          'Budget', Icons.pie_chart_outline_rounded, Icons.pie_chart_rounded),
-      const _Destination('Goals', Icons.flag_outlined, Icons.flag_rounded),
-      const _Destination(
-          'Activity', Icons.receipt_long_outlined, Icons.receipt_long_rounded),
-      const _Destination('More', Icons.tune_rounded, Icons.tune_rounded),
+      const _Destination('Savings', Icons.flag_outlined, Icons.flag_rounded),
+      const _Destination('Activity', Icons.receipt_long_outlined, Icons.receipt_long_rounded),
+      const _Destination('Statistics', Icons.bar_chart_outlined, Icons.bar_chart_rounded),
+      const _Destination('More', Icons.grid_view_outlined, Icons.grid_view_rounded),
     ];
     return Scaffold(
       appBar: AppBar(
@@ -87,13 +86,14 @@ class _SavingsHomePageState extends ConsumerState<SavingsHomePage> {
         DashboardPage(
             onAdd: _addTransaction,
             onOpenTab: (index) => setState(() => _selectedIndex = index)),
-        const BudgetPage(),
         GoalsPage(
             onAllocate: (type, goalId) =>
                 _addTransaction(type: type, goalId: goalId)),
         const TransactionsPage(),
+        const StatisticsPage(),
         _SettingsPage(
-            onOpenActivity: () => setState(() => _selectedIndex = 3),
+            onOpenBudget: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => Scaffold(appBar: AppBar(title: const Text('BUDGET PLANNER')), body: const BudgetPage()))),
+            onOpenActivity: () => setState(() => _selectedIndex = 2),
             onOpenBackup: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(builder: (_) => const BackupPage())),
             onOpenHabits: () => Navigator.of(context).push(
@@ -102,7 +102,7 @@ class _SavingsHomePageState extends ConsumerState<SavingsHomePage> {
                 MaterialPageRoute<void>(
                     builder: (context) => const SavingsSimulatorPage()))),
       ]),
-      floatingActionButton: _selectedIndex == 0 || _selectedIndex == 3
+      floatingActionButton: _selectedIndex == 0 || _selectedIndex == 2
           ? FloatingActionButton.extended(
               onPressed: () => _addTransaction(),
               icon: const Icon(Icons.add_rounded),
@@ -146,13 +146,13 @@ class _NeoNavigationBar extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Container(
-        margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+        margin: const EdgeInsets.fromLTRB(10, 0, 10, 8),
         padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
         decoration: BoxDecoration(
             color: palette.surface,
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: palette.mutedSurface),
-            boxShadow: [BoxShadow(color: palette.text.withValues(alpha: .12), blurRadius: 18, offset: const Offset(0, 6))]),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: palette.border, width: 2),
+            boxShadow: [BoxShadow(color: palette.shadow, offset: const Offset(4, 4))]),
         child: Row(children: [
           for (var index = 0; index < destinations.length; index++)
             Expanded(
@@ -168,7 +168,9 @@ class _NeoNavigationBar extends StatelessWidget {
                         color: index == selectedIndex
                             ? palette.primary
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(22)),
+                        border: Border.all(color: index == selectedIndex ? palette.border : Colors.transparent, width: 2),
+                        borderRadius: BorderRadius.circular(6),
+                        boxShadow: index == selectedIndex ? [BoxShadow(color: palette.shadow, offset: const Offset(2, 2))] : null),
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
                       Icon(
                           index == selectedIndex
@@ -246,6 +248,16 @@ class DashboardPage extends ConsumerWidget {
               data: (value) => _HeroBalance(summary: value, hidden: hidden),
             ),
             const SizedBox(height: 17),
+            summary.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+              data: (value) => Row(children: [
+                Expanded(child: NeoCard(color: palette.highlight, padding: const EdgeInsets.all(12), child: _HeroMetric(label: 'PEMASUKAN', value: hidden ? '••••' : formatRupiah(value.totalIncome), icon: Icons.south_west_rounded))),
+                const SizedBox(width: 12),
+                Expanded(child: NeoCard(color: palette.secondary, padding: const EdgeInsets.all(12), child: _HeroMetric(label: 'PENGELUARAN', value: hidden ? '••••' : formatRupiah(value.totalExpense), icon: Icons.north_east_rounded))),
+              ]),
+            ),
+            const SizedBox(height: 20),
             const NeoSectionTitle('AKSI CEPAT'),
             const SizedBox(height: 9),
             Row(children: [
@@ -267,33 +279,20 @@ class DashboardPage extends ConsumerWidget {
                   child: NeoActionButton(
                       icon: Icons.flag_outlined,
                       label: 'Target',
-                      onPressed: () => onOpenTab(2),
+                      onPressed: () => onOpenTab(1),
                       color: palette.accent)),
               const SizedBox(width: 7),
               Expanded(
                   child: NeoActionButton(
                       icon: Icons.pie_chart_outline,
                       label: 'Anggaran',
-                      onPressed: () => onOpenTab(1),
+                      onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => Scaffold(appBar: AppBar(title: const Text('BUDGET PLANNER')), body: const BudgetPage()))),
                       color: palette.highlight)),
             ]),
             const SizedBox(height: 20),
-            NeoSectionTitle('RINGKASAN MINGGUAN',
-                trailing: NeoTag('7 HARI', color: palette.accent)),
-            const SizedBox(height: 9),
-            weekly.when(
-              loading: () => const NeoCard(
-                  child: SizedBox(
-                      height: 175,
-                      child: Center(child: CircularProgressIndicator()))),
-              error: (error, stack) => _InlineError(
-                  onRetry: () => ref.invalidate(weeklyActivityProvider)),
-              data: (value) => _WeeklyCard(activity: value, hidden: hidden),
-            ),
-            const SizedBox(height: 20),
             NeoSectionTitle('TARGET PRIORITAS',
                 trailing: TextButton(
-                    onPressed: () => onOpenTab(2), child: const Text('Semua'))),
+                    onPressed: () => onOpenTab(1), child: const Text('Semua'))),
             const SizedBox(height: 8),
             goals.when(
               loading: () => const NeoCard(child: LinearProgressIndicator()),
@@ -310,7 +309,7 @@ class DashboardPage extends ConsumerWidget {
                                 'Belum ada target. Buat tujuan tabungan pertamamu.',
                                 style: TextStyle(fontWeight: FontWeight.w800))),
                         TextButton(
-                            onPressed: () => onOpenTab(2),
+                            onPressed: () => onOpenTab(1),
                             child: const Text('Buat'))
                       ]))
                   : SizedBox(
@@ -326,6 +325,19 @@ class DashboardPage extends ConsumerWidget {
                         ),
                       ),
                     )
+            ),
+            const SizedBox(height: 20),
+            NeoSectionTitle('RINGKASAN MINGGUAN',
+                trailing: NeoTag('7 HARI', color: palette.accent)),
+            const SizedBox(height: 9),
+            weekly.when(
+              loading: () => const NeoCard(
+                  child: SizedBox(
+                      height: 175,
+                      child: Center(child: CircularProgressIndicator()))),
+              error: (error, stack) => _InlineError(
+                  onRetry: () => ref.invalidate(weeklyActivityProvider)),
+              data: (value) => _WeeklyCard(activity: value, hidden: hidden),
             ),
             const SizedBox(height: 20),
             NeoSectionTitle('SUMBER PEMASUKAN',
@@ -360,9 +372,38 @@ class DashboardPage extends ConsumerWidget {
                         ]
                       ]))),
             const SizedBox(height: 20),
+            NeoSectionTitle('ANGGARAN BULAN INI', trailing: TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => Scaffold(appBar: AppBar(title: const Text('BUDGET PLANNER')), body: const BudgetPage()))), child: const Text('Lihat'))),
+            const SizedBox(height: 8),
+            ref.watch(budgetsProvider).when(
+              loading: () => const LinearProgressIndicator(),
+              error: (_, __) => NeoErrorCard(onRetry: () => ref.invalidate(budgetsProvider)),
+              data: (lines) {
+                final configured = lines.where((line) => line.limit > 0).toList();
+                final spent = configured.fold<int>(0, (sum, line) => sum + line.spent);
+                final limit = configured.fold<int>(0, (sum, line) => sum + line.limit);
+                return NeoCard(color: palette.accent, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(configured.isEmpty ? 'Belum ada anggaran yang diatur.' : '${hidden ? '••••' : formatRupiah(spent)} / ${hidden ? '••••' : formatRupiah(limit)}', style: const TextStyle(fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 8), NeoProgressBar(progress: limit == 0 ? 0 : spent / limit),
+                ]));
+              },
+            ),
+            const SizedBox(height: 20),
+            NeoSectionTitle('HABIT HARI INI', trailing: TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const HabitsPage())), child: const Text('Buka'))),
+            const SizedBox(height: 8),
+            ref.watch(habitsProvider).when(
+              loading: () => const LinearProgressIndicator(),
+              error: (_, __) => NeoErrorCard(onRetry: () => ref.invalidate(habitsProvider)),
+              data: (habits) {
+                final today = DateTime.now();
+                final scheduled = habits.where((habit) => habit.isActive && habit.isOpportunity(today)).toList();
+                final done = scheduled.where((habit) => habit.isComplete(today)).length;
+                return NeoCard(color: palette.highlight, child: Text(scheduled.isEmpty ? 'Tidak ada jadwal habit hari ini.' : '$done / ${scheduled.length} habit selesai hari ini', style: const TextStyle(fontWeight: FontWeight.w900)));
+              },
+            ),
+            const SizedBox(height: 20),
             NeoSectionTitle('TRANSAKSI TERBARU',
                 trailing: TextButton(
-                    onPressed: () => onOpenTab(3),
+                    onPressed: () => onOpenTab(2),
                     child: const Text('Lihat semua'))),
             const SizedBox(height: 8),
             transactions.when(
@@ -431,20 +472,6 @@ class _HeroBalance extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         Container(height: 2, color: palette.border),
-        const SizedBox(height: 10),
-        Row(children: [
-          Expanded(
-              child: _HeroMetric(
-                  label: 'PEMASUKAN',
-                  value: hidden ? '••••' : formatRupiah(summary.totalIncome),
-                  icon: Icons.south_west_rounded)),
-          const SizedBox(width: 12),
-          Expanded(
-              child: _HeroMetric(
-                  label: 'PENGELUARAN',
-                  value: hidden ? '••••' : formatRupiah(summary.totalExpense),
-                  icon: Icons.north_east_rounded)),
-        ]),
         const SizedBox(height: 10),
         Row(children: [
           Expanded(
@@ -650,10 +677,12 @@ class _InlineError extends StatelessWidget {
 
 class _SettingsPage extends ConsumerWidget {
   const _SettingsPage(
-      {required this.onOpenActivity,
+      {required this.onOpenBudget,
+      required this.onOpenActivity,
       required this.onOpenSimulator,
       required this.onOpenHabits,
       required this.onOpenBackup});
+  final VoidCallback onOpenBudget;
   final VoidCallback onOpenActivity;
   final VoidCallback onOpenSimulator;
   final VoidCallback onOpenHabits;
@@ -664,6 +693,14 @@ class _SettingsPage extends ConsumerWidget {
     return ListView(
         padding: const EdgeInsets.fromLTRB(18, 12, 18, 100),
         children: [
+          Text('MORE ⚡', style: Theme.of(context).textTheme.headlineLarge),
+          const SizedBox(height: 6),
+          Text('Semua alat untuk uang dan kebiasaanmu.', style: TextStyle(color: palette.muted)),
+          const SizedBox(height: 16),
+          NeoCard(color: palette.accent, child: ListTile(contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.pie_chart_outline), title: const Text('Budget Planner'),
+            subtitle: const Text('Anggaran bulanan'), trailing: const Icon(Icons.arrow_forward), onTap: onOpenBudget)),
+          const SizedBox(height: 13),
           Text('Pengaturan', style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 14),
           NeoCard(
@@ -716,6 +753,12 @@ class _SettingsPage extends ConsumerWidget {
                   subtitle: const Text('Catatan keuangan, habit, dan foto target'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: onOpenBackup)),
+          const SizedBox(height: 13),
+          NeoCard(shadow: false, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('BELUM TERSEDIA', style: TextStyle(fontWeight: FontWeight.w900)),
+            const SizedBox(height: 6),
+            Text('Saving Challenge, Virtual Money Jar, Wishlist, Financial Calendar, Money Journal, dan Recurring Expenses belum diimplementasikan.', style: TextStyle(color: palette.muted, fontSize: 12)),
+          ])),
           const SizedBox(height: 13),
           Text('By Colpad ⚡',
               textAlign: TextAlign.center,

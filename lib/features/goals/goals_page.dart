@@ -41,20 +41,37 @@ class GoalsPage extends ConsumerWidget {
           goals.when(
             loading: () => const NeoCard(child: SizedBox(height: 150, child: Center(child: CircularProgressIndicator()))),
             error: (_, __) => NeoErrorCard(onRetry: () => ref.invalidate(savingGoalsProvider)),
-            data: (items) => items.isEmpty
-                ? NeoEmptyGoals(onCreate: () => _createGoal(context))
-                : Column(children: [
-                    for (var index = 0; index < items.length; index++) ...[
-                      _GoalTile(
-                        goal: items[index],
-                        featured: index == 0,
-                        hidden: hidden,
-                        onAllocate: () => onAllocate(TransactionType.deposit, items[index].id),
-                        onWithdraw: () => onAllocate(TransactionType.withdrawal, items[index].id),
-                      ),
-                      const SizedBox(height: 14),
-                    ],
-                  ]),
+            data: (items) {
+              if (items.isEmpty) return NeoEmptyGoals(onCreate: () => _createGoal(context));
+              final current = items.fold<int>(0, (sum, goal) => sum + goal.allocatedAmount);
+              final target = items.fold<int>(0, (sum, goal) => sum + goal.targetAmount);
+              final active = items.where((goal) => goal.progress < 1).toList();
+              final completed = items.where((goal) => goal.progress >= 1).toList();
+              String money(int value) => hidden ? '••••••' : formatRupiah(value);
+              Widget goalTile(SavingGoal goal, {bool featured = false}) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: _GoalTile(goal: goal, featured: featured, hidden: hidden,
+                  onAllocate: () => onAllocate(TransactionType.deposit, goal.id),
+                  onWithdraw: () => onAllocate(TransactionType.withdrawal, goal.id)));
+              return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                NeoCard(color: palette.primary, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  const Text('TOTAL TABUNGAN TUJUAN', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 11)),
+                  const SizedBox(height: 6),
+                  Text(money(current), style: Theme.of(context).textTheme.headlineLarge),
+                  Text('dari target ${money(target)}'),
+                  const SizedBox(height: 10), NeoProgressBar(progress: target == 0 ? 0 : current / target, color: palette.accent),
+                ])),
+                const SizedBox(height: 24),
+                if (active.isNotEmpty) ...[
+                  const NeoSectionTitle('TARGET AKTIF'), const SizedBox(height: 12),
+                  for (var index = 0; index < active.length; index++) goalTile(active[index], featured: index == 0),
+                ],
+                if (completed.isNotEmpty) ...[
+                  const NeoSectionTitle('TARGET TERCAPAI'), const SizedBox(height: 12),
+                  for (final goal in completed) goalTile(goal),
+                ],
+              ]);
+            },
           ),
         ],
       ),

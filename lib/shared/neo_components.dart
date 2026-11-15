@@ -20,15 +20,15 @@ class NeoCard extends StatelessWidget {
     final palette = NeoPalette.of(context);
     final featured = color != null;
     final radius = featured
-        ? const BorderRadius.only(topLeft: Radius.circular(28), topRight: Radius.circular(28), bottomLeft: Radius.circular(10), bottomRight: Radius.circular(28))
-        : BorderRadius.circular(22);
+        ? const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8), bottomLeft: Radius.circular(8), bottomRight: Radius.circular(20))
+        : BorderRadius.circular(8);
     return Container(
       decoration: BoxDecoration(
         color: color ?? palette.surface,
         borderRadius: radius,
-        border: Border.all(color: featured ? palette.border.withValues(alpha: .75) : palette.mutedSurface, width: featured ? 1.3 : 1),
-        boxShadow: shadow && featured
-            ? [BoxShadow(color: palette.shadow, offset: const Offset(3, 4))]
+        border: Border.all(color: palette.border, width: 2),
+        boxShadow: shadow
+            ? [BoxShadow(color: palette.shadow, offset: const Offset(4, 4))]
             : null,
       ),
       clipBehavior: Clip.antiAlias,
@@ -67,6 +67,7 @@ class NeoTag extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
           color: color ?? palette.highlight,
+          border: Border.all(color: palette.border, width: 2),
           borderRadius: BorderRadius.circular(99)),
       child: Text(label,
           style: TextStyle(
@@ -86,17 +87,18 @@ class NeoProgressBar extends StatelessWidget {
     final palette = NeoPalette.of(context);
     final reduced = MediaQuery.disableAnimationsOf(context);
     return ClipRRect(
-      borderRadius: BorderRadius.circular(99),
+      borderRadius: BorderRadius.circular(5),
       child: SizedBox(
-        height: 10,
+        height: 16,
         child: LayoutBuilder(builder: (context, constraints) => Stack(children: [
-          Positioned.fill(child: ColoredBox(color: palette.mutedSurface.withValues(alpha: .55))),
+          Positioned.fill(child: ColoredBox(color: palette.mutedSurface)),
           AnimatedContainer(
             duration: reduced ? Duration.zero : const Duration(milliseconds: 350),
             curve: Curves.easeOutCubic,
             width: constraints.maxWidth * progress.clamp(0, 1).toDouble(),
-            decoration: BoxDecoration(color: color ?? palette.primary, borderRadius: BorderRadius.circular(99)),
+            decoration: BoxDecoration(color: color ?? palette.primary),
           ),
+          Positioned.fill(child: IgnorePointer(child: DecoratedBox(decoration: BoxDecoration(border: Border.all(color: palette.border, width: 2), borderRadius: BorderRadius.circular(5))))),
         ])),
       ),
     );
@@ -122,12 +124,14 @@ class NeoActionButton extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(8),
         onTap: onPressed,
         child: Ink(
           decoration: BoxDecoration(
             color: color ?? palette.primary,
-            borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24), bottomLeft: Radius.circular(8), bottomRight: Radius.circular(24)),
+            border: Border.all(color: palette.border, width: 2),
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [BoxShadow(color: palette.shadow, offset: const Offset(3, 3))],
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 13),

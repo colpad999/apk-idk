@@ -6,9 +6,10 @@ import '../core/utils/currency.dart';
 import '../data/savings_transaction.dart';
 
 class TransactionTile extends StatelessWidget {
-  const TransactionTile({required this.transaction, required this.hidden, super.key});
+  const TransactionTile({required this.transaction, required this.hidden, this.onTap, super.key});
   final SavingsTransaction transaction;
   final bool hidden;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +19,7 @@ class TransactionTile extends StatelessWidget {
     final signedAmount = '${positive ? '+' : '-'}${hidden ? '••••' : formatRupiah(transaction.amount)}';
     final note = transaction.note?.trim();
     return ListTile(
+      onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
       leading: Container(width: 44, height: 44,
         decoration: BoxDecoration(color: tint, shape: BoxShape.circle),

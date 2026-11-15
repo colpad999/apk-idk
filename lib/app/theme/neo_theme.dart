@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Light-only editorial palette. [muted] is a readable ink tone; [mutedSurface]
+/// Light-only neobrutalist palette. [muted] is a readable ink tone; [mutedSurface]
 /// is the warm neutral used for backgrounds and separators.
 class NeoPalette {
   const NeoPalette({required this.background, required this.surface, required this.primary,
@@ -11,12 +11,12 @@ class NeoPalette {
   final Color text, border, shadow, muted, mutedSurface;
 
   static const light = NeoPalette(
-    background: Color(0xFFF5F0E6), surface: Color(0xFFFFFCF5),
-    primary: Color(0xFFC7F36B), secondary: Color(0xFFFF755E),
-    accent: Color(0xFFB6C9FF), highlight: Color(0xFFFFD66B),
-    text: Color(0xFF20201D), border: Color(0xFF20201D),
-    shadow: Color(0xFF20201D), muted: Color(0xFF605F58),
-    mutedSurface: Color(0xFFDAD5C9),
+    background: Color(0xFFFFFDF5), surface: Color(0xFFFFFFFF),
+    primary: Color(0xFFFFE66D), secondary: Color(0xFFFF90E8),
+    accent: Color(0xFFA9C7FF), highlight: Color(0xFFB8F28B),
+    text: Color(0xFF171717), border: Color(0xFF171717),
+    shadow: Color(0xFF171717), muted: Color(0xFF605F58),
+    mutedSurface: Color(0xFFE9E5D8),
   );
   static NeoPalette of(BuildContext context) => light;
 }
@@ -24,13 +24,13 @@ class NeoPalette {
 class NeoTheme {
   static ThemeData light() {
     const p = NeoPalette.light;
-    const ink = Color(0xFF20201D);
+    const ink = Color(0xFF171717);
     final scheme = ColorScheme.fromSeed(seedColor: p.primary, brightness: Brightness.light)
         .copyWith(primary: p.primary, secondary: p.secondary, surface: p.surface,
           onPrimary: ink, onSecondary: ink, onSurface: ink);
     final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
-      borderSide: BorderSide(color: p.mutedSurface, width: 1.2),
+      borderRadius: BorderRadius.circular(5),
+      borderSide: BorderSide(color: p.border, width: 2),
     );
     const display = 'SpaceGrotesk';
     return ThemeData(
@@ -60,18 +60,18 @@ class NeoTheme {
       filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(
         backgroundColor: p.primary, foregroundColor: ink, elevation: 0,
         minimumSize: const Size(48, 48), textStyle: const TextStyle(fontWeight: FontWeight.w800),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(99)))),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6), side: BorderSide(color: p.border, width: 2)))),
       outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(
         foregroundColor: ink, minimumSize: const Size(48, 48),
-        side: BorderSide(color: p.border, width: 1.2),
+        side: BorderSide(color: p.border, width: 2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(99)),
         textStyle: const TextStyle(fontWeight: FontWeight.w700))),
       chipTheme: ChipThemeData(backgroundColor: p.surface, selectedColor: p.primary,
-        side: BorderSide(color: p.mutedSurface), shape: const StadiumBorder()),
+        side: BorderSide(color: p.border, width: 2), shape: const StadiumBorder()),
       bottomSheetTheme: BottomSheetThemeData(backgroundColor: p.surface,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28)))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(12)), side: BorderSide(color: ink, width: 2))),
       dialogTheme: DialogThemeData(backgroundColor: p.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26))),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: const BorderSide(color: ink, width: 2))),
       dividerTheme: DividerThemeData(color: p.mutedSurface, thickness: 1),
       snackBarTheme: SnackBarThemeData(backgroundColor: ink, behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),

@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme/neo_theme.dart';
+import '../../core/utils/currency.dart';
+import '../../data/savings_transaction.dart';
 import '../../shared/neo_components.dart';
 import '../../shared/transaction_tile.dart';
 
@@ -16,6 +18,22 @@ class TransactionsPage extends ConsumerStatefulWidget {
 
 class _TransactionsPageState extends ConsumerState<TransactionsPage> {
   String _query = '';
+  String? _category;
+
+  void _detail(SavingsTransaction item, bool hidden) {
+    showDialog<void>(context: context, builder: (context) => AlertDialog(
+      title: Text(item.category),
+      content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(item.type.label),
+        const SizedBox(height: 8),
+        Text(hidden ? '••••••' : formatRupiah(item.amount), style: Theme.of(context).textTheme.headlineSmall),
+        const SizedBox(height: 8),
+        Text(DateFormat('d MMMM yyyy, HH:mm', 'id_ID').format(item.createdAt)),
+        if (item.note != null && item.note!.isNotEmpty) ...[const SizedBox(height: 8), Text(item.note!)],
+      ]),
+      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tutup'))],
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,23 +62,29 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
           data: (items) {
             final filtered = items
                 .where((item) =>
-                    item.category.toLowerCase().contains(_query) ||
-                    item.note?.toLowerCase().contains(_query) == true)
+                    (_category == null || item.category == _category) &&
+                    (item.category.toLowerCase().contains(_query) ||
+                    item.note?.toLowerCase().contains(_query) == true))
                 .toList();
+            final categories = items.map((item) => item.category).toSet().toList()..sort();
+            final filters = SingleChildScrollView(scrollDirection: Axis.horizontal, padding: const EdgeInsets.fromLTRB(20, 0, 20, 8), child: Row(children: [
+              ChoiceChip(label: const Text('Semua'), selected: _category == null, onSelected: (_) => setState(() => _category = null)),
+              for (final category in categories) ...[const SizedBox(width: 6), ChoiceChip(label: Text(category), selected: _category == category, onSelected: (_) => setState(() => _category = category))],
+            ]));
             if (filtered.isEmpty) {
-              return Center(
+              return Column(children: [filters, Expanded(child: Center(
                   child: Padding(
                       padding: const EdgeInsets.all(20),
                       child: NeoCard(
                           color: palette.highlight,
                           child: Text(
-                              _query.isEmpty
+                              _query.isEmpty && _category == null
                                   ? 'Belum ada transaksi.'
                                   : 'Transaksi tidak ditemukan.',
                               style: const TextStyle(
-                                  fontWeight: FontWeight.w800)))));
+                                  fontWeight: FontWeight.w800)))))) ]);
             }
-            return RefreshIndicator(
+            return Column(children: [filters, Expanded(child: RefreshIndicator(
               onRefresh: () async {
                 ref.invalidate(transactionsProvider);
                 await ref.read(transactionsProvider.future);
@@ -77,12 +101,12 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
                     if (showDate) Padding(padding: const EdgeInsets.only(top: 15, bottom: 8),
                       child: Text(DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(date).toUpperCase(),
                         style: TextStyle(color: palette.muted, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: .8))),
-                    TransactionTile(transaction: item, hidden: hidden),
+                    TransactionTile(transaction: item, hidden: hidden, onTap: () => _detail(item, hidden)),
                     Divider(color: palette.mutedSurface.withValues(alpha: .7), height: 1, indent: 55),
                   ]);
                 },
               ),
-            );
+            ))]);
           },
         ),
       ),
