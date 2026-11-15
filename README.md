@@ -8,9 +8,10 @@ Aplikasi Android offline-first untuk mencatat keuangan dan kebiasaan, dibangun d
 - Transaksi pemasukan/pengeluaran dan setoran/penarikan tujuan, pilihan tanggal dan konfirmasi; anggaran berdasarkan pengeluaran aktual.
 - Tujuan tabungan dengan foto tersimpan lokal, riwayat alokasi, dan simulasi tabungan.
 - Habit dengan jadwal harian, hari tertentu atau target mingguan, jeda, riwayat kalender per habit, streak dan beberapa pengingat notifikasi biasa.
+- Jurnal harian dan mood lokal dengan riwayat, edit dan hapus; bukan diagnosis.
 - Backup/restore JSON tervalidasi termasuk foto tujuan yang tersedia, dan ekspor CSV transaksi (CSV bukan backup penuh).
 
-**Belum tersedia:** alarm yang berbunyi sampai dimatikan, multiple check-in/counter, kalender gabungan, jurnal, mood, achievement, wishlist, dan tantangan. Pengingat habit adalah notifikasi biasa, bukan alarm. Lihat [status alarm](docs/alarm-status.md).
+**Belum tersedia:** alarm yang berbunyi sampai dimatikan, multiple check-in/counter, kalender gabungan, statistik mood, achievement, wishlist, dan tantangan. Pengingat habit adalah notifikasi biasa, bukan alarm. Lihat [status alarm](docs/alarm-status.md).
 
 ## Teknologi dan struktur
 
@@ -33,7 +34,7 @@ Untuk build release lokal, pastikan Gradle wrapper tersedia (`flutter create` da
 
 ## Backup dan privasi
 
-Backup mencakup transaksi, anggaran, tujuan, habit, penyelesaian, jadwal pengingat, jeda, pengaturan, serta foto tujuan yang tersedia. Foto yang hilang dilaporkan. File divalidasi dan dibatasi 50 MB. Restore hanya diperbolehkan ke database kosong dan dijalankan dalam transaksi; jangan menghapus data aktif untuk melakukan restore tanpa memastikan backup aman. Backup JSON tidak terenkripsi: simpan secara pribadi. CSV hanya berisi ledger, bukan semua data.
+Backup mencakup transaksi, anggaran, tujuan, habit, penyelesaian, jadwal pengingat, jeda, jurnal, mood, pengaturan, serta foto tujuan yang tersedia. Foto yang hilang dilaporkan. File divalidasi dan dibatasi 50 MB. Restore hanya diperbolehkan ke database kosong dan dijalankan dalam transaksi; jangan menghapus data aktif untuk melakukan restore tanpa memastikan backup aman. Backup JSON tidak terenkripsi: simpan secara pribadi. CSV hanya berisi ledger, bukan semua data.
 
 ## Izin dan batas Android
 

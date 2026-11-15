@@ -33,6 +33,27 @@ void main() {
     }
   });
 
+  test('v6 migrates additively without losing habit or financial data', () async {
+    final directory = await Directory.systemTemp.createTemp('colpad_v6_');
+    final file = File('${directory.path}/savings.sqlite');
+    final old = SavingsDatabase.forTesting(NativeDatabase(file));
+    await old.customSelect('SELECT 1').getSingle();
+    await old.customStatement("INSERT INTO habits (name, frequency, start_date, created_at) VALUES ('Belajar', 'daily', '2026-01-01', 1)");
+    await old.customStatement("INSERT INTO savings_transactions (type, amount, category, created_at) VALUES ('income', 1000, 'Saku', 1)");
+    await old.customStatement('DROP TABLE life_entries');
+    await old.customStatement('PRAGMA user_version = 6');
+    await old.close();
+    final migrated = SavingsDatabase.forTesting(NativeDatabase(file));
+    try {
+      expect(await migrated.customSelect('SELECT * FROM habits').get(), hasLength(1));
+      expect(await migrated.customSelect('SELECT * FROM savings_transactions').get(), hasLength(1));
+      expect(await migrated.customSelect('SELECT * FROM life_entries').get(), isEmpty);
+    } finally {
+      await migrated.close();
+      await directory.delete(recursive: true);
+    }
+  });
+
   test('upgrades v1 without deleting transactions', () async {
     final directory =
         await Directory.systemTemp.createTemp('colpad_migration_');

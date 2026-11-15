@@ -6,6 +6,7 @@ import '../backup/backup_page.dart';
 import '../budget/budget_page.dart';
 import '../habits/habit_settings_page.dart';
 import '../habits/habits_page.dart';
+import '../life/life_journal_page.dart';
 import '../simulator/savings_simulator_page.dart';
 
 class NavigationCenterPage extends StatefulWidget {
@@ -39,6 +40,7 @@ class _NavigationCenterPageState extends State<NavigationCenterPage> {
       ('PRODUCTIVITY', 'Saving Challenge', Icons.emoji_events_outlined, null),
       ('PRODUCTIVITY', 'Wishlist', Icons.favorite_border, null),
       ('PRODUCTIVITY', 'Financial Calendar', Icons.calendar_month, null),
+      ('PRODUCTIVITY', 'Jurnal harian & mood', Icons.book_outlined, () => _page(const LifeJournalPage())),
       ('PRODUCTIVITY', 'Money Journal', Icons.book_outlined, null),
       ('PRODUCTIVITY', 'Simulasi tabungan', Icons.calculate_outlined, () => _page(const SavingsSimulatorPage())),
       ('REMINDERS', 'Alarm manual stop', Icons.alarm, null),

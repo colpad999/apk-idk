@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/app_settings_repository.dart';
 import '../data/goal_repository.dart';
 import '../data/habit_repository.dart';
+import '../data/life_repository.dart';
 import '../data/planning_repository.dart';
 import '../data/savings_database.dart';
 import '../data/savings_transaction.dart';
@@ -95,3 +96,8 @@ final savingsSummaryProvider = FutureProvider<SavingsSummary>(
     (ref) => ref.watch(transactionRepositoryProvider).summary());
 
 final hideBalanceProvider = StateProvider<bool>((ref) => false);
+
+final lifeRepositoryProvider = Provider<LifeRepository>(
+    (ref) => LifeRepository(ref.watch(savingsDatabaseProvider)));
+final lifeEntriesProvider = FutureProvider<List<LifeEntry>>(
+    (ref) => ref.watch(lifeRepositoryProvider).list());

@@ -9,7 +9,7 @@ import '../data/savings_database.dart';
 import 'goal_photo_storage.dart';
 
 const backupFormat = 'colpad_savings_backup';
-const backupVersion = 1;
+const backupVersion = 2;
 const maxBackupBytes = 50 * 1024 * 1024;
 
 class BackupExport {
@@ -52,6 +52,7 @@ class BackupService {
     'habit_completions',
     'habit_pauses',
     'app_settings',
+    'life_entries',
   ];
 
   Future<BackupExport> export() async {
@@ -119,10 +120,11 @@ class BackupService {
     }
     final document = _map(decoded, 'backup');
     if (document['format'] != backupFormat ||
-        document['version'] != backupVersion) {
+        ![1, backupVersion].contains(document['version'])) {
       throw const FormatException('Format atau versi backup tidak didukung.');
     }
     final data = _map(document['data'], 'data');
+    if (document['version'] == 1) data['life_entries'] = <Object?>[];
     final rows = _validateData(data);
     final photos = _validatePhotos(document['photos'], rows['saving_goals']!);
 
@@ -188,6 +190,8 @@ class BackupService {
             ['id', 'habit_id', 'completion_date', 'created_at']);
         await _insertRows('habit_pauses', rows['habit_pauses']!,
             ['id', 'habit_id', 'start_date', 'end_date']);
+        await _insertRows('life_entries', rows['life_entries']!,
+            ['entry_date', 'journal', 'mood', 'mood_note', 'updated_at']);
         for (final setting in rows['app_settings']!) {
           await _database.customInsert(
             'INSERT INTO app_settings (key, value) VALUES (?, ?) '
@@ -215,7 +219,7 @@ class BackupService {
 
   Future<void> _ensureRestoreTargetEmpty() async {
     for (final table in [
-      'savings_transactions', 'budgets', 'income_sources', 'saving_goals', 'habits'
+      'savings_transactions', 'budgets', 'income_sources', 'saving_goals', 'habits', 'life_entries'
     ]) {
       final count = await _database
           .customSelect('SELECT COUNT(*) AS total FROM $table')
@@ -242,6 +246,7 @@ class BackupService {
       'habit_completions': 500000,
       'habit_pauses': 100000,
       'app_settings': 100,
+      'life_entries': 100000,
     };
     for (final table in _tables) {
       final list = _list(data[table], table);
@@ -385,6 +390,20 @@ class BackupService {
       if (end != null && end.isBefore(start)) {
         throw const FormatException('Rentang jeda backup tidak valid.');
       }
+    }
+    final entryDates = <String>{};
+    for (final row in result['life_entries']!) {
+      if (!entryDates.add(_date(row['entry_date']).key)) {
+        throw const FormatException('Tanggal jurnal duplikat.');
+      }
+      if (_string(row['journal']).length > 10000 || _string(row['mood_note']).length > 2000) {
+        throw const FormatException('Catatan backup terlalu panjang.');
+      }
+      final mood = row['mood'];
+      if (mood != null && (mood is! int || mood < 1 || mood > 5)) {
+        throw const FormatException('Mood backup tidak valid.');
+      }
+      _integer(row['updated_at'], 'updated_at');
     }
     final settingKeys = <String>{};
     for (final row in result['app_settings']!) {
