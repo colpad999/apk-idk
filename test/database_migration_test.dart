@@ -54,6 +54,24 @@ void main() {
     }
   });
 
+  test('v7 check-in migration preserves habit and journal data', () async {
+    final directory = await Directory.systemTemp.createTemp('colpad_v7_');
+    final file = File('${directory.path}/savings.sqlite');
+    final old = SavingsDatabase.forTesting(NativeDatabase(file));
+    await old.customSelect('SELECT 1').getSingle();
+    await old.customStatement("INSERT INTO habits (name, frequency, start_date, created_at) VALUES ('Belajar', 'daily', '2026-01-01', 1)");
+    await old.customStatement("INSERT INTO life_entries (entry_date, journal, updated_at) VALUES ('2026-01-01', 'Catatan', 1)");
+    await old.customStatement('DROP TABLE habit_checkins');
+    await old.customStatement('PRAGMA user_version = 7');
+    await old.close();
+    final migrated = SavingsDatabase.forTesting(NativeDatabase(file));
+    try {
+      expect(await migrated.customSelect('SELECT * FROM habits').get(), hasLength(1));
+      expect(await migrated.customSelect('SELECT * FROM life_entries').get(), hasLength(1));
+      expect(await migrated.customSelect('SELECT * FROM habit_checkins').get(), isEmpty);
+    } finally { await migrated.close(); await directory.delete(recursive: true); }
+  });
+
   test('upgrades v1 without deleting transactions', () async {
     final directory =
         await Directory.systemTemp.createTemp('colpad_migration_');

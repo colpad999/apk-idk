@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/app_settings_repository.dart';
 import '../data/goal_repository.dart';
 import '../data/habit_repository.dart';
+import '../data/habit_checkin_repository.dart';
 import '../data/life_repository.dart';
 import '../data/planning_repository.dart';
 import '../data/savings_database.dart';
@@ -101,3 +102,8 @@ final lifeRepositoryProvider = Provider<LifeRepository>(
     (ref) => LifeRepository(ref.watch(savingsDatabaseProvider)));
 final lifeEntriesProvider = FutureProvider<List<LifeEntry>>(
     (ref) => ref.watch(lifeRepositoryProvider).list());
+
+final habitCheckinRepositoryProvider = Provider<HabitCheckinRepository>(
+    (ref) => HabitCheckinRepository(ref.watch(savingsDatabaseProvider)));
+final habitCheckinsProvider = FutureProvider.family<List<HabitCheckin>, int>(
+    (ref, id) => ref.watch(habitCheckinRepositoryProvider).list(id));

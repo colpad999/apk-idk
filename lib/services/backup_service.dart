@@ -9,7 +9,7 @@ import '../data/savings_database.dart';
 import 'goal_photo_storage.dart';
 
 const backupFormat = 'colpad_savings_backup';
-const backupVersion = 2;
+const backupVersion = 3;
 const maxBackupBytes = 50 * 1024 * 1024;
 
 class BackupExport {
@@ -53,6 +53,7 @@ class BackupService {
     'habit_pauses',
     'app_settings',
     'life_entries',
+    'habit_checkins',
   ];
 
   Future<BackupExport> export() async {
@@ -120,11 +121,12 @@ class BackupService {
     }
     final document = _map(decoded, 'backup');
     if (document['format'] != backupFormat ||
-        ![1, backupVersion].contains(document['version'])) {
+        ![1, 2, backupVersion].contains(document['version'])) {
       throw const FormatException('Format atau versi backup tidak didukung.');
     }
     final data = _map(document['data'], 'data');
     if (document['version'] == 1) data['life_entries'] = <Object?>[];
+    if (document['version'] == 1 || document['version'] == 2) data['habit_checkins'] = <Object?>[];
     final rows = _validateData(data);
     final photos = _validatePhotos(document['photos'], rows['saving_goals']!);
 
@@ -190,6 +192,8 @@ class BackupService {
             ['id', 'habit_id', 'completion_date', 'created_at']);
         await _insertRows('habit_pauses', rows['habit_pauses']!,
             ['id', 'habit_id', 'start_date', 'end_date']);
+        await _insertRows('habit_checkins', rows['habit_checkins']!,
+            ['id', 'habit_id', 'recorded_at', 'local_date', 'note']);
         await _insertRows('life_entries', rows['life_entries']!,
             ['entry_date', 'journal', 'mood', 'mood_note', 'updated_at']);
         for (final setting in rows['app_settings']!) {
@@ -247,6 +251,7 @@ class BackupService {
       'habit_pauses': 100000,
       'app_settings': 100,
       'life_entries': 100000,
+      'habit_checkins': 500000,
     };
     for (final table in _tables) {
       final list = _list(data[table], table);
@@ -265,6 +270,7 @@ class BackupService {
     _uniqueIds(result, 'habit_reminders');
     _uniqueIds(result, 'habit_completions');
     _uniqueIds(result, 'habit_pauses');
+    _uniqueIds(result, 'habit_checkins');
 
     final transactionIds = _ids(result['savings_transactions']!);
     final goalIds = _ids(result['saving_goals']!);
@@ -390,6 +396,13 @@ class BackupService {
       if (end != null && end.isBefore(start)) {
         throw const FormatException('Rentang jeda backup tidak valid.');
       }
+    }
+    for (final row in result['habit_checkins']!) {
+      if (!habitIds.contains(row['habit_id']) || _string(row['note']).length > 500) {
+        throw const FormatException('Check-in habit backup tidak valid.');
+      }
+      _integer(row['recorded_at'], 'recorded_at');
+      _date(row['local_date']);
     }
     final entryDates = <String>{};
     for (final row in result['life_entries']!) {

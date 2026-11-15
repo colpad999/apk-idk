@@ -9,6 +9,7 @@ import '../../domain/habit_statistics.dart';
 import '../../shared/neo_components.dart';
 import 'habit_actions.dart';
 import 'habit_editor_page.dart';
+import 'habit_checkins_page.dart';
 import 'habit_history_page.dart';
 import 'habit_widgets.dart';
 import 'reminder_settings_page.dart';
@@ -107,6 +108,12 @@ class HabitDetailPage extends ConsumerWidget {
                       builder: (_) => HabitHistoryPage(habitId: habit.id))),
                   icon: const Icon(Icons.calendar_month_outlined, size: 18),
                   label: const Text('Riwayat'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                      builder: (_) => HabitCheckinsPage(habitId: habit.id, habitName: habit.name))),
+                  icon: const Icon(Icons.note_add_outlined, size: 18),
+                  label: const Text('Check-in'),
                 ),
                 OutlinedButton.icon(
                   onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(

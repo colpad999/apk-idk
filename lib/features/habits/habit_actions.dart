@@ -79,7 +79,7 @@ Future<bool> deleteHabit(
     context,
     title: 'Hapus habit?',
     message:
-        '“${habit.name}”, riwayat penyelesaian, dan semua pengingatnya akan dihapus. Transaksi keuangan tidak terpengaruh.',
+        '“${habit.name}”, riwayat penyelesaian, check-in, dan semua pengingatnya akan dihapus. Transaksi keuangan tidak terpengaruh.',
     confirmLabel: 'Hapus habit',
     destructive: true,
   );
