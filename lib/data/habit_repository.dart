@@ -29,11 +29,25 @@ class HabitRepository {
     final pauseRows = await _database
         .customSelect('SELECT * FROM habit_pauses ORDER BY start_date, id')
         .get();
+    final counterRows = await _database.customSelect('SELECT habit_id FROM habit_counters').get();
+    final counterLogs = await _database.customSelect('''
+      SELECT d.habit_id, d.local_date FROM habit_counter_days d
+      JOIN habit_counters c ON c.habit_id = d.habit_id
+      WHERE d.amount >= c.target
+    ''').get();
+    final counterIds = counterRows.map((row) => row.read<int>('habit_id')).toSet();
+    final counterCompletions = <int, Set<String>>{};
+    for (final row in counterLogs) {
+      counterCompletions.putIfAbsent(row.read<int>('habit_id'), () => {}).add(row.read<String>('local_date'));
+    }
     final completions = <int, Set<String>>{};
     for (final row in logs) {
       completions
           .putIfAbsent(row.read<int>('habit_id'), () => {})
           .add(row.read<String>('completion_date'));
+    }
+    for (final entry in counterCompletions.entries) {
+      completions.putIfAbsent(entry.key, () => {}).addAll(entry.value);
     }
     final reminders = <int, List<HabitReminder>>{};
     for (final row in reminderRows) {
@@ -56,6 +70,8 @@ class HabitRepository {
               completions[row.read<int>('id')] ?? {},
               reminders[row.read<int>('id')] ?? [],
               pauses[row.read<int>('id')] ?? [],
+              counterIds.contains(row.read<int>('id')),
+              counterCompletions[row.read<int>('id')] ?? {},
             ))
         .toList();
   }
@@ -305,7 +321,8 @@ class HabitRepository {
       });
 
   Habit _fromRow(QueryRow row, Set<String> completions,
-      List<HabitReminder> reminders, List<HabitPause> pauses) {
+      List<HabitReminder> reminders, List<HabitPause> pauses,
+      bool hasCounter, Set<String> counterCompletedDates) {
     final frequency = switch (row.read<String>('frequency')) {
       'daily' => HabitFrequency.daily,
       'weekly_days' || 'weeklyDays' => HabitFrequency.weeklyDays,
@@ -328,6 +345,8 @@ class HabitRepository {
       isActive: row.read<int>('is_active') == 1,
       createdAt: DateTime.fromMillisecondsSinceEpoch(row.read<int>('created_at')),
       completedDates: completions,
+      hasCounter: hasCounter,
+      counterCompletedDates: counterCompletedDates,
       reminders: reminders,
       pauses: pauses,
     );

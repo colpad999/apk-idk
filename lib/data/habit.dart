@@ -104,6 +104,8 @@ class Habit {
     required this.completedDates,
     this.reminders = const [],
     this.pauses = const [],
+    this.hasCounter = false,
+    this.counterCompletedDates = const {},
   });
 
   final int id;
@@ -118,6 +120,8 @@ class Habit {
   final Set<String> completedDates;
   final List<HabitReminder> reminders;
   final List<HabitPause> pauses;
+  final bool hasCounter;
+  final Set<String> counterCompletedDates;
 
   bool get isFlexible => frequency == HabitFrequency.timesPerWeek;
   bool get hasReminder => reminders.any((reminder) => reminder.enabled);

@@ -31,6 +31,10 @@ Future<bool> ensureHabitNotificationPermission(
 
 Future<void> toggleHabitCompletion(
     BuildContext context, WidgetRef ref, Habit habit, DateTime date) async {
+  if (habit.hasCounter && (!habit.isComplete(date) || habit.counterCompletedDates.contains(habit.dateKey(date)))) {
+    showNeoMessage(context, 'Untuk mengubah status target, buka Counter pada detail habit.');
+    return;
+  }
   if (habit.isComplete(date)) {
     final confirmed = await confirmNeoAction(
       context,

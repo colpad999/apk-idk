@@ -43,6 +43,7 @@ class _HabitCounterPageState extends ConsumerState<HabitCounterPage> {
     try {
       await ref.read(habitCounterRepositoryProvider).configure(widget.habitId, number, result.$2);
       ref.invalidate(habitCounterProvider(widget.habitId));
+      ref.invalidate(habitsProvider);
     } catch (error) {
       if (mounted) { showNeoMessage(context, friendlyError(error)); }
     } finally { if (mounted) setState(() => _busy = false); }
@@ -54,6 +55,7 @@ class _HabitCounterPageState extends ConsumerState<HabitCounterPage> {
     try {
       await ref.read(habitCounterRepositoryProvider).change(widget.habitId, delta);
       ref.invalidate(habitCounterHistoryProvider(widget.habitId));
+      ref.invalidate(habitsProvider);
     } catch (error) {
       if (mounted) { showNeoMessage(context, friendlyError(error)); }
     } finally { if (mounted) setState(() => _busy = false); }
@@ -94,7 +96,7 @@ class _HabitCounterPageState extends ConsumerState<HabitCounterPage> {
                 OutlinedButton(onPressed: _busy ? null : () => _configure(counter), child: Text(counter == null ? 'Atur target' : 'Ubah target')),
               ])),
               const SizedBox(height: 12),
-              const Text('Counter ini terpisah dari check-in dan tanda selesai habit; target tercapai tidak otomatis mengubah streak. Perubahan target berlaku pada tampilan semua tanggal.', style: TextStyle(fontSize: 12)),
+              const Text('Saat target tercapai pada hari terjadwal, habit dihitung selesai dan memengaruhi streak. Check-in tetap terpisah. Mengubah target menghitung ulang seluruh riwayat counter; tanda selesai manual lama tetap disimpan.', style: TextStyle(fontSize: 12)),
               const SizedBox(height: 16),
               const NeoSectionTitle('RIWAYAT HARIAN'),
               const SizedBox(height: 8),

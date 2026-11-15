@@ -31,6 +31,29 @@ void main() {
     } finally { await db.close(); }
   });
 
+  test('counter targets contribute to completion and preserve manual history', () async {
+    final db = SavingsDatabase.forTesting(NativeDatabase.memory());
+    try {
+      final date = DateTime(2026, 1, 2);
+      final habits = HabitRepository(db, clock: () => date);
+      final id = await habits.save(name: 'Air', startDate: DateTime(2026, 1, 1));
+      await habits.complete(id, DateTime(2026, 1, 1));
+      final counters = HabitCounterRepository(db, clock: () => date);
+      await counters.configure(id, 2, 'gelas');
+      await counters.change(id, 1);
+      expect((await habits.get(id))!.isComplete(date), isFalse);
+      await counters.change(id, 1);
+      var habit = (await habits.get(id))!;
+      expect(habit.isComplete(date), isTrue);
+      expect(habit.counterCompletedDates, contains('2026-01-02'));
+      expect(habit.isComplete(DateTime(2026, 1, 1)), isTrue);
+      await counters.change(id, -1);
+      habit = (await habits.get(id))!;
+      expect(habit.isComplete(date), isFalse);
+      expect(habit.isComplete(DateTime(2026, 1, 1)), isTrue);
+    } finally { await db.close(); }
+  });
+
   test('backup round-trip and v3 compatibility', () async {
     final dir = await Directory.systemTemp.createTemp('counter_backup_');
     final photos = GoalPhotoStorage(rootDirectory: () async => dir);

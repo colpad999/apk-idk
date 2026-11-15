@@ -9,7 +9,7 @@ Aplikasi Android offline-first untuk mencatat keuangan dan kebiasaan, dibangun d
 - Tujuan tabungan dengan foto tersimpan lokal, riwayat alokasi, dan simulasi tabungan.
 - Habit dengan jadwal harian, hari tertentu atau target mingguan, jeda, riwayat kalender per habit, streak dan beberapa pengingat notifikasi biasa.
 - Check-in habit berkali-kali dengan waktu, catatan, edit dan hapus. Check-in terpisah dari status selesai.
-- Counter habit opsional dengan target bulat dan satuan, progres harian, penyesuaian dan riwayat; terpisah dari check-in dan streak.
+- Counter habit opsional dengan target bulat dan satuan, progres harian, penyesuaian dan riwayat; target yang tercapai diperhitungkan dalam streak. Check-in tetap terpisah.
 - Kalender aktivitas bulanan untuk habit terjadwal, jurnal dan mood dengan ringkasan mingguan/bulanan.
 - Pencapaian habit berbasis riwayat dan ringkasan mood mingguan/bulanan (bukan diagnosis).
 - Jurnal harian dan mood lokal dengan riwayat, edit dan hapus; bukan diagnosis.
