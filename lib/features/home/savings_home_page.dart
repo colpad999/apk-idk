@@ -313,7 +313,7 @@ class DashboardPage extends ConsumerWidget {
                             child: const Text('Buat'))
                       ]))
                   : SizedBox(
-                      height: 330,
+                      height: 355 + (MediaQuery.textScalerOf(context).scale(1) - 1).clamp(0, 2) * 100,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: items.length,
