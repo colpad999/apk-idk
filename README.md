@@ -1,41 +1,40 @@
 # Colpad Savings ⚡
 
-Pencatat tabungan pribadi offline-first untuk Android, dibuat dengan Flutter.
+Aplikasi Android offline-first untuk mencatat keuangan dan kebiasaan, dibangun dengan Flutter. UI menggunakan Neo-Brutalism bertema terang. Ini belum merupakan Life Tracker lengkap.
 
-## Fitur
-- Design system Neo-Brutalism dengan tema terang/gelap, komponen outline tebal, dan bayangan keras.
-- Dashboard saldo kas/alokasi, pemasukan, pengeluaran, aksi cepat, target prioritas, grafik mingguan, dan sumber pemasukan.
-- Transaksi lokal melalui Drift/SQLite: pemasukan, pengeluaran, setoran, dan penarikan; nominal memakai integer Rupiah.
-- Anggaran bulanan per kategori yang dihitung dari pengeluaran aktual tanpa mengurangi saldo lagi.
-- Target tabungan dan riwayat alokasi yang terhubung secara atomik dengan transaksi.
-- Simulasi tabungan harian, mingguan, atau bulanan dengan skenario Hemat, Normal, dan Agresif.
-- Navigasi Home, Budget, Goals, Activity, dan More; pencarian riwayat, penyamaran saldo, dan format Indonesia.
-- Migrasi database versi 1 ke versi 3 mempertahankan transaksi lama.
+## Fitur yang tersedia
 
-Kalender keuangan, biaya berulang, jurnal, tantangan, celengan, achievement, wishlist, pengingat, backup/restore, dan ekspor CSV belum tersedia.
+- Dashboard saldo, pemasukan, pengeluaran, alokasi tujuan, aktivitas dan statistik keuangan; pencarian pusat fitur.
+- Transaksi pemasukan/pengeluaran dan setoran/penarikan tujuan, pilihan tanggal dan konfirmasi; anggaran berdasarkan pengeluaran aktual.
+- Tujuan tabungan dengan foto tersimpan lokal, riwayat alokasi, dan simulasi tabungan.
+- Habit dengan jadwal harian, hari tertentu atau target mingguan, jeda, riwayat kalender per habit, streak dan beberapa pengingat notifikasi biasa.
+- Backup/restore JSON tervalidasi termasuk foto tujuan yang tersedia, dan ekspor CSV transaksi (CSV bukan backup penuh).
 
-## Build APK
-1. Open **Actions**.
-2. Select **Build Android APK**.
-3. Click **Run workflow** or push a commit to `main`.
-4. After a successful run, download `colpad-android-apk` from Artifacts.
+**Belum tersedia:** alarm yang berbunyi sampai dimatikan, multiple check-in/counter, kalender gabungan, jurnal, mood, achievement, wishlist, dan tantangan. Pengingat habit adalah notifikasi biasa, bukan alarm. Lihat [status alarm](docs/alarm-status.md).
 
-Workflow menghasilkan platform Android dan APK dengan Flutter stable pada GitHub-hosted runner. Android SDK lokal tidak diperlukan.
+## Teknologi dan struktur
 
-## Pengembangan dan build lokal
-Lingkungan memerlukan Flutter stable dengan Dart SDK `>=3.6.0 <4.0.0`. Repository menyimpan source dan workflow membuat wrapper Android sementara; karena itu build release yang direkomendasikan adalah melalui GitHub Actions.
+Flutter/Dart, Riverpod, Drift/SQLite, flutter_local_notifications, timezone, image picker dan file picker. `lib/data` berisi database dan repository; `lib/domain` logika statistik; `lib/services` backup, foto dan notifikasi; `lib/features` halaman; `lib/app` konfigurasi aplikasi dan provider; `test` pengujian; `android` konfigurasi native.
+
+## Menjalankan dan membangun
+
+Instal Flutter stable (CI menggunakan 3.47.9), Android SDK, dan JDK 17. Dengan perangkat atau emulator yang sudah terhubung:
 
 ```sh
 flutter pub get
+flutter run
+# validasi
 dart format .
 flutter analyze
 flutter test
 ```
 
-## Compatibility and release notes
-- Target SDK 36 is configured for Android 16-era compatibility.
-- Minimum SDK 24 means Android 7.0 or newer, subject to device compatibility.
-- Test the APK on real devices before distribution.
-- Configure and protect a release signing key before publishing to an app store.
+Untuk build release lokal, pastikan Gradle wrapper tersedia (`flutter create` dapat membuat wrapper di direktori sementara; salin `gradlew`, `gradlew.bat`, dan `gradle-wrapper.jar` ke `android/` tanpa menimpa konfigurasi proyek), lalu jalankan `flutter build apk --release`. Alternatif: jalankan workflow **Build Android APK** di GitHub Actions dan unduh artefak `colpad-android-apk`. Build saat ini menggunakan debug signing; konfigurasikan kunci release sendiri sebelum distribusi.
 
-Crafted by Colpad ⚡
+## Backup dan privasi
+
+Backup mencakup transaksi, anggaran, tujuan, habit, penyelesaian, jadwal pengingat, jeda, pengaturan, serta foto tujuan yang tersedia. Foto yang hilang dilaporkan. File divalidasi dan dibatasi 50 MB. Restore hanya diperbolehkan ke database kosong dan dijalankan dalam transaksi; jangan menghapus data aktif untuk melakukan restore tanpa memastikan backup aman. Backup JSON tidak terenkripsi: simpan secara pribadi. CSV hanya berisi ledger, bukan semua data.
+
+## Izin dan batas Android
+
+Minimum Android 7 (SDK 24), target SDK 36. `POST_NOTIFICATIONS` diperlukan untuk notifikasi pada Android 13+, dan `RECEIVE_BOOT_COMPLETED` untuk menjadwalkan ulang notifikasi setelah reboot. Pengingat bersifat inexact dan dapat ditunda oleh sistem; force-stop dan kebijakan perangkat dapat menghambatnya. Aplikasi tidak meminta izin exact alarm atau full-screen intent karena alarm manual-stop belum diimplementasikan. Foto dipilih melalui photo picker, tanpa izin penyimpanan luas. Uji pada perangkat nyata sebelum distribusi.
