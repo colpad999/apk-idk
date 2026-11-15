@@ -12,7 +12,7 @@ void main() {
       NeoButton(label: 'Memuat', onPressed: () => count++, loading: true),
     ]))));
     await tester.tap(find.text('Simpan'));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 200));
     expect(count, 1);
     await tester.tap(find.text('Tidak aktif'));
     await tester.tap(find.text('Memuat'));
