@@ -73,7 +73,7 @@ class _EntryEditorState extends ConsumerState<_EntryEditor> {
     }
     setState(() => _busy = true);
     try {
-      await ref.read(lifeRepositoryProvider).save(_date, _journal.text, _mood, _note.text);
+      await ref.read(lifeRepositoryProvider).save(_date, _journal.text, _mood, _note.text, createOnly: widget.entry == null);
       ref.invalidate(lifeEntriesProvider);
       if (mounted) { Navigator.pop(context); }
     } catch (error) {

@@ -24,20 +24,19 @@ class LifeRepository {
     )).toList();
   }
 
-  Future<void> save(DateTime date, String journal, int? mood, String moodNote) async {
+  Future<void> save(DateTime date, String journal, int? mood, String moodNote, {bool createOnly = false}) async {
     if (journal.length > 10000 || moodNote.length > 2000 || (mood != null && (mood < 1 || mood > 5))) {
       throw ArgumentError('Catatan terlalu panjang atau mood tidak valid.');
     }
     final key = CivilDate.from(date).key;
     if (journal.trim().isEmpty && mood == null && moodNote.trim().isEmpty) {
-      await delete(date);
+      if (!createOnly) await delete(date);
       return;
     }
     await database.customInsert('''
       INSERT INTO life_entries (entry_date, journal, mood, mood_note, updated_at)
       VALUES (?, ?, ?, ?, ?)
-      ON CONFLICT(entry_date) DO UPDATE SET journal=excluded.journal,
-        mood=excluded.mood, mood_note=excluded.mood_note, updated_at=excluded.updated_at
+      ${createOnly ? '' : 'ON CONFLICT(entry_date) DO UPDATE SET journal=excluded.journal, mood=excluded.mood, mood_note=excluded.mood_note, updated_at=excluded.updated_at'}
     ''', variables: [Variable.withString(key), Variable.withString(journal.trim()),
       Variable<int>(mood), Variable.withString(moodNote.trim()), Variable.withInt(DateTime.now().millisecondsSinceEpoch)]);
   }
