@@ -55,14 +55,14 @@ class _ActivityCalendarPageState extends ConsumerState<ActivityCalendarPage> {
     final weekStart = CivilDate.from(_selected).weekStart;
     for (var day = 1; day <= count; day++) {
       final date = CivilDate(DateTime(_month.year, _month.month, day));
-      if (date.isAfter(today)) continue;
+      if (date.isAfter(today)) { continue; }
       final item = activityForDay(date.value, habits, entries);
       monthDone += item.completed.length;
       monthTotal += item.scheduled.length;
     }
     for (var offset = 0; offset < 7; offset++) {
       final date = weekStart.addDays(offset);
-      if (date.isAfter(today)) continue;
+      if (date.isAfter(today)) { continue; }
       final item = activityForDay(date.value, habits, entries);
       weekDone += item.completed.length;
       weekTotal += item.scheduled.length;
@@ -80,7 +80,7 @@ class _ActivityCalendarPageState extends ConsumerState<ActivityCalendarPage> {
           itemCount: rows * 7, gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 7, childAspectRatio: 1),
           itemBuilder: (context, index) {
             final number = index - leading + 1;
-            if (number < 1 || number > count) return const SizedBox.shrink();
+            if (number < 1 || number > count) { return const SizedBox.shrink(); }
             final date = DateTime(_month.year, _month.month, number);
             final item = activityForDay(date, habits, entries);
             final isFuture = CivilDate.from(date).isAfter(today);
