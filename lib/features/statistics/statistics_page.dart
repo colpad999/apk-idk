@@ -61,7 +61,7 @@ class StatisticsPage extends ConsumerWidget {
         error: (_, __) => NeoErrorCard(onRetry: () => ref.invalidate(budgetsProvider)),
         data: (items) {
           final configured = items.where((item) => item.limit > 0).toList();
-          if (configured.isEmpty) return const NeoCard(child: Text('Atur anggaran untuk melihat progres per kategori.'));
+          if (configured.isEmpty) { return const NeoCard(child: Text('Atur anggaran untuk melihat progres per kategori.')); }
           return NeoCard(child: Column(children: [for (final item in configured) ...[
             Row(children: [Expanded(child: Text(item.category, style: const TextStyle(fontWeight: FontWeight.w800))), Text('${money(item.spent)} / ${money(item.limit)}', style: const TextStyle(fontSize: 11))]),
             const SizedBox(height: 6), NeoProgressBar(progress: item.progress, color: p.highlight), const SizedBox(height: 14),

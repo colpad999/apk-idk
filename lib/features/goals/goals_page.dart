@@ -42,7 +42,7 @@ class GoalsPage extends ConsumerWidget {
             loading: () => const NeoCard(child: SizedBox(height: 150, child: Center(child: CircularProgressIndicator()))),
             error: (_, __) => NeoErrorCard(onRetry: () => ref.invalidate(savingGoalsProvider)),
             data: (items) {
-              if (items.isEmpty) return NeoEmptyGoals(onCreate: () => _createGoal(context));
+              if (items.isEmpty) { return NeoEmptyGoals(onCreate: () => _createGoal(context)); }
               final current = items.fold<int>(0, (sum, goal) => sum + goal.allocatedAmount);
               final target = items.fold<int>(0, (sum, goal) => sum + goal.targetAmount);
               final active = items.where((goal) => goal.progress < 1).toList();
