@@ -46,3 +46,29 @@ List<HabitAchievement> habitAchievements(List<Habit> habits, DateTime now) {
     HabitAchievement('Productive', 'Selesaikan 3 habit dalam satu hari.', perDay.values.any((count) => count >= 3)),
   ];
 }
+
+/// One bar per local calendar day, excluding flexible weekly habits, pauses,
+/// unscheduled days, and dates outside a habit's active range.
+class HabitDailyReport {
+  const HabitDailyReport(this.date, this.completed, this.scheduled);
+  final CivilDate date;
+  final int completed, scheduled;
+}
+
+List<HabitDailyReport> habitDailyReport(List<Habit> habits, CivilDate end, {int days = 7}) {
+  if (days < 1 || days > 366) throw ArgumentError.value(days, 'days');
+  return [
+    for (var offset = days - 1; offset >= 0; offset--)
+      _reportDay(habits, end.addDays(-offset)),
+  ];
+}
+
+HabitDailyReport _reportDay(List<Habit> habits, CivilDate date) {
+  final opportunities = habits.where((h) => !h.isFlexible && h.isOpportunity(date.value));
+  var total = 0, done = 0;
+  for (final habit in opportunities) {
+    total++;
+    if (habit.isComplete(date.value)) done++;
+  }
+  return HabitDailyReport(date, done, total);
+}

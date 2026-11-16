@@ -20,6 +20,15 @@ void main() {
     ];
     expect(moodCounts(entries, CivilDate.parse('2026-01-05'), CivilDate.parse('2026-01-06')), [0, 0, 0, 1, 0]);
   });
+  test('daily report excludes flexible and future dates and ignores future completions', () {
+    final fixed = habit(1, HabitFrequency.daily, {'2026-01-05', '2026-01-08'});
+    final flexible = habit(2, HabitFrequency.timesPerWeek, {'2026-01-06'});
+    final report = habitDailyReport([fixed, flexible], CivilDate.parse('2026-01-07'), days: 3);
+    expect(report.map((e) => e.date.key), ['2026-01-05', '2026-01-06', '2026-01-07']);
+    expect(report.map((e) => e.scheduled), [1, 1, 1]);
+    expect(report.map((e) => e.completed), [1, 0, 0]);
+    expect(() => habitDailyReport([], CivilDate.parse('2026-01-07'), days: 0), throwsArgumentError);
+  });
   test('achievement days use scheduled daily streaks, not flexible weeks', () {
     final days = <String>{for (var d = 1; d <= 7; d++) '2026-01-${d.toString().padLeft(2, '0')}'};
     final fixed = habit(1, HabitFrequency.daily, days);

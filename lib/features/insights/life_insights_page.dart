@@ -41,6 +41,25 @@ class LifeInsightsPage extends ConsumerWidget {
           ]),
         ),
         const SizedBox(height: 16),
+        const Text('GRAFIK HABIT · 7 HARI', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 8),
+        habits.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, __) => NeoErrorCard(onRetry: () => ref.invalidate(habitsProvider)),
+          data: (items) => NeoCard(color: palette.accent, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            for (final day in habitDailyReport(items, today)) ...[
+              Row(children: [
+                SizedBox(width: 70, child: Text('${day.date.day}/${day.date.month}', style: const TextStyle(fontWeight: FontWeight.w800))),
+                Expanded(child: NeoProgressBar(progress: day.scheduled == 0 ? 0 : day.completed / day.scheduled)),
+                const SizedBox(width: 8),
+                Text('${day.completed}/${day.scheduled}'),
+              ]),
+              const SizedBox(height: 10),
+            ],
+            const Text('Selesai / terjadwal. Habit mingguan fleksibel tidak dihitung sebagai kegagalan harian; hari jeda juga dikecualikan.', style: TextStyle(fontSize: 12)),
+          ])),
+        ),
+        const SizedBox(height: 16),
         const Text('RINGKASAN MOOD', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
         const SizedBox(height: 8),
         entries.when(
