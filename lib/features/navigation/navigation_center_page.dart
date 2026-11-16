@@ -78,7 +78,7 @@ class _NavigationCenterPageState extends State<NavigationCenterPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: switch (section) { 'FINANCIAL' => p.primary, 'PRODUCTIVITY' => p.secondary, 'REMINDERS' => p.accent, 'DATA' => p.highlight, _ => const Color(0xFFFFA77F) },
+                color: switch (section) { 'FINANCIAL' => p.primary, 'PRODUCTIVITY' => p.secondary, 'REMINDERS' => p.accent, 'DATA' => p.highlight, _ => p.primary },
                 border: Border.all(color: p.border, width: 2),
                 boxShadow: [BoxShadow(color: p.shadow, offset: const Offset(3, 3))],
               ),
@@ -88,7 +88,7 @@ class _NavigationCenterPageState extends State<NavigationCenterPage> {
               for (final item in filtered.where((item) => item.$1 == section))
                 ListTile(
                   leading: Container(width: 42, height: 42,
-                    decoration: BoxDecoration(color: switch (section) { 'FINANCIAL' => p.primary, 'PRODUCTIVITY' => p.secondary, 'REMINDERS' => p.accent, 'DATA' => p.highlight, _ => const Color(0xFFFFA77F) }, border: Border.all(color: p.border, width: 2), borderRadius: BorderRadius.circular(6)),
+                    decoration: BoxDecoration(color: switch (section) { 'FINANCIAL' => p.primary, 'PRODUCTIVITY' => p.secondary, 'REMINDERS' => p.accent, 'DATA' => p.highlight, _ => p.primary }, border: Border.all(color: p.border, width: 2), borderRadius: BorderRadius.circular(6)),
                     child: Icon(item.$3, color: p.text, size: 22)),
                   title: Text(item.$2, style: const TextStyle(fontWeight: FontWeight.w800)),
                   subtitle: item.$4 == null ? const Text('Belum tersedia') : item.$2 == 'Income Tracker' ? const Text('Lihat sumber pemasukan di Dashboard') : null,

@@ -8,6 +8,7 @@ import '../../app/theme/neo_theme.dart';
 import '../../core/utils/currency.dart';
 import '../../data/savings_transaction.dart';
 import '../../shared/neo_components.dart';
+import '../../shared/neo_feedback.dart';
 import '../../shared/transaction_tile.dart';
 import '../budget/budget_page.dart';
 import '../goals/goals_page.dart';
@@ -168,7 +169,7 @@ class _NeoNavigationBar extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 7),
                     decoration: BoxDecoration(
                         color: index == selectedIndex
-                            ? [palette.primary, palette.secondary, palette.highlight, palette.accent, const Color(0xFFFFA77F)][index]
+                            ? [palette.primary, palette.secondary, palette.highlight, palette.accent, palette.primary][index]
                             : Colors.transparent,
                         border: Border.all(color: index == selectedIndex ? palette.border : Colors.transparent, width: 2),
                         borderRadius: BorderRadius.circular(6),
@@ -731,6 +732,33 @@ class _SettingsPage extends ConsumerWidget {
                     ref.read(hideBalanceProvider.notifier).state = value,
                 activeThumbColor: palette.primary),
           ])),
+          const SizedBox(height: 13),
+          NeoCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('TEMA WARNA', style: TextStyle(fontWeight: FontWeight.w900)),
+              const SizedBox(height: 8),
+              ref.watch(neoThemeVariantProvider).when(
+                loading: () => const LinearProgressIndicator(),
+                error: (_, __) => TextButton(onPressed: () => ref.invalidate(neoThemeVariantProvider), child: const Text('Coba muat tema lagi')),
+                data: (selected) => Wrap(spacing: 8, runSpacing: 8, children: [
+                  for (final variant in NeoThemeVariant.values)
+                    ChoiceChip(
+                      label: Text(variant.label),
+                      selected: selected == variant,
+                      avatar: CircleAvatar(backgroundColor: NeoPalette.forVariant(variant).primary),
+                      onSelected: (_) async {
+                        try {
+                          await ref.read(appSettingsRepositoryProvider).setThemeVariant(variant);
+                          ref.invalidate(neoThemeVariantProvider);
+                        } catch (_) {
+                          if (context.mounted) { showNeoMessage(context, 'Tema belum dapat disimpan. Coba lagi.'); }
+                        }
+                      },
+                    ),
+                ]),
+              ),
+            ]),
+          ),
           const SizedBox(height: 13),
           NeoCard(
               color: palette.highlight,

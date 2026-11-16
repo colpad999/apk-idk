@@ -71,7 +71,7 @@ class _ColpadAppState extends ConsumerState<ColpadApp>
       title: 'Colpad Savings',
       debugShowCheckedModeBanner: false,
       navigatorKey: _navigatorKey,
-      theme: NeoTheme.light(),
+      theme: NeoTheme.light(ref.watch(neoThemeVariantProvider).valueOrNull ?? NeoThemeVariant.green),
       home: const SavingsHomePage(),
     );
   }

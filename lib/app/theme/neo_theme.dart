@@ -1,5 +1,25 @@
 import 'package:flutter/material.dart';
 
+enum NeoThemeVariant { green, blue, orange, purple }
+
+extension NeoThemeVariantLabel on NeoThemeVariant {
+  String get label => switch (this) {
+    NeoThemeVariant.green => 'Neo Green',
+    NeoThemeVariant.blue => 'Neo Blue',
+    NeoThemeVariant.orange => 'Neo Orange',
+    NeoThemeVariant.purple => 'Neo Purple',
+  };
+}
+
+class _PaletteExtension extends ThemeExtension<_PaletteExtension> {
+  const _PaletteExtension(this.palette);
+  final NeoPalette palette;
+  @override
+  _PaletteExtension copyWith({NeoPalette? palette}) => _PaletteExtension(palette ?? this.palette);
+  @override
+  _PaletteExtension lerp(covariant _PaletteExtension? other, double t) => t < .5 ? this : (other ?? this);
+}
+
 /// Light-only neobrutalist palette. [muted] is a readable ink tone; [mutedSurface]
 /// is the warm neutral used for backgrounds and separators.
 class NeoPalette {
@@ -18,12 +38,46 @@ class NeoPalette {
     shadow: Color(0xFF171717), muted: Color(0xFF605F58),
     mutedSurface: Color(0xFFFFE8A8),
   );
-  static NeoPalette of(BuildContext context) => light;
+  static const green = NeoPalette(
+    background: Color(0xFFF3FDE9), surface: Color(0xFFFFFFFF),
+    primary: Color(0xFFADF268), secondary: Color(0xFFCFF6AA),
+    accent: Color(0xFFCFF6AA), highlight: Color(0xFFE4FACD),
+    text: Color(0xFF171717), border: Color(0xFF171717), shadow: Color(0xFF171717),
+    muted: Color(0xFF4E5D47), mutedSurface: Color(0xFFE4FACD),
+  );
+  static const blue = NeoPalette(
+    background: Color(0xFFF0F9FF), surface: Color(0xFFFFFFFF),
+    primary: Color(0xFF8CCAFF), secondary: Color(0xFFC1E5FF),
+    accent: Color(0xFFC1E5FF), highlight: Color(0xFFE0F2FF),
+    text: Color(0xFF171717), border: Color(0xFF171717), shadow: Color(0xFF171717),
+    muted: Color(0xFF465A6B), mutedSurface: Color(0xFFE0F2FF),
+  );
+  static const orange = NeoPalette(
+    background: Color(0xFFFFF7EC), surface: Color(0xFFFFFFFF),
+    primary: Color(0xFFFFB66D), secondary: Color(0xFFFFD2A1),
+    accent: Color(0xFFFFD2A1), highlight: Color(0xFFFFE9CE),
+    text: Color(0xFF171717), border: Color(0xFF171717), shadow: Color(0xFF171717),
+    muted: Color(0xFF665242), mutedSurface: Color(0xFFFFE9CE),
+  );
+  static const purple = NeoPalette(
+    background: Color(0xFFFAF5FF), surface: Color(0xFFFFFFFF),
+    primary: Color(0xFFC6A0FF), secondary: Color(0xFFE0C9FF),
+    accent: Color(0xFFE0C9FF), highlight: Color(0xFFF0E4FF),
+    text: Color(0xFF171717), border: Color(0xFF171717), shadow: Color(0xFF171717),
+    muted: Color(0xFF5A4D67), mutedSurface: Color(0xFFF0E4FF),
+  );
+  static NeoPalette forVariant(NeoThemeVariant variant) => switch (variant) {
+    NeoThemeVariant.green => green,
+    NeoThemeVariant.blue => blue,
+    NeoThemeVariant.orange => orange,
+    NeoThemeVariant.purple => purple,
+  };
+  static NeoPalette of(BuildContext context) => Theme.of(context).extension<_PaletteExtension>()?.palette ?? green;
 }
 
 class NeoTheme {
-  static ThemeData light() {
-    const p = NeoPalette.light;
+  static ThemeData light([NeoThemeVariant variant = NeoThemeVariant.green]) {
+    final p = NeoPalette.forVariant(variant);
     const ink = Color(0xFF171717);
     final scheme = ColorScheme.fromSeed(seedColor: p.primary, brightness: Brightness.light)
         .copyWith(primary: p.primary, secondary: p.secondary, surface: p.surface,
@@ -35,6 +89,7 @@ class NeoTheme {
     const display = 'SpaceGrotesk';
     return ThemeData(
       useMaterial3: true,
+      extensions: [_PaletteExtension(p)],
       brightness: Brightness.light,
       fontFamily: 'Manrope',
       colorScheme: scheme,

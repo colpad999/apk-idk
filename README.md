@@ -1,6 +1,6 @@
 # Colpad Savings ⚡
 
-Aplikasi Android offline-first untuk mencatat keuangan dan kebiasaan, dibangun dengan Flutter. UI menggunakan Neo-Brutalism bertema terang. Ini belum merupakan Life Tracker lengkap.
+Aplikasi Android offline-first untuk mencatat keuangan dan kebiasaan, dibangun dengan Flutter. UI menggunakan Neo-Brutalism terang dengan pilihan Neo Green, Neo Blue, Neo Orange, dan Neo Purple di menu More. Ini belum merupakan Life Tracker lengkap.
 
 ## Fitur yang tersedia
 

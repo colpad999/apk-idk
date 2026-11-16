@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/app_settings_repository.dart';
+import 'theme/neo_theme.dart';
 import '../data/goal_repository.dart';
 import '../data/habit_repository.dart';
 import '../data/habit_checkin_repository.dart';
@@ -131,3 +132,5 @@ final savingChallengesProvider = FutureProvider<List<SavingChallenge>>((ref) asy
 final moneyJournalRepositoryProvider = Provider<MoneyJournalRepository>((ref) => MoneyJournalRepository(ref.watch(savingsDatabaseProvider)));
 final moneyJournalProvider = FutureProvider<List<MoneyJournalEntry>>((ref) => ref.watch(moneyJournalRepositoryProvider).list());
 final financialMonthProvider = FutureProvider.family<List<SavingsTransaction>, DateTime>((ref, month) => ref.watch(transactionRepositoryProvider).forMonth(month));
+
+final neoThemeVariantProvider = FutureProvider<NeoThemeVariant>((ref) => ref.watch(appSettingsRepositoryProvider).themeVariant());

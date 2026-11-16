@@ -10,9 +10,12 @@ double contrast(Color a, Color b) {
 
 void main() {
   test('dark ink remains readable against bright palette colors', () {
-    const p = NeoPalette.light;
-    for (final background in [p.background, p.surface, p.primary, p.secondary, p.accent, p.highlight, p.mutedSurface, const Color(0xFFFFA77F)]) {
-      expect(contrast(p.text, background), greaterThanOrEqualTo(4.5));
+    for (final variant in NeoThemeVariant.values) {
+      final p = NeoPalette.forVariant(variant);
+      for (final background in [p.background, p.surface, p.primary, p.secondary, p.accent, p.highlight, p.mutedSurface]) {
+        expect(contrast(p.text, background), greaterThanOrEqualTo(4.5), reason: variant.label);
+        expect(contrast(p.muted, background), greaterThanOrEqualTo(4.5), reason: '${variant.label} muted');
+      }
     }
   });
 }
