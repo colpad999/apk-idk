@@ -9,7 +9,7 @@ import '../data/savings_database.dart';
 import 'goal_photo_storage.dart';
 
 const backupFormat = 'colpad_savings_backup';
-const backupVersion = 5;
+const backupVersion = 6;
 const maxBackupBytes = 50 * 1024 * 1024;
 
 class BackupExport {
@@ -57,6 +57,7 @@ class BackupService {
     'habit_counters',
     'habit_counter_days',
     'wishlist_items',
+    'saving_challenges',
   ];
 
   Future<BackupExport> export() async {
@@ -124,7 +125,7 @@ class BackupService {
     }
     final document = _map(decoded, 'backup');
     if (document['format'] != backupFormat ||
-        ![1, 2, 3, 4, backupVersion].contains(document['version'])) {
+        ![1, 2, 3, 4, 5, backupVersion].contains(document['version'])) {
       throw const FormatException('Format atau versi backup tidak didukung.');
     }
     final data = _map(document['data'], 'data');
@@ -138,6 +139,9 @@ class BackupService {
     }
     if ([1, 2, 3, 4].contains(document['version'])) {
       data['wishlist_items'] = <Object?>[];
+    }
+    if ([1, 2, 3, 4, 5].contains(document['version'])) {
+      data['saving_challenges'] = <Object?>[];
     }
     final rows = _validateData(data);
     final photos = _validatePhotos(document['photos'], rows['saving_goals']!);
@@ -204,6 +208,7 @@ class BackupService {
             ['id', 'habit_id', 'completion_date', 'created_at']);
         await _insertRows('habit_pauses', rows['habit_pauses']!,
             ['id', 'habit_id', 'start_date', 'end_date']);
+        await _insertRows('saving_challenges', rows['saving_challenges']!, ['id', 'goal_id', 'name', 'target_amount', 'start_at', 'end_at']);
         await _insertRows('wishlist_items', rows['wishlist_items']!, ['id', 'name', 'price', 'note', 'purchased', 'created_at']);
         await _insertRows('habit_counters', rows['habit_counters']!, ['habit_id', 'target', 'unit']);
         await _insertRows('habit_counter_days', rows['habit_counter_days']!, ['habit_id', 'local_date', 'amount', 'updated_at']);
@@ -238,7 +243,7 @@ class BackupService {
 
   Future<void> _ensureRestoreTargetEmpty() async {
     for (final table in [
-      'savings_transactions', 'budgets', 'income_sources', 'saving_goals', 'habits', 'life_entries', 'wishlist_items'
+      'savings_transactions', 'budgets', 'income_sources', 'saving_goals', 'habits', 'life_entries', 'wishlist_items', 'saving_challenges'
     ]) {
       final count = await _database
           .customSelect('SELECT COUNT(*) AS total FROM $table')
@@ -270,6 +275,7 @@ class BackupService {
       'habit_counters': 10000,
       'habit_counter_days': 500000,
       'wishlist_items': 100000,
+      'saving_challenges': 100000,
     };
     for (final table in _tables) {
       final list = _list(data[table], table);
@@ -290,6 +296,7 @@ class BackupService {
     _uniqueIds(result, 'habit_pauses');
     _uniqueIds(result, 'habit_checkins');
     _uniqueIds(result, 'wishlist_items');
+    _uniqueIds(result, 'saving_challenges');
 
     final transactionIds = _ids(result['savings_transactions']!);
     final goalIds = _ids(result['saving_goals']!);
@@ -415,6 +422,15 @@ class BackupService {
       if (end != null && end.isBefore(start)) {
         throw const FormatException('Rentang jeda backup tidak valid.');
       }
+    }
+    for (final row in result['saving_challenges']!) {
+      final name = _string(row['name'], empty: false);
+      final start = _integer(row['start_at'], 'start_at');
+      final end = _integer(row['end_at'], 'end_at');
+      if (!goalIds.contains(row['goal_id']) || name.trim().isEmpty || name.length > 100 || end <= start) {
+        throw const FormatException('Challenge backup tidak valid.');
+      }
+      _amount(row['target_amount']);
     }
     for (final row in result['wishlist_items']!) {
       final name = _string(row['name'], empty: false);

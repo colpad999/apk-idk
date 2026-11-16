@@ -9,7 +9,7 @@ class SavingsDatabase extends GeneratedDatabase {
   SavingsDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   Iterable<TableInfo<Table, Object?>> get allTables => const [];
@@ -40,6 +40,7 @@ class SavingsDatabase extends GeneratedDatabase {
           await _createHabitCheckins();
           await _createHabitCounters();
           await _createWishlist();
+          await _createChallenges();
         },
         onUpgrade: (migrator, from, to) async {
           // Drift runs this upgrade in a transaction. A failed statement leaves
@@ -58,11 +59,26 @@ class SavingsDatabase extends GeneratedDatabase {
           if (from < 8) await _createHabitCheckins();
           if (from < 9) await _createHabitCounters();
           if (from < 10) await _createWishlist();
+          if (from < 11) await _createChallenges();
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
         },
       );
+
+  Future<void> _createChallenges() async {
+    await customStatement("""
+      CREATE TABLE IF NOT EXISTS saving_challenges (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        goal_id INTEGER NOT NULL REFERENCES saving_goals(id),
+        name TEXT NOT NULL,
+        target_amount INTEGER NOT NULL CHECK (target_amount > 0),
+        start_at INTEGER NOT NULL,
+        end_at INTEGER NOT NULL CHECK (end_at > start_at)
+      )
+    """);
+    await customStatement('CREATE INDEX IF NOT EXISTS saving_challenges_goal_idx ON saving_challenges (goal_id)');
+  }
 
   Future<void> _createWishlist() async {
     await customStatement("""

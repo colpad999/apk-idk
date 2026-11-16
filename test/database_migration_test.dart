@@ -106,6 +106,22 @@ void main() {
     } finally { await migrated.close(); await directory.delete(recursive: true); }
   });
 
+  test('v10 challenge migration preserves existing wishlist', () async {
+    final directory = await Directory.systemTemp.createTemp('colpad_v10_');
+    final file = File('${directory.path}/savings.sqlite');
+    final old = SavingsDatabase.forTesting(NativeDatabase(file));
+    await old.customSelect('SELECT 1').getSingle();
+    await old.customStatement("INSERT INTO wishlist_items (name, price, created_at) VALUES ('Buku', 1000, 1)");
+    await old.customStatement('DROP TABLE saving_challenges');
+    await old.customStatement('PRAGMA user_version = 10');
+    await old.close();
+    final migrated = SavingsDatabase.forTesting(NativeDatabase(file));
+    try {
+      expect(await migrated.customSelect('SELECT * FROM wishlist_items').get(), hasLength(1));
+      expect(await migrated.customSelect('SELECT * FROM saving_challenges').get(), isEmpty);
+    } finally { await migrated.close(); await directory.delete(recursive: true); }
+  });
+
   test('upgrades v1 without deleting transactions', () async {
     final directory =
         await Directory.systemTemp.createTemp('colpad_migration_');

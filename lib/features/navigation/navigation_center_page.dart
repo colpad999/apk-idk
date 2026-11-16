@@ -5,6 +5,8 @@ import '../../shared/neo_components.dart';
 import '../backup/backup_page.dart';
 import '../budget/budget_page.dart';
 import '../calendar/activity_calendar_page.dart';
+import '../challenges/saving_challenges_page.dart';
+import '../settings/sound_settings_page.dart';
 import '../habits/habit_settings_page.dart';
 import '../habits/habits_page.dart';
 import '../life/life_journal_page.dart';
@@ -42,7 +44,7 @@ class _NavigationCenterPageState extends State<NavigationCenterPage> {
       ('PRODUCTIVITY', 'Habit Tracker', Icons.checklist, () => _page(const HabitsPage())),
       ('PRODUCTIVITY', 'Kalender aktivitas', Icons.calendar_month, () => _page(const ActivityCalendarPage())),
       ('PRODUCTIVITY', 'Pencapaian & statistik mood', Icons.emoji_events_outlined, () => _page(const LifeInsightsPage())),
-      ('PRODUCTIVITY', 'Saving Challenge', Icons.emoji_events_outlined, null),
+      ('PRODUCTIVITY', 'Saving Challenge', Icons.emoji_events_outlined, () => _page(const SavingChallengesPage())),
       ('PRODUCTIVITY', 'Wishlist', Icons.favorite_border, () => _page(const WishlistPage())),
       ('PRODUCTIVITY', 'Financial Calendar', Icons.calendar_month, null),
       ('PRODUCTIVITY', 'Jurnal harian & mood', Icons.book_outlined, () => _page(const LifeJournalPage())),
@@ -56,7 +58,7 @@ class _NavigationCenterPageState extends State<NavigationCenterPage> {
       ('SETTINGS', 'Pengaturan habit & notifikasi', Icons.notifications_active_outlined, () => _page(const HabitSettingsPage())),
       ('SETTINGS', 'Pengaturan & About', Icons.tune, () => _tab(4)),
       ('SETTINGS', 'Profile', Icons.person_outline, null),
-      ('SETTINGS', 'Sound Settings', Icons.volume_up_outlined, null),
+      ('SETTINGS', 'Sound Settings', Icons.volume_up_outlined, () => _page(const SoundSettingsPage())),
     ];
     final filtered = items.where((item) => '${item.$1} ${item.$2}'.toLowerCase().contains(_query)).toList();
     return Scaffold(
