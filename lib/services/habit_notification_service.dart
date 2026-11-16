@@ -284,12 +284,12 @@ class HabitNotificationService {
   Future<HabitSyncResult> syncHabit(int habitId) => _serialized(() async {
         final habit = await _repository.get(habitId);
         await _gateway.cancelHabit(habitId);
-        if (habit == null) {
-          if (_gateway is AndroidHabitNotificationGateway) {
-            await _gateway.clearAlarmHabit(habitId);
-          }
-          return const HabitSyncResult();
+        // Editing/deleting a habit must also remove its active/snoozed alarm.
+        // Routine syncAll intentionally preserves snoozes across app resume.
+        if (_gateway is AndroidHabitNotificationGateway) {
+          await _gateway.clearAlarmHabit(habitId);
         }
+        if (habit == null) return const HabitSyncResult();
         if (!await _settings.habitNotificationsEnabled()) {
           return const HabitSyncResult(globallyDisabled: true);
         }

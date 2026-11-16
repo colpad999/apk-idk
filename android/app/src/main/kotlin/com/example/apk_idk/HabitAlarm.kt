@@ -103,7 +103,9 @@ object HabitAlarm {
             scheduleAt(c, id, FIRE, next)
         }
         val notifications = c.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (!notifications.areNotificationsEnabled() ||
+        val channelBlocked = Build.VERSION.SDK_INT >= 26 &&
+            notifications.getNotificationChannel(CHANNEL)?.importance == NotificationManager.IMPORTANCE_NONE
+        if (!notifications.areNotificationsEnabled() || channelBlocked ||
             (Build.VERSION.SDK_INT >= 33 && c.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED)) {
             Log.w("HabitAlarm", "Notification permission unavailable; alarm not started without visible controls")
             return
@@ -203,6 +205,14 @@ class HabitAlarmReceiver : BroadcastReceiver() {
 class HabitAlarmService : Service() {
     private var player: MediaPlayer? = null
     private var vibrator: Vibrator? = null
+    private var focusRequest: AudioFocusRequest? = null
+    private val audioManager by lazy { getSystemService(Context.AUDIO_SERVICE) as AudioManager }
+    private val focusListener = AudioManager.OnAudioFocusChangeListener { change ->
+        try {
+            if (change == AudioManager.AUDIOFOCUS_GAIN) player?.start()
+            else if (change < 0 && player?.isPlaying == true) player?.pause()
+        } catch (_: Exception) { }
+    }
     override fun onBind(intent: Intent?): IBinder? = null
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val items = HabitAlarm.activeItems(this)
@@ -210,10 +220,21 @@ class HabitAlarmService : Service() {
         startForeground(HabitAlarm.foregroundId(), HabitAlarm.notify(this, items))
         if (items.any { it.optBoolean("sound", true) } && player == null) {
             try {
+                val attrs = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()
+                val focus = if (Build.VERSION.SDK_INT >= 26) {
+                    val request = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT).setAudioAttributes(attrs)
+                        .setOnAudioFocusChangeListener(focusListener).build()
+                    focusRequest = request
+                    audioManager.requestAudioFocus(request)
+                } else {
+                    @Suppress("DEPRECATION")
+                    audioManager.requestAudioFocus(focusListener, AudioManager.STREAM_ALARM, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                }
+                if (focus != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) throw IllegalStateException("Audio focus denied")
                 val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
                     ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
                 player = MediaPlayer().apply {
-                    setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
+                    setAudioAttributes(attrs)
                     setDataSource(this@HabitAlarmService, uri); isLooping = true; prepare(); start()
                 }
             } catch (e: Exception) { Log.e("HabitAlarm", "Alarm audio failed", e); player?.release(); player = null }
@@ -228,6 +249,9 @@ class HabitAlarmService : Service() {
     }
     override fun onDestroy() {
         try { player?.stop() } catch (_: Exception) { }
-        player?.release(); player = null; vibrator?.cancel(); super.onDestroy()
+        player?.release(); player = null; vibrator?.cancel()
+        if (Build.VERSION.SDK_INT >= 26) focusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
+        else { @Suppress("DEPRECATION") audioManager.abandonAudioFocus(focusListener) }
+        super.onDestroy()
     }
 }

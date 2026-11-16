@@ -136,7 +136,7 @@ class _ReminderSettingsPageState extends ConsumerState<ReminderSettingsPage> {
             ? 'Jadwal tersimpan, tetapi izin notifikasi belum diberikan.'
             : result.globallyDisabled
                 ? 'Jadwal tersimpan. Notifikasi global sedang nonaktif.'
-                : 'Jadwal tersimpan dan ${result.scheduled} alarm dasar diperbarui.');
+                : 'Jadwal tersimpan dan ${result.scheduled} jadwal diperbarui.');
         Navigator.pop(context, true);
       }
     } catch (error) {

@@ -31,7 +31,7 @@ class _HabitSettingsPageState extends ConsumerState<HabitSettingsPage> {
             ? 'Semua notifikasi habit dinonaktifkan dan alarm dibatalkan.'
             : result.permissionDenied
                 ? 'Pengaturan aktif, tetapi izin Android belum diberikan.'
-                : 'Notifikasi habit aktif. ${result.scheduled} alarm dasar dijadwalkan.');
+                : 'Notifikasi habit aktif. ${result.scheduled} jadwal dijadwalkan.');
       }
     } catch (error) {
       if (mounted) showNeoMessage(context, friendlyError(error));
@@ -52,7 +52,7 @@ class _HabitSettingsPageState extends ConsumerState<HabitSettingsPage> {
             ? 'Notifikasi global nonaktif; semua alarm habit dibatalkan.'
             : result.permissionDenied
                 ? 'Izin notifikasi belum diberikan. Tidak ada alarm yang dijadwalkan.'
-                : 'Jadwal disinkronkan: ${result.scheduled} alarm dasar, tanpa duplikat.');
+                : 'Jadwal disinkronkan: ${result.scheduled} jadwal, tanpa duplikat.');
       }
     } catch (error) {
       if (mounted) showNeoMessage(context, friendlyError(error));
@@ -73,7 +73,7 @@ class _HabitSettingsPageState extends ConsumerState<HabitSettingsPage> {
         children: [
           Text('Jadwal milikmu.', style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 6),
-          Text('Atur pengingat tanpa tekanan dan tanpa izin alarm presisi.',
+          Text('Atur pengingat tanpa tekanan. Mode alarm tersedia di Suara & Pengingat.',
               style: TextStyle(color: palette.muted)),
           const SizedBox(height: 17),
           NeoCard(
@@ -120,8 +120,8 @@ class _HabitSettingsPageState extends ConsumerState<HabitSettingsPage> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const NeoSectionTitle('TENTANG JADWAL'),
               const SizedBox(height: 9),
-              const Text('• Pengingat memakai alarm lokal biasa, bukan alarm presisi.\n'
-                  '• Waktu dapat bergeser karena Doze, penghemat baterai, atau pembatasan latar belakang.\n'
+              const Text('• Mode biasa memakai notifikasi; mode alarm menyediakan MATIKAN dan SNOOZE.\n'
+                  '• Izin alarm presisi opsional; waktu dapat bergeser karena Doze, penghemat baterai, atau pembatasan latar belakang.\n'
                   '• Zona waktu dibaca ulang dan jadwal disinkronkan saat aplikasi dibuka/dilanjutkan.\n'
                   '• Restart didukung oleh receiver Android; force-stop atau pembatasan OEM dapat menunda alarm sampai aplikasi dibuka lagi.\n'
                   '• Habit dengan tanggal akhir memakai jendela 90 hari yang diperpanjang saat aplikasi aktif.'),
