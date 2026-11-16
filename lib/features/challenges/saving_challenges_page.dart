@@ -31,18 +31,18 @@ class _SavingChallengesPageState extends ConsumerState<SavingChallengesPage> {
         const SizedBox(height: 8),
         TextField(controller: target, maxLength: 12, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(labelText: 'Target setoran bersih (Rp)')),
         const SizedBox(height: 8),
-        DropdownButtonFormField<int>(initialValue: goalId, isExpanded: true, decoration: const InputDecoration(labelText: 'Tujuan tabungan'), items: [for (final g in goals) DropdownMenuItem(value: g.id, child: Text(g.name, overflow: TextOverflow.ellipsis))], onChanged: (v) { if (v != null) update(() => goalId = v); }),
+        DropdownButtonFormField<int>(initialValue: goalId, isExpanded: true, decoration: const InputDecoration(labelText: 'Tujuan tabungan'), items: [for (final g in goals) DropdownMenuItem(value: g.id, child: Text(g.name, overflow: TextOverflow.ellipsis))], onChanged: (v) { if (v != null) { update(() => goalId = v); } }),
         const SizedBox(height: 8),
         OutlinedButton.icon(onPressed: () async {
           final picked = await showDatePicker(context: context, initialDate: end, firstDate: DateTime.now().subtract(const Duration(days: 1)), lastDate: DateTime(2100));
-          if (picked != null) update(() => end = picked);
+          if (picked != null) { update(() => end = picked); }
         }, icon: const Icon(Icons.calendar_today), label: Text(DateFormat('d MMM yyyy', 'id_ID').format(end))),
       ])),
       actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
         FilledButton(onPressed: () => Navigator.pop(context, (name.text, target.text, goalId, end)), child: const Text('Buat'))],
     )));
     name.dispose(); target.dispose();
-    if (!mounted || values == null || _busy) return;
+    if (!mounted || values == null || _busy) { return; }
     final amount = int.tryParse(values.$2);
     if (amount == null) { showNeoMessage(context, 'Isi target setoran.'); return; }
     setState(() => _busy = true);
@@ -50,7 +50,7 @@ class _SavingChallengesPageState extends ConsumerState<SavingChallengesPage> {
       await ref.read(savingChallengeRepositoryProvider).create(goalId: values.$3, name: values.$1, target: amount, endDate: values.$4);
       ref.invalidate(savingChallengesProvider);
     } catch (error) { if (mounted) { showNeoMessage(context, friendlyError(error)); } }
-    finally { if (mounted) setState(() => _busy = false); }
+    finally { if (mounted) { setState(() => _busy = false); } }
   }
 
   @override
@@ -76,11 +76,11 @@ class _SavingChallengesPageState extends ConsumerState<SavingChallengesPage> {
               const SizedBox(height: 8), Text('Sampai ${DateFormat('d MMM yyyy', 'id_ID').format(item.endAt.subtract(const Duration(seconds: 1)))} · ${item.progress >= item.target ? 'Target tercapai' : DateTime.now().isAfter(item.endAt) ? 'Periode berakhir' : 'Berlangsung'}'),
               Align(alignment: Alignment.centerRight, child: TextButton.icon(onPressed: _busy ? null : () async {
                 final confirmed = await confirmNeoAction(context, title: 'Hapus challenge?', message: 'Transaksi dan target tabungan tetap aman.', confirmLabel: 'Hapus', destructive: true);
-                if (!confirmed || !context.mounted) return;
+                if (!confirmed || !context.mounted) { return; }
                 setState(() => _busy = true);
                 try { await ref.read(savingChallengeRepositoryProvider).delete(item.id); ref.invalidate(savingChallengesProvider); }
                 catch (error) { if (context.mounted) { showNeoMessage(context, friendlyError(error)); } }
-                finally { if (mounted) setState(() => _busy = false); }
+                finally { if (mounted) { setState(() => _busy = false); } }
               }, icon: const Icon(Icons.delete_outline), label: const Text('Hapus'))),
             ])), const SizedBox(height: 12),
           ],
