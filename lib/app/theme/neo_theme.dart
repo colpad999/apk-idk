@@ -43,28 +43,28 @@ class NeoPalette {
     primary: Color(0xFFADF268), secondary: Color(0xFFCFF6AA),
     accent: Color(0xFFCFF6AA), highlight: Color(0xFFE4FACD),
     text: Color(0xFF171717), border: Color(0xFF171717), shadow: Color(0xFF171717),
-    muted: Color(0xFF4E5D47), mutedSurface: Color(0xFFE4FACD),
+    muted: Color(0xFF414141), mutedSurface: Color(0xFFE4FACD),
   );
   static const blue = NeoPalette(
     background: Color(0xFFF0F9FF), surface: Color(0xFFFFFFFF),
     primary: Color(0xFF8CCAFF), secondary: Color(0xFFC1E5FF),
     accent: Color(0xFFC1E5FF), highlight: Color(0xFFE0F2FF),
     text: Color(0xFF171717), border: Color(0xFF171717), shadow: Color(0xFF171717),
-    muted: Color(0xFF465A6B), mutedSurface: Color(0xFFE0F2FF),
+    muted: Color(0xFF414141), mutedSurface: Color(0xFFE0F2FF),
   );
   static const orange = NeoPalette(
     background: Color(0xFFFFF7EC), surface: Color(0xFFFFFFFF),
     primary: Color(0xFFFFB66D), secondary: Color(0xFFFFD2A1),
     accent: Color(0xFFFFD2A1), highlight: Color(0xFFFFE9CE),
     text: Color(0xFF171717), border: Color(0xFF171717), shadow: Color(0xFF171717),
-    muted: Color(0xFF665242), mutedSurface: Color(0xFFFFE9CE),
+    muted: Color(0xFF414141), mutedSurface: Color(0xFFFFE9CE),
   );
   static const purple = NeoPalette(
     background: Color(0xFFFAF5FF), surface: Color(0xFFFFFFFF),
     primary: Color(0xFFC6A0FF), secondary: Color(0xFFE0C9FF),
     accent: Color(0xFFE0C9FF), highlight: Color(0xFFF0E4FF),
     text: Color(0xFF171717), border: Color(0xFF171717), shadow: Color(0xFF171717),
-    muted: Color(0xFF5A4D67), mutedSurface: Color(0xFFF0E4FF),
+    muted: Color(0xFF414141), mutedSurface: Color(0xFFF0E4FF),
   );
   static NeoPalette forVariant(NeoThemeVariant variant) => switch (variant) {
     NeoThemeVariant.green => green,
