@@ -75,11 +75,21 @@ class _NavigationCenterPageState extends State<NavigationCenterPage> {
         if (filtered.isEmpty) const NeoCard(child: Text('Fitur tidak ditemukan.')),
         for (final section in ['FINANCIAL', 'PRODUCTIVITY', 'REMINDERS', 'DATA', 'SETTINGS']) ...[
           if (filtered.any((item) => item.$1 == section)) ...[
-            NeoSectionTitle(section), const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: switch (section) { 'FINANCIAL' => p.primary, 'PRODUCTIVITY' => p.secondary, 'REMINDERS' => p.accent, 'DATA' => p.highlight, _ => const Color(0xFFFFA77F) },
+                border: Border.all(color: p.border, width: 2),
+                boxShadow: [BoxShadow(color: p.shadow, offset: const Offset(3, 3))],
+              ),
+              child: Text(section, style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+            ), const SizedBox(height: 12),
             NeoCard(shadow: false, padding: EdgeInsets.zero, child: Column(children: [
               for (final item in filtered.where((item) => item.$1 == section))
                 ListTile(
-                  leading: Icon(item.$3, color: p.text),
+                  leading: Container(width: 42, height: 42,
+                    decoration: BoxDecoration(color: switch (section) { 'FINANCIAL' => p.primary, 'PRODUCTIVITY' => p.secondary, 'REMINDERS' => p.accent, 'DATA' => p.highlight, _ => const Color(0xFFFFA77F) }, border: Border.all(color: p.border, width: 2), borderRadius: BorderRadius.circular(6)),
+                    child: Icon(item.$3, color: p.text, size: 22)),
                   title: Text(item.$2, style: const TextStyle(fontWeight: FontWeight.w800)),
                   subtitle: item.$4 == null ? const Text('Belum tersedia') : item.$2 == 'Income Tracker' ? const Text('Lihat sumber pemasukan di Dashboard') : null,
                   trailing: item.$4 == null ? null : const Icon(Icons.chevron_right),

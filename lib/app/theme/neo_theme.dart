@@ -11,12 +11,12 @@ class NeoPalette {
   final Color text, border, shadow, muted, mutedSurface;
 
   static const light = NeoPalette(
-    background: Color(0xFFFFFEFA), surface: Color(0xFFFFFFFF),
-    primary: Color(0xFFFFF09A), secondary: Color(0xFFFFC5F1),
-    accent: Color(0xFFD4E4FF), highlight: Color(0xFFDBFAC0),
+    background: Color(0xFFFFF5D9), surface: Color(0xFFFFFFFF),
+    primary: Color(0xFFFFDF3F), secondary: Color(0xFFFF8DDC),
+    accent: Color(0xFF8FC9FF), highlight: Color(0xFFAFF56B),
     text: Color(0xFF171717), border: Color(0xFF171717),
     shadow: Color(0xFF171717), muted: Color(0xFF605F58),
-    mutedSurface: Color(0xFFF1EEE4),
+    mutedSurface: Color(0xFFFFE8A8),
   );
   static NeoPalette of(BuildContext context) => light;
 }
@@ -39,7 +39,7 @@ class NeoTheme {
       fontFamily: 'Manrope',
       colorScheme: scheme,
       scaffoldBackgroundColor: p.background,
-      appBarTheme: AppBarTheme(backgroundColor: p.background, foregroundColor: ink,
+      appBarTheme: AppBarTheme(backgroundColor: p.primary, foregroundColor: ink,
         elevation: 0, scrolledUnderElevation: 0,
         titleTextStyle: const TextStyle(fontFamily: display, color: ink, fontSize: 19, fontWeight: FontWeight.w700, letterSpacing: -.5)),
       textTheme: const TextTheme(

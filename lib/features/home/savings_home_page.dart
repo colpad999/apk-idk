@@ -151,7 +151,7 @@ class _NeoNavigationBar extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(10, 0, 10, 8),
         padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
         decoration: BoxDecoration(
-            color: palette.surface,
+            color: palette.accent,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: palette.border, width: 2),
             boxShadow: [BoxShadow(color: palette.shadow, offset: const Offset(4, 4))]),
@@ -168,7 +168,7 @@ class _NeoNavigationBar extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 7),
                     decoration: BoxDecoration(
                         color: index == selectedIndex
-                            ? palette.primary
+                            ? [palette.primary, palette.secondary, palette.highlight, palette.accent, const Color(0xFFFFA77F)][index]
                             : Colors.transparent,
                         border: Border.all(color: index == selectedIndex ? palette.border : Colors.transparent, width: 2),
                         borderRadius: BorderRadius.circular(6),
@@ -230,16 +230,16 @@ class DashboardPage extends ConsumerWidget {
       child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
           children: [
-            Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            NeoCard(color: palette.secondary, child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('HALO, PENABUNG ✳', style: TextStyle(color: palette.muted, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
-                const SizedBox(height: 4),
+                NeoTag('HALO, PENABUNG ✳', color: palette.primary),
+                const SizedBox(height: 8),
                 Text('Uangmu,\nceritamu.', style: Theme.of(context).textTheme.headlineLarge),
                 const SizedBox(height: 6),
-                Text(dateLabel, style: TextStyle(color: palette.muted)),
+                Text(dateLabel, style: TextStyle(color: palette.text, fontWeight: FontWeight.w700)),
               ])),
-              Container(width: 58, height: 58, decoration: BoxDecoration(color: palette.accent, borderRadius: const BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32), bottomLeft: Radius.circular(32), bottomRight: Radius.circular(8))), child: Icon(Icons.person_outline_rounded, color: palette.text, size: 30)),
-            ]),
+              Container(width: 58, height: 58, decoration: BoxDecoration(color: palette.accent, border: Border.all(color: palette.border, width: 2), boxShadow: [BoxShadow(color: palette.shadow, offset: const Offset(3, 3))], borderRadius: const BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32), bottomLeft: Radius.circular(32), bottomRight: Radius.circular(8))), child: Icon(Icons.auto_awesome_rounded, color: palette.text, size: 30)),
+            ])),
             const SizedBox(height: 14),
             summary.when(
               loading: () => const NeoCard(

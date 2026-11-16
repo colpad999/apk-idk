@@ -97,6 +97,10 @@ class NeoSectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(children: [
+        Container(width: 10, height: 22,
+          decoration: BoxDecoration(color: NeoPalette.of(context).secondary,
+            border: Border.all(color: NeoPalette.of(context).border, width: 2))),
+        const SizedBox(width: 8),
         Expanded(
             child: Text(title, style: Theme.of(context).textTheme.titleLarge)),
         if (trailing != null) trailing!,
