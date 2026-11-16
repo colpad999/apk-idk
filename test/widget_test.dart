@@ -118,7 +118,7 @@ void main() {
     await tester.enterText(find.byType(TextField).last, 'alarm manual');
     await tester.pumpAndSettle();
     expect(find.text('Alarm manual stop'), findsOneWidget);
-    expect(find.text('Belum tersedia'), findsOneWidget);
+    expect(find.text('Belum tersedia'), findsNothing);
   });
   testWidgets('small screens keep navigation, goal cards and privacy usable', (tester) async {
     tester.view.physicalSize = const Size(320, 700);

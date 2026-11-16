@@ -252,6 +252,10 @@ class BackupService {
   }
 
   Future<void> _ensureRestoreTargetEmpty() async {
+    final profile = await _database.customSelect("SELECT COUNT(*) AS total FROM app_settings WHERE key IN ('profile_name', 'profile_note') AND value <> ''").getSingle();
+    if (profile.read<int>('total') > 0) {
+      throw StateError('Restore hanya ke database kosong. Profil yang sudah ada tidak boleh ditimpa.');
+    }
     for (final table in [
       'savings_transactions', 'budgets', 'income_sources', 'saving_goals', 'habits', 'life_entries', 'wishlist_items', 'saving_challenges', 'money_journal'
     ]) {

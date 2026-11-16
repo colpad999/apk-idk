@@ -104,7 +104,7 @@ class _BackupPageState extends ConsumerState<BackupPage> {
         context,
         title: 'Pulihkan backup ini?',
         message:
-            'Restore hanya diterima pada database kosong. Seluruh transaksi, anggaran, target, foto, habit, dan pengingat dalam backup akan dipulihkan. Data yang sudah ada tidak akan ditimpa.',
+            'Restore hanya diterima pada database kosong. Seluruh transaksi, anggaran, target, foto, habit, dan pengingat dalam backup akan dipulihkan. Data dan profil yang sudah ada tidak akan ditimpa.',
         confirmLabel: 'Pulihkan',
       );
       if (!confirmed) return;
@@ -167,7 +167,7 @@ class _BackupPageState extends ConsumerState<BackupPage> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const NeoSectionTitle('PULIHKAN'),
               const SizedBox(height: 8),
-              Text('Hanya untuk database kosong, misalnya instalasi baru. Backup divalidasi sebelum ditulis dan dipulihkan dalam satu transaksi database.',
+              Text('Hanya untuk database kosong tanpa profil tersimpan, misalnya instalasi baru. Backup divalidasi sebelum ditulis dan dipulihkan dalam satu transaksi database.',
                   style: TextStyle(color: palette.muted)),
               const SizedBox(height: 12),
               OutlinedButton.icon(

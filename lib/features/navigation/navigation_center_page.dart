@@ -10,6 +10,8 @@ import '../money_journal/money_journal_page.dart';
 import '../jars/virtual_jars_page.dart';
 import '../challenges/saving_challenges_page.dart';
 import '../settings/sound_settings_page.dart';
+import '../settings/profile_page.dart';
+import '../reminders/reminder_history_page.dart';
 import '../habits/habit_settings_page.dart';
 import '../habits/habits_page.dart';
 import '../life/life_journal_page.dart';
@@ -53,14 +55,14 @@ class _NavigationCenterPageState extends State<NavigationCenterPage> {
       ('PRODUCTIVITY', 'Jurnal harian & mood', Icons.book_outlined, () => _page(const LifeJournalPage())),
       ('PRODUCTIVITY', 'Money Journal', Icons.book_outlined, () => _page(const MoneyJournalPage())),
       ('PRODUCTIVITY', 'Simulasi tabungan', Icons.calculate_outlined, () => _page(const SavingsSimulatorPage())),
-      ('REMINDERS', 'Alarm manual stop', Icons.alarm, null),
+      ('REMINDERS', 'Alarm manual stop', Icons.alarm, () => _page(const SoundSettingsPage())),
       ('REMINDERS', 'Pengingat habit', Icons.notifications_outlined, () => _page(const HabitsPage())),
-      ('REMINDERS', 'Reminder History', Icons.history, null),
+      ('REMINDERS', 'Reminder History', Icons.history, () => _page(const ReminderHistoryPage())),
       ('DATA', 'Backup, Restore & Export CSV', Icons.backup_outlined, () => _page(const BackupPage())),
-      ('DATA', 'Import Data', Icons.file_upload_outlined, null),
+      ('DATA', 'Import Data', Icons.file_upload_outlined, () => _page(const BackupPage())),
       ('SETTINGS', 'Pengaturan habit & notifikasi', Icons.notifications_active_outlined, () => _page(const HabitSettingsPage())),
       ('SETTINGS', 'Pengaturan & About', Icons.tune, () => _tab(4)),
-      ('SETTINGS', 'Profile', Icons.person_outline, null),
+      ('SETTINGS', 'Profile', Icons.person_outline, () => _page(const ProfilePage())),
       ('SETTINGS', 'Sound Settings', Icons.volume_up_outlined, () => _page(const SoundSettingsPage())),
     ];
     final filtered = items.where((item) => '${item.$1} ${item.$2}'.toLowerCase().contains(_query)).toList();
@@ -91,7 +93,7 @@ class _NavigationCenterPageState extends State<NavigationCenterPage> {
                     decoration: BoxDecoration(color: switch (section) { 'FINANCIAL' => p.primary, 'PRODUCTIVITY' => p.secondary, 'REMINDERS' => p.accent, 'DATA' => p.highlight, _ => p.primary }, border: Border.all(color: p.border, width: 2), borderRadius: BorderRadius.circular(6)),
                     child: Icon(item.$3, color: p.text, size: 22)),
                   title: Text(item.$2, style: const TextStyle(fontWeight: FontWeight.w800)),
-                  subtitle: item.$4 == null ? const Text('Belum tersedia') : item.$2 == 'Income Tracker' ? const Text('Lihat sumber pemasukan di Dashboard') : null,
+                  subtitle: item.$4 == null ? const Text('Belum tersedia') : item.$2 == 'Import Data' ? const Text('Pulihkan backup JSON Colpad ke database kosong') : item.$2 == 'Income Tracker' ? const Text('Lihat sumber pemasukan di Dashboard') : null,
                   trailing: item.$4 == null ? null : const Icon(Icons.chevron_right),
                   onTap: item.$4,
                 ),

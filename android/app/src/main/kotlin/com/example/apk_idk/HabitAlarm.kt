@@ -107,15 +107,18 @@ object HabitAlarm {
             notifications.getNotificationChannel(CHANNEL)?.importance == NotificationManager.IMPORTANCE_NONE
         if (!notifications.areNotificationsEnabled() || channelBlocked ||
             (Build.VERSION.SDK_INT >= 33 && c.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED)) {
+            ReminderHistoryStore.log(c, r, "blocked")
             Log.w("HabitAlarm", "Notification permission unavailable; alarm not started without visible controls")
             return
         }
+        ReminderHistoryStore.log(c, r, if (snoozed) "snooze_due" else "triggered")
         val current = active(c).filter { it.optInt("id") != id } + r
         setActive(c, current)
         try {
             val service = Intent(c, HabitAlarmService::class.java)
             if (Build.VERSION.SDK_INT >= 26) c.startForegroundService(service) else c.startService(service)
         } catch (e: Exception) {
+            ReminderHistoryStore.log(c, r, "service_denied")
             Log.e("HabitAlarm", "Unable to start alarm service", e)
             notify(c, current)
         }
@@ -156,6 +159,7 @@ object HabitAlarm {
     }
     fun action(c: Context, snooze: Boolean) {
         val current = active(c)
+        for (r in current) ReminderHistoryStore.log(c, r, if (snooze) "snoozed" else "stopped")
         if (snooze) for (r in current) {
             val id = r.getInt("id"); r.put("snoozeAt", System.currentTimeMillis() + 10 * 60_000L)
             prefs(c).edit().putString("snooze_$id", r.toString()).commit()

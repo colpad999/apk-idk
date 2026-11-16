@@ -28,6 +28,7 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 try {
                     when (call.method) {
+                        "history" -> result.success(ReminderHistoryStore(this).use { it.latest() })
                         "enabled" -> result.success(HabitAlarm.enabled(this))
                         "setEnabled" -> { HabitAlarm.setEnabled(this, call.argument<Boolean>("enabled") == true); result.success(null) }
                         "schedule" -> {
