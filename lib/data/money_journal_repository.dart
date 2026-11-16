@@ -18,17 +18,17 @@ class MoneyJournalRepository {
   }
   Future<void> save({int? id, required DateTime date, required String note}) async {
     final value = note.trim();
-    if (value.isEmpty || value.length > 10000) throw ArgumentError('Catatan wajib diisi, maksimal 10000 karakter.');
+    if (value.isEmpty || value.length > 10000) { throw ArgumentError('Catatan wajib diisi, maksimal 10000 karakter.'); }
     final key = CivilDate.from(date).key;
     if (id == null) {
       await database.customInsert('INSERT INTO money_journal (entry_date, note, updated_at) VALUES (?, ?, ?)', variables: [Variable.withString(key), Variable.withString(value), Variable.withInt(DateTime.now().millisecondsSinceEpoch)]);
     } else {
       final count = await database.customUpdate('UPDATE money_journal SET entry_date=?, note=?, updated_at=? WHERE id=?', variables: [Variable.withString(key), Variable.withString(value), Variable.withInt(DateTime.now().millisecondsSinceEpoch), Variable.withInt(id)]);
-      if (count == 0) throw StateError('Catatan tidak ditemukan.');
+      if (count == 0) { throw StateError('Catatan tidak ditemukan.'); }
     }
   }
   Future<void> delete(int id) async {
     final count = await database.customUpdate('DELETE FROM money_journal WHERE id=?', variables: [Variable.withInt(id)]);
-    if (count == 0) throw StateError('Catatan tidak ditemukan.');
+    if (count == 0) { throw StateError('Catatan tidak ditemukan.'); }
   }
 }

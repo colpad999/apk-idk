@@ -34,8 +34,8 @@ class _FinancialCalendarPageState extends ConsumerState<FinancialCalendarPage> {
           var income = 0, expense = 0;
           for (final transaction in transactions) {
             dates.putIfAbsent(CivilDate.dateKey(transaction.createdAt), () => []).add(transaction);
-            if (transaction.type == TransactionType.income) income += transaction.amount;
-            if (transaction.type == TransactionType.expense) expense += transaction.amount;
+            if (transaction.type == TransactionType.income) { income += transaction.amount; }
+            if (transaction.type == TransactionType.expense) { expense += transaction.amount; }
           }
           final dayItems = dates[CivilDate.dateKey(selected)] ?? [];
           final leading = month.weekday - 1;
