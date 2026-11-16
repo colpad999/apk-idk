@@ -221,7 +221,8 @@ class HabitAlarmService : Service() {
         if (items.any { it.optBoolean("vibration", true) }) {
             @Suppress("DEPRECATION")
             vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            vibrator?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 700, 500), 0))
+            if (Build.VERSION.SDK_INT >= 26) vibrator?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 700, 500), 0))
+            else @Suppress("DEPRECATION") vibrator?.vibrate(longArrayOf(0, 700, 500), 0)
         }
         return START_STICKY
     }

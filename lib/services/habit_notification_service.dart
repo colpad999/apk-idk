@@ -286,7 +286,7 @@ class HabitNotificationService {
         await _gateway.cancelHabit(habitId);
         if (habit == null) {
           if (_gateway is AndroidHabitNotificationGateway) {
-            await (_gateway as AndroidHabitNotificationGateway).clearAlarmHabit(habitId);
+            await _gateway.clearAlarmHabit(habitId);
           }
           return const HabitSyncResult();
         }
@@ -302,7 +302,7 @@ class HabitNotificationService {
   Future<void> cancelHabit(int habitId) => _serialized(() async {
         await _gateway.cancelHabit(habitId);
         if (_gateway is AndroidHabitNotificationGateway) {
-          await (_gateway as AndroidHabitNotificationGateway).clearAlarmHabit(habitId);
+          await _gateway.clearAlarmHabit(habitId);
         }
       });
 

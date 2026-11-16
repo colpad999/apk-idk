@@ -26,13 +26,13 @@ class _SoundSettingsPageState extends ConsumerState<SoundSettingsPage> with Widg
   @override
   void dispose() { WidgetsBinding.instance.removeObserver(this); super.dispose(); }
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) { if (state == AppLifecycleState.resumed) _load(); }
+  void didChangeAppLifecycleState(AppLifecycleState state) { if (state == AppLifecycleState.resumed) { _load(); } }
   Future<void> _load() async {
     try {
       final enabled = await _gateway.alarmEnabled();
       final exact = await _gateway.exactAllowed();
-      if (mounted) setState(() { _enabled = enabled; _exact = exact; });
-    } catch (_) { if (mounted) showNeoMessage(context, 'Mode alarm tidak tersedia pada perangkat ini.'); }
+      if (mounted) { setState(() { _enabled = enabled; _exact = exact; }); }
+    } catch (_) { if (mounted) { showNeoMessage(context, 'Mode alarm tidak tersedia pada perangkat ini.'); } }
   }
   Future<void> _change(bool value) async {
     setState(() => _busy = true);
@@ -48,8 +48,8 @@ class _SoundSettingsPageState extends ConsumerState<SoundSettingsPage> with Widg
         setState(() => _enabled = value);
         showNeoMessage(context, result.globallyDisabled ? 'Mode disimpan; notifikasi habit global masih nonaktif.' : result.permissionDenied ? 'Mode disimpan; izin notifikasi belum diberikan.' : 'Mode disimpan. ${result.scheduled} jadwal disinkronkan.');
       }
-    } catch (error) { if (mounted) showNeoMessage(context, friendlyError(error)); }
-    finally { if (mounted) setState(() => _busy = false); }
+    } catch (error) { if (mounted) { showNeoMessage(context, friendlyError(error)); } }
+    finally { if (mounted) { setState(() => _busy = false); } }
   }
   @override
   Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('SUARA & PENGINGAT')),
@@ -62,7 +62,7 @@ class _SoundSettingsPageState extends ConsumerState<SoundSettingsPage> with Widg
           value: _enabled ?? false, onChanged: _busy || _enabled == null ? null : _change),
         Text(_exact == true ? 'Izin alarm presisi tersedia.' : 'Izin alarm presisi belum tersedia; Android dapat menunda alarm.'),
         OutlinedButton.icon(onPressed: _busy ? null : () async {
-          try { await _gateway.openExactSettings(); } catch (_) { if (context.mounted) showNeoMessage(context, 'Pengaturan alarm presisi tidak tersedia.'); }
+          try { await _gateway.openExactSettings(); } catch (_) { if (context.mounted) { showNeoMessage(context, 'Pengaturan alarm presisi tidak tersedia.'); } }
         }, icon: const Icon(Icons.alarm), label: const Text('Izin alarm presisi Android')),
         const Text('Izin alarm presisi opsional. Force-stop, baterai, mode senyap, DND dan pembatasan perangkat dapat mencegah atau menunda alarm. Beberapa alarm bersamaan dihentikan atau ditunda bersama.', style: TextStyle(fontSize: 12)),
         const SizedBox(height: 10),
