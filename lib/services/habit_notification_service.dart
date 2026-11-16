@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
@@ -46,6 +47,12 @@ class AndroidHabitNotificationGateway implements HabitNotificationGateway {
       : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
   final FlutterLocalNotificationsPlugin _plugin;
   bool _timezoneReady = false;
+  static const alarmChannel = MethodChannel('colpad/habit_alarm');
+  Future<bool> alarmEnabled() async => await alarmChannel.invokeMethod<bool>('enabled') ?? false;
+  Future<void> setAlarmEnabled(bool enabled) => alarmChannel.invokeMethod<void>('setEnabled', {'enabled': enabled});
+  Future<bool> exactAllowed() async => await alarmChannel.invokeMethod<bool>('exactAllowed') ?? false;
+  Future<void> openExactSettings() => alarmChannel.invokeMethod<void>('openExactSettings');
+  Future<void> clearAlarmHabit(int habitId) => alarmChannel.invokeMethod<void>('clearHabit', {'habit': habitId});
 
   @override
   Future<void> initialize(void Function(String? payload) onTap) async {
@@ -96,6 +103,7 @@ class AndroidHabitNotificationGateway implements HabitNotificationGateway {
     // Android cancels scheduled alarms by ID, not by notification tag. Query
     // the plugin's persisted schedule so removed reminders and old one-shots
     // are cancelled even after an app or device restart.
+    await alarmChannel.invokeMethod<void>('cancelHabit', {'habit': habitId});
     final pending = await _plugin.pendingNotificationRequests();
     for (final request in pending) {
       if (request.payload == 'habit:$habitId') await _plugin.cancel(request.id);
@@ -108,7 +116,10 @@ class AndroidHabitNotificationGateway implements HabitNotificationGateway {
   }
 
   @override
-  Future<void> cancelAll() => _plugin.cancelAll();
+  Future<void> cancelAll() async {
+    await alarmChannel.invokeMethod<void>('cancelAll');
+    await _plugin.cancelAll();
+  }
 
   NotificationDetails _details(HabitNotificationRequest request) {
     final suffix = '${request.sound ? 's' : ''}${request.vibration ? 'v' : ''}';
@@ -131,6 +142,15 @@ class AndroidHabitNotificationGateway implements HabitNotificationGateway {
   Future<void> schedule(HabitNotificationRequest request) async {
     if (!_timezoneReady) {
       throw StateError('Zona waktu perangkat belum berhasil dibaca.');
+    }
+    if (await alarmEnabled()) {
+      await alarmChannel.invokeMethod<void>('schedule', {
+        'id': request.id, 'habit': request.habitId, 'title': request.title,
+        'body': request.body, 'at': request.scheduledAt.millisecondsSinceEpoch,
+        'weekly': request.repeatWeekly, 'sound': request.sound,
+        'vibration': request.vibration,
+      });
+      return;
     }
     final local = request.scheduledAt;
     final scheduled = tz.TZDateTime(tz.local, local.year, local.month, local.day,
@@ -264,7 +284,12 @@ class HabitNotificationService {
   Future<HabitSyncResult> syncHabit(int habitId) => _serialized(() async {
         final habit = await _repository.get(habitId);
         await _gateway.cancelHabit(habitId);
-        if (habit == null) return const HabitSyncResult();
+        if (habit == null) {
+          if (_gateway is AndroidHabitNotificationGateway) {
+            await (_gateway as AndroidHabitNotificationGateway).clearAlarmHabit(habitId);
+          }
+          return const HabitSyncResult();
+        }
         if (!await _settings.habitNotificationsEnabled()) {
           return const HabitSyncResult(globallyDisabled: true);
         }
@@ -274,8 +299,12 @@ class HabitNotificationService {
         return HabitSyncResult(scheduled: await _scheduleHabit(habit));
       });
 
-  Future<void> cancelHabit(int habitId) =>
-      _serialized(() => _gateway.cancelHabit(habitId));
+  Future<void> cancelHabit(int habitId) => _serialized(() async {
+        await _gateway.cancelHabit(habitId);
+        if (_gateway is AndroidHabitNotificationGateway) {
+          await (_gateway as AndroidHabitNotificationGateway).clearAlarmHabit(habitId);
+        }
+      });
 
   Future<HabitSyncResult> testReminder(
           Habit habit, HabitReminder reminder) =>

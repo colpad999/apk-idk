@@ -20,7 +20,7 @@ Aplikasi Android offline-first untuk mencatat keuangan dan kebiasaan, dibangun d
 - Jurnal harian dan mood lokal dengan riwayat, edit dan hapus; bukan diagnosis.
 - Backup/restore JSON tervalidasi termasuk foto tujuan yang tersedia, dan ekspor CSV transaksi (CSV bukan backup penuh).
 
-**Belum tersedia:** alarm yang berbunyi sampai dimatikan. Pengingat habit adalah notifikasi biasa, bukan alarm. Lihat [status alarm](docs/alarm-status.md).
+**Alarm habit (Android):** aktifkan mode alarm di Suara & Pengingat. Notifikasi menyediakan MATIKAN dan SNOOZE 10 menit. Perilaku perangkat dan pembatasan Android belum diuji; lihat [status alarm](docs/alarm-status.md).
 
 ## Teknologi dan struktur
 
