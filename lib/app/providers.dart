@@ -10,6 +10,7 @@ import '../data/planning_repository.dart';
 import '../data/savings_database.dart';
 import '../data/savings_transaction.dart';
 import '../data/transaction_repository.dart';
+import '../data/wishlist_repository.dart';
 import '../services/goal_photo_storage.dart';
 import '../services/habit_notification_service.dart';
 
@@ -115,3 +116,6 @@ final habitCounterProvider = FutureProvider.family<HabitCounter?, int>(
     (ref, id) => ref.watch(habitCounterRepositoryProvider).get(id));
 final habitCounterHistoryProvider = FutureProvider.family<List<CounterDay>, int>(
     (ref, id) => ref.watch(habitCounterRepositoryProvider).history(id));
+
+final wishlistRepositoryProvider = Provider<WishlistRepository>((ref) => WishlistRepository(ref.watch(savingsDatabaseProvider)));
+final wishlistProvider = FutureProvider<List<WishlistItem>>((ref) => ref.watch(wishlistRepositoryProvider).list());

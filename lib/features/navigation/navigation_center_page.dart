@@ -10,6 +10,7 @@ import '../habits/habits_page.dart';
 import '../life/life_journal_page.dart';
 import '../insights/life_insights_page.dart';
 import '../simulator/savings_simulator_page.dart';
+import '../wishlist/wishlist_page.dart';
 
 class NavigationCenterPage extends StatefulWidget {
   const NavigationCenterPage({required this.openTab, super.key});
@@ -42,7 +43,7 @@ class _NavigationCenterPageState extends State<NavigationCenterPage> {
       ('PRODUCTIVITY', 'Kalender aktivitas', Icons.calendar_month, () => _page(const ActivityCalendarPage())),
       ('PRODUCTIVITY', 'Pencapaian & statistik mood', Icons.emoji_events_outlined, () => _page(const LifeInsightsPage())),
       ('PRODUCTIVITY', 'Saving Challenge', Icons.emoji_events_outlined, null),
-      ('PRODUCTIVITY', 'Wishlist', Icons.favorite_border, null),
+      ('PRODUCTIVITY', 'Wishlist', Icons.favorite_border, () => _page(const WishlistPage())),
       ('PRODUCTIVITY', 'Financial Calendar', Icons.calendar_month, null),
       ('PRODUCTIVITY', 'Jurnal harian & mood', Icons.book_outlined, () => _page(const LifeJournalPage())),
       ('PRODUCTIVITY', 'Money Journal', Icons.book_outlined, null),
