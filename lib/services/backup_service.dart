@@ -9,7 +9,7 @@ import '../data/savings_database.dart';
 import 'goal_photo_storage.dart';
 
 const backupFormat = 'colpad_savings_backup';
-const backupVersion = 7;
+const backupVersion = 8;
 const maxBackupBytes = 50 * 1024 * 1024;
 
 class BackupExport {
@@ -76,7 +76,8 @@ class BackupService {
     final photoEntries = <Map<String, Object?>>[];
     final missing = <String>[];
     final pathMap = <String, String>{};
-    for (final goal in goals) {
+    final wishItems = (data['wishlist_items']! as List).cast<Map<String, Object?>>();
+    for (final goal in [...goals, ...wishItems]) {
       final original = goal['cover_photo_path'] as String?;
       if (original == null) continue;
       var key = pathMap[original];
@@ -126,7 +127,7 @@ class BackupService {
     }
     final document = _map(decoded, 'backup');
     if (document['format'] != backupFormat ||
-        ![1, 2, 3, 4, 5, 6, backupVersion].contains(document['version'])) {
+        ![1, 2, 3, 4, 5, 6, 7, backupVersion].contains(document['version'])) {
       throw const FormatException('Format atau versi backup tidak didukung.');
     }
     final data = _map(document['data'], 'data');
@@ -148,7 +149,7 @@ class BackupService {
       data['money_journal'] = <Object?>[];
     }
     final rows = _validateData(data);
-    final photos = _validatePhotos(document['photos'], rows['saving_goals']!);
+    final photos = _validatePhotos(document['photos'], [...rows['saving_goals']!, ...rows['wishlist_items']!]);
 
     await _ensureRestoreTargetEmpty();
 
@@ -214,7 +215,11 @@ class BackupService {
             ['id', 'habit_id', 'start_date', 'end_date']);
         await _insertRows('money_journal', rows['money_journal']!, ['id', 'entry_date', 'note', 'updated_at']);
         await _insertRows('saving_challenges', rows['saving_challenges']!, ['id', 'goal_id', 'name', 'target_amount', 'start_at', 'end_at']);
-        await _insertRows('wishlist_items', rows['wishlist_items']!, ['id', 'name', 'price', 'note', 'purchased', 'created_at']);
+        for (final item in rows['wishlist_items']!) {
+          final photoKey = item['cover_photo_path'] as String?;
+          await _insert('wishlist_items', {...item, 'cover_photo_path': photoKey == null ? null : restoredPaths[photoKey]},
+            ['id', 'name', 'price', 'note', 'purchased', 'created_at', 'cover_photo_path']);
+        }
         await _insertRows('habit_counters', rows['habit_counters']!, ['habit_id', 'target', 'unit']);
         await _insertRows('habit_counter_days', rows['habit_counter_days']!, ['habit_id', 'local_date', 'amount', 'updated_at']);
         await _insertRows('habit_checkins', rows['habit_checkins']!,
@@ -454,6 +459,10 @@ class BackupService {
         throw const FormatException('Wishlist backup tidak valid.');
       }
       _boolInt(row['purchased']);
+      final photo = _optionalString(row['cover_photo_path']);
+      if (photo != null && !GoalPhotoStorage.isManagedRelativePath(photo)) {
+        throw const FormatException('Path foto wishlist tidak valid.');
+      }
       _integer(row['created_at'], 'created_at');
     }
     final counterIds = <int>{};

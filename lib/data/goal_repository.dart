@@ -135,8 +135,9 @@ class GoalRepository {
 
   Future<bool> isPhotoReferenced(String path) async {
     final row = await _database.customSelect(
-      'SELECT COUNT(*) AS total FROM saving_goals WHERE cover_photo_path = ?',
-      variables: [Variable.withString(path)],
+      'SELECT (SELECT COUNT(*) FROM saving_goals WHERE cover_photo_path = ?) + '
+      '(SELECT COUNT(*) FROM wishlist_items WHERE cover_photo_path = ?) AS total',
+      variables: [Variable.withString(path), Variable.withString(path)],
     ).getSingle();
     return row.read<int>('total') > 0;
   }

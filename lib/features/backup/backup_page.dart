@@ -47,7 +47,7 @@ class _BackupPageState extends ConsumerState<BackupPage> {
         showNeoMessage(context,
             'Backup tersimpan, tetapi foto untuk ${export.missingPhotoPaths.join(', ')} tidak tersedia dan tidak ikut dicadangkan.');
       } else {
-        showNeoMessage(context, 'Backup tersimpan, termasuk foto target yang tersedia.');
+        showNeoMessage(context, 'Backup tersimpan, termasuk foto target dan wishlist yang tersedia.');
       }
     } catch (error) {
       if (mounted) showNeoMessage(context, friendlyError(error));
@@ -144,7 +144,7 @@ class _BackupPageState extends ConsumerState<BackupPage> {
         children: [
           Text('Data lokal, tetap terjaga.', style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 6),
-          Text('Backup JSON tervalidasi berisi catatan keuangan, habit, check-in, counter, wishlist, challenge, money journal, jurnal, mood, pengaturan, dan foto target.',
+          Text('Backup JSON tervalidasi berisi catatan keuangan, habit, check-in, counter, wishlist, challenge, money journal, jurnal, mood, pengaturan, dan foto target dan wishlist.',
               style: TextStyle(color: palette.muted)),
           const SizedBox(height: 17),
           NeoCard(

@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../app/providers.dart';
 import '../../app/theme/neo_theme.dart';
@@ -8,6 +11,9 @@ import '../../core/utils/currency.dart';
 import '../../data/wishlist_repository.dart';
 import '../../shared/neo_components.dart';
 import '../../shared/neo_feedback.dart';
+import '../goals/goal_cover.dart';
+import '../goals/photo_crop_page.dart';
+import '../../services/goal_photo_storage.dart';
 
 class WishlistPage extends ConsumerStatefulWidget {
   const WishlistPage({super.key});
@@ -17,6 +23,44 @@ class WishlistPage extends ConsumerStatefulWidget {
 
 class _WishlistPageState extends ConsumerState<WishlistPage> {
   bool _busy = false;
+  Future<void> _deleteUnreferenced(String? path) async {
+    if (path != null && !await ref.read(goalRepositoryProvider).isPhotoReferenced(path)) {
+      await ref.read(goalPhotoStorageProvider).delete(path);
+    }
+  }
+
+  Future<void> _pickPhoto(WishlistItem item) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    String? newPath;
+    var committed = false;
+    try {
+      final picked = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 1600, maxHeight: 1600, imageQuality: 90);
+      if (picked == null || !mounted) return;
+      final photo = await Navigator.of(context).push<PreparedGoalPhoto>(MaterialPageRoute(builder: (_) => PhotoCropPage(source: File(picked.path))));
+      if (photo == null || !mounted) return;
+      newPath = await ref.read(goalPhotoStorageProvider).savePrepared(photo.bytes);
+      final old = await ref.read(wishlistRepositoryProvider).setPhoto(item.id, newPath);
+      committed = true;
+      ref.invalidate(wishlistProvider);
+      try { await _deleteUnreferenced(old); } catch (_) { /* committed data is safe; cleanup is best effort */ }
+    } catch (error) {
+      if (!committed && newPath != null) {
+        try { await _deleteUnreferenced(newPath); } catch (_) { /* best effort */ }
+      }
+      if (mounted) { showNeoMessage(context, friendlyError(error)); }
+    } finally { if (mounted) setState(() => _busy = false); }
+  }
+
+  Future<void> _removePhoto(WishlistItem item) async {
+    final confirmed = await confirmNeoAction(context, title: 'Hapus foto?', message: 'Barang wishlist tetap tersimpan.', confirmLabel: 'Hapus foto', destructive: true);
+    if (!confirmed || !mounted) return;
+    await _run(() async {
+      final old = await ref.read(wishlistRepositoryProvider).setPhoto(item.id, null);
+      try { await _deleteUnreferenced(old); } catch (_) { /* cleanup is best effort */ }
+    });
+  }
+
   Future<void> _edit([WishlistItem? item]) async {
     if (_busy) return;
     final name = TextEditingController(text: item?.name ?? '');
@@ -61,15 +105,18 @@ class _WishlistPageState extends ConsumerState<WishlistPage> {
           if (values.isEmpty) const NeoCard(child: Text('Belum ada wishlist.')),
           for (final item in values) ...[
             NeoCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              if (item.coverPhotoPath != null) ...[GoalCover(path: item.coverPhotoPath, name: item.name, height: 150), const SizedBox(height: 10)],
               Row(children: [Expanded(child: Text(item.name, style: Theme.of(context).textTheme.titleMedium)), NeoTag(item.purchased ? 'TERBELI' : 'DIINGINKAN')]),
               const SizedBox(height: 5), Text(item.price == 0 ? 'Harga belum diketahui' : formatRupiah(item.price), style: const TextStyle(fontWeight: FontWeight.w900)),
               if (item.note.isNotEmpty) ...[const SizedBox(height: 6), Text(item.note)],
               Wrap(spacing: 6, children: [
+                TextButton.icon(onPressed: _busy ? null : () => _pickPhoto(item), icon: const Icon(Icons.photo_outlined), label: Text(item.coverPhotoPath == null ? 'Tambah foto' : 'Ganti foto')),
+                if (item.coverPhotoPath != null) TextButton.icon(onPressed: _busy ? null : () => _removePhoto(item), icon: const Icon(Icons.image_not_supported_outlined), label: const Text('Hapus foto')),
                 TextButton.icon(onPressed: _busy ? null : () => _run(() => ref.read(wishlistRepositoryProvider).setPurchased(item.id, !item.purchased)), icon: Icon(item.purchased ? Icons.undo : Icons.check), label: Text(item.purchased ? 'Batalkan' : 'Terbeli')),
                 TextButton.icon(onPressed: _busy ? null : () => _edit(item), icon: const Icon(Icons.edit_outlined), label: const Text('Edit')),
                 TextButton.icon(onPressed: _busy ? null : () async {
                   final confirmed = await confirmNeoAction(context, title: 'Hapus wishlist?', message: '“${item.name}” akan dihapus. Transaksi tidak terpengaruh.', confirmLabel: 'Hapus', destructive: true);
-                  if (confirmed && context.mounted) { await _run(() => ref.read(wishlistRepositoryProvider).delete(item.id)); }
+                  if (confirmed && context.mounted) { await _run(() async { final old = await ref.read(wishlistRepositoryProvider).delete(item.id); try { await _deleteUnreferenced(old); } catch (_) { /* cleanup is best effort */ } }); }
                 }, icon: const Icon(Icons.delete_outline), label: const Text('Hapus')),
               ]),
             ])), const SizedBox(height: 12),

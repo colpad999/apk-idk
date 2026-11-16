@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:apk_idk/data/goal_repository.dart';
 import 'package:apk_idk/data/habit_repository.dart';
+import 'package:apk_idk/data/wishlist_repository.dart';
 import 'package:apk_idk/data/savings_database.dart';
 import 'package:apk_idk/services/backup_service.dart';
 import 'package:apk_idk/services/goal_photo_storage.dart';
@@ -58,6 +59,29 @@ void main() {
     await photos.delete(deletePath);
     expect(await goals.get(a), isNull);
     expect(await goals.get(b), isNotNull);
+  });
+
+  test('wishlist photos share references safely and survive backup', () async {
+    final path = await photo();
+    final goalId = await goals.create(name: 'Laptop', targetAmount: 2000, coverPhotoPath: path);
+    final wishlist = WishlistRepository(db);
+    await wishlist.save(name: 'Tas', price: 1000, note: '');
+    final id = (await wishlist.list()).single.id;
+    await wishlist.setPhoto(id, path);
+    final backup = await BackupService(database: db, photos: photos).export();
+    final destination = SavingsDatabase.forTesting(NativeDatabase.memory());
+    try {
+      final result = await BackupService(database: destination, photos: photos).restore(backup.bytes);
+      expect(result.photos, 1);
+      final restoredGoal = (await GoalRepository(destination).list()).single;
+      final restoredWish = (await WishlistRepository(destination).list()).single;
+      expect(restoredGoal.coverPhotoPath, restoredWish.coverPhotoPath);
+      expect(await (await photos.fileFor(restoredWish.coverPhotoPath))!.exists(), isTrue);
+    } finally { await destination.close(); }
+    await goals.update(id: goalId, name: 'Laptop', targetAmount: 2000, deadline: null, coverPhotoPath: null);
+    expect(await goals.isPhotoReferenced(path), isTrue);
+    await wishlist.delete(id);
+    expect(await goals.isPhotoReferenced(path), isFalse);
   });
 
   test('invalid and missing image sources fail gracefully', () async {

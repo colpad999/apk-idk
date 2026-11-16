@@ -9,7 +9,7 @@ class SavingsDatabase extends GeneratedDatabase {
   SavingsDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   Iterable<TableInfo<Table, Object?>> get allTables => const [];
@@ -42,6 +42,7 @@ class SavingsDatabase extends GeneratedDatabase {
           await _createWishlist();
           await _createChallenges();
           await _createMoneyJournal();
+          await _addWishlistPhoto();
         },
         onUpgrade: (migrator, from, to) async {
           // Drift runs this upgrade in a transaction. A failed statement leaves
@@ -62,11 +63,15 @@ class SavingsDatabase extends GeneratedDatabase {
           if (from < 10) await _createWishlist();
           if (from < 11) await _createChallenges();
           if (from < 12) await _createMoneyJournal();
+          if (from < 13) await _addWishlistPhoto();
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
         },
       );
+
+  Future<void> _addWishlistPhoto() =>
+      _addColumnIfMissing('wishlist_items', 'cover_photo_path', 'TEXT');
 
   Future<void> _createMoneyJournal() async {
     await customStatement("""
