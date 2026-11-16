@@ -747,7 +747,7 @@ class _SettingsPage extends ConsumerWidget {
                       selected: selected == variant,
                       avatar: Row(mainAxisSize: MainAxisSize.min, children: [
                         for (final color in [NeoPalette.forVariant(variant).primary, NeoPalette.forVariant(variant).secondary])
-                          Container(width: 10, height: 18, decoration: BoxDecoration(color: color, border: Border.all(color: palette.border))),
+                          Container(width: 9, height: 18, decoration: BoxDecoration(color: color, border: Border.all(color: palette.border))),
                       ]),
                       onSelected: (_) async {
                         try {

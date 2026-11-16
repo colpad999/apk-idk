@@ -106,7 +106,7 @@ void main() {
     expect(Theme.of(tester.element(find.text('Pengaturan'))).brightness, Brightness.light);
     expect(find.text('Sembunyikan nominal'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Neo Purple'), 200);
-    await tester.drag(find.text('Neo Purple'), const Offset(0, -160));
+    await tester.drag(find.ancestor(of: find.text('Neo Purple'), matching: find.byType(Scrollable)).first, const Offset(0, -160));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Neo Purple'));
     await tester.pumpAndSettle();
