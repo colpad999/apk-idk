@@ -40,29 +40,29 @@ class NeoPalette {
   );
   static const green = NeoPalette(
     background: Color(0xFFF3FDE9), surface: Color(0xFFFFFFFF),
-    primary: Color(0xFFADF268), secondary: Color(0xFFCFF6AA),
-    accent: Color(0xFFCFF6AA), highlight: Color(0xFFE4FACD),
+    primary: Color(0xFFA5F23D), secondary: Color(0xFFFFE54F),
+    accent: Color(0xFFD4FA8A), highlight: Color(0xFFFFF08B),
     text: Color(0xFF171717), border: Color(0xFF171717), shadow: Color(0xFF171717),
     muted: Color(0xFF414141), mutedSurface: Color(0xFFE4FACD),
   );
   static const blue = NeoPalette(
     background: Color(0xFFF0F9FF), surface: Color(0xFFFFFFFF),
-    primary: Color(0xFF8CCAFF), secondary: Color(0xFFC1E5FF),
-    accent: Color(0xFFC1E5FF), highlight: Color(0xFFE0F2FF),
+    primary: Color(0xFF74C9FF), secondary: Color(0xFFFFB57E),
+    accent: Color(0xFFB1E5FF), highlight: Color(0xFFFFD4A8),
     text: Color(0xFF171717), border: Color(0xFF171717), shadow: Color(0xFF171717),
     muted: Color(0xFF414141), mutedSurface: Color(0xFFE0F2FF),
   );
   static const orange = NeoPalette(
     background: Color(0xFFFFF7EC), surface: Color(0xFFFFFFFF),
-    primary: Color(0xFFFFB66D), secondary: Color(0xFFFFD2A1),
-    accent: Color(0xFFFFD2A1), highlight: Color(0xFFFFE9CE),
+    primary: Color(0xFFFFAD55), secondary: Color(0xFF8CDFFF),
+    accent: Color(0xFFFFD399), highlight: Color(0xFFB7EFFF),
     text: Color(0xFF171717), border: Color(0xFF171717), shadow: Color(0xFF171717),
     muted: Color(0xFF414141), mutedSurface: Color(0xFFFFE9CE),
   );
   static const purple = NeoPalette(
     background: Color(0xFFFAF5FF), surface: Color(0xFFFFFFFF),
-    primary: Color(0xFFC6A0FF), secondary: Color(0xFFE0C9FF),
-    accent: Color(0xFFE0C9FF), highlight: Color(0xFFF0E4FF),
+    primary: Color(0xFFCB9AFF), secondary: Color(0xFFA6F289),
+    accent: Color(0xFFE2C6FF), highlight: Color(0xFFCDF9BA),
     text: Color(0xFF171717), border: Color(0xFF171717), shadow: Color(0xFF171717),
     muted: Color(0xFF414141), mutedSurface: Color(0xFFF0E4FF),
   );

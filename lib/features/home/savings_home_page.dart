@@ -745,7 +745,10 @@ class _SettingsPage extends ConsumerWidget {
                     ChoiceChip(
                       label: Text(variant.label),
                       selected: selected == variant,
-                      avatar: CircleAvatar(backgroundColor: NeoPalette.forVariant(variant).primary),
+                      avatar: Row(mainAxisSize: MainAxisSize.min, children: [
+                        for (final color in [NeoPalette.forVariant(variant).primary, NeoPalette.forVariant(variant).secondary])
+                          Container(width: 10, height: 18, decoration: BoxDecoration(color: color, border: Border.all(color: palette.border))),
+                      ]),
                       onSelected: (_) async {
                         try {
                           await ref.read(appSettingsRepositoryProvider).setThemeVariant(variant);
@@ -803,7 +806,7 @@ class _SettingsPage extends ConsumerWidget {
           NeoCard(shadow: false, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Text('BELUM TERSEDIA', style: TextStyle(fontWeight: FontWeight.w900)),
             const SizedBox(height: 6),
-            Text('Recurring Expenses dan alarm manual-stop belum diimplementasikan.', style: TextStyle(color: palette.muted, fontSize: 12)),
+            Text('Recurring Expenses belum diimplementasikan. Mode alarm tersedia di Sound Settings.', style: TextStyle(color: palette.muted, fontSize: 12)),
           ])),
           const SizedBox(height: 13),
           Text('By Colpad ⚡',

@@ -9,6 +9,20 @@ double contrast(Color a, Color b) {
 }
 
 void main() {
+  test('each theme combines two visibly distinct saturated hues', () {
+    for (final variant in NeoThemeVariant.values) {
+      final palette = NeoPalette.forVariant(variant);
+      final first = HSVColor.fromColor(palette.primary);
+      final second = HSVColor.fromColor(palette.secondary);
+      final rawDifference = (first.hue - second.hue).abs();
+      final hueDifference = rawDifference > 180 ? 360 - rawDifference : rawDifference;
+      expect(hueDifference, greaterThanOrEqualTo(30), reason: variant.label);
+      expect(first.saturation, greaterThanOrEqualTo(.35), reason: variant.label);
+      expect(second.saturation, greaterThanOrEqualTo(.35), reason: variant.label);
+      expect(first.value, greaterThanOrEqualTo(.9), reason: variant.label);
+      expect(second.value, greaterThanOrEqualTo(.9), reason: variant.label);
+    }
+  });
   test('dark ink remains readable against bright palette colors', () {
     for (final variant in NeoThemeVariant.values) {
       final p = NeoPalette.forVariant(variant);

@@ -51,3 +51,5 @@ Minimum Android 7 (SDK 24), target SDK 36. `POST_NOTIFICATIONS` diperlukan untuk
 
 ### Profil, impor, dan riwayat alarm
 Profil lokal menyimpan nama dan catatan opsional dalam pengaturan dan termasuk backup. Import Data membuka pemulihan backup JSON Colpad yang tervalidasi, hanya pada database kosong; impor CSV belum didukung. Riwayat menampilkan 200 peristiwa terakhir dari mode alarm Android sejak fitur ini dipasang (bukan notifikasi biasa). Log tersimpan lokal terpisah, tidak ikut backup dan tidak membuktikan suara terdengar.
+
+Pilihan tema di More → Pengaturan: Neo Green (hijau–kuning), Neo Blue (biru–oranye), Neo Orange (oranye–biru), dan Neo Purple (ungu–hijau). Setiap tema memakai dua warna cerah serta warna netral untuk teks dan latar.
