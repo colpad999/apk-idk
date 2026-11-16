@@ -69,7 +69,7 @@ class _WishlistPageState extends ConsumerState<WishlistPage> {
                 TextButton.icon(onPressed: _busy ? null : () => _edit(item), icon: const Icon(Icons.edit_outlined), label: const Text('Edit')),
                 TextButton.icon(onPressed: _busy ? null : () async {
                   final confirmed = await confirmNeoAction(context, title: 'Hapus wishlist?', message: '“${item.name}” akan dihapus. Transaksi tidak terpengaruh.', confirmLabel: 'Hapus', destructive: true);
-                  if (confirmed && context.mounted) await _run(() => ref.read(wishlistRepositoryProvider).delete(item.id));
+                  if (confirmed && context.mounted) { await _run(() => ref.read(wishlistRepositoryProvider).delete(item.id)); }
                 }, icon: const Icon(Icons.delete_outline), label: const Text('Hapus')),
               ]),
             ])), const SizedBox(height: 12),
