@@ -16,6 +16,17 @@ class TransactionRepository {
     return rows.map((row) => SavingsTransaction.fromRow(row.data)).toList();
   }
 
+  /// Local civil month boundaries; includes all matching rows, not just the dashboard's latest 100.
+  Future<List<SavingsTransaction>> forMonth(DateTime month) async {
+    final start = DateTime(month.year, month.month);
+    final end = DateTime(month.year, month.month + 1);
+    final rows = await _database.customSelect(
+      'SELECT * FROM savings_transactions WHERE created_at >= ? AND created_at < ? ORDER BY created_at DESC, id DESC',
+      variables: [Variable.withInt(start.millisecondsSinceEpoch), Variable.withInt(end.millisecondsSinceEpoch)],
+    ).get();
+    return rows.map((row) => SavingsTransaction.fromRow(row.data)).toList();
+  }
+
   Future<SavingsSummary> summary() async {
     final row = await _database.customSelect('''
       SELECT

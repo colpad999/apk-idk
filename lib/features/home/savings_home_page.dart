@@ -775,7 +775,7 @@ class _SettingsPage extends ConsumerWidget {
           NeoCard(shadow: false, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Text('BELUM TERSEDIA', style: TextStyle(fontWeight: FontWeight.w900)),
             const SizedBox(height: 6),
-            Text('Virtual Money Jar, Financial Calendar, Money Journal, dan Recurring Expenses belum diimplementasikan.', style: TextStyle(color: palette.muted, fontSize: 12)),
+            Text('Recurring Expenses dan alarm manual-stop belum diimplementasikan.', style: TextStyle(color: palette.muted, fontSize: 12)),
           ])),
           const SizedBox(height: 13),
           Text('By Colpad ⚡',

@@ -10,6 +10,8 @@ Aplikasi Android offline-first untuk mencatat keuangan dan kebiasaan, dibangun d
 - Habit dengan jadwal harian, hari tertentu atau target mingguan, jeda, riwayat kalender per habit, streak dan beberapa pengingat notifikasi biasa.
 - Check-in habit berkali-kali dengan waktu, catatan, edit dan hapus. Check-in terpisah dari status selesai.
 - Counter habit opsional dengan target bulat dan satuan, progres harian, penyesuaian dan riwayat; target yang tercapai diperhitungkan dalam streak. Check-in tetap terpisah.
+- Virtual Money Jar memakai alokasi tujuan yang sama, bukan saldo tambahan.
+- Kalender keuangan berdasarkan seluruh transaksi tiap bulan dan Money Journal lokal untuk catatan.
 - Saving Challenge menggunakan alokasi bersih tujuan selama periode challenge tanpa membuat saldo baru.
 - Pengaturan suara Android dan pengingat per habit.
 - Wishlist lokal dengan harga perkiraan, catatan dan status terbeli; tidak mengubah saldo. Foto wishlist belum tersedia.
@@ -41,7 +43,7 @@ Untuk build release lokal, pastikan Gradle wrapper tersedia (`flutter create` da
 
 ## Backup dan privasi
 
-Backup mencakup transaksi, anggaran, tujuan, habit, check-in, counter, wishlist, challenge, penyelesaian, jadwal pengingat, jeda, jurnal, mood, pengaturan, serta foto tujuan yang tersedia. Foto yang hilang dilaporkan. File divalidasi dan dibatasi 50 MB. Restore hanya diperbolehkan ke database kosong dan dijalankan dalam transaksi; jangan menghapus data aktif untuk melakukan restore tanpa memastikan backup aman. Backup JSON tidak terenkripsi: simpan secara pribadi. CSV hanya berisi ledger, bukan semua data.
+Backup mencakup transaksi, anggaran, tujuan, habit, check-in, counter, wishlist, challenge, money journal, penyelesaian, jadwal pengingat, jeda, jurnal, mood, pengaturan, serta foto tujuan yang tersedia. Foto yang hilang dilaporkan. File divalidasi dan dibatasi 50 MB. Restore hanya diperbolehkan ke database kosong dan dijalankan dalam transaksi; jangan menghapus data aktif untuk melakukan restore tanpa memastikan backup aman. Backup JSON tidak terenkripsi: simpan secara pribadi. CSV hanya berisi ledger, bukan semua data.
 
 ## Izin dan batas Android
 

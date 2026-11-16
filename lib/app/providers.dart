@@ -12,6 +12,7 @@ import '../data/savings_transaction.dart';
 import '../data/transaction_repository.dart';
 import '../data/wishlist_repository.dart';
 import '../data/saving_challenge_repository.dart';
+import '../data/money_journal_repository.dart';
 import '../services/goal_photo_storage.dart';
 import '../services/habit_notification_service.dart';
 
@@ -126,3 +127,7 @@ final savingChallengesProvider = FutureProvider<List<SavingChallenge>>((ref) asy
   await ref.watch(savingGoalsProvider.future);
   return ref.watch(savingChallengeRepositoryProvider).list();
 });
+
+final moneyJournalRepositoryProvider = Provider<MoneyJournalRepository>((ref) => MoneyJournalRepository(ref.watch(savingsDatabaseProvider)));
+final moneyJournalProvider = FutureProvider<List<MoneyJournalEntry>>((ref) => ref.watch(moneyJournalRepositoryProvider).list());
+final financialMonthProvider = FutureProvider.family<List<SavingsTransaction>, DateTime>((ref, month) => ref.watch(transactionRepositoryProvider).forMonth(month));

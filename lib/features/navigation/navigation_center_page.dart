@@ -5,6 +5,9 @@ import '../../shared/neo_components.dart';
 import '../backup/backup_page.dart';
 import '../budget/budget_page.dart';
 import '../calendar/activity_calendar_page.dart';
+import '../financial_calendar/financial_calendar_page.dart';
+import '../money_journal/money_journal_page.dart';
+import '../jars/virtual_jars_page.dart';
 import '../challenges/saving_challenges_page.dart';
 import '../settings/sound_settings_page.dart';
 import '../habits/habit_settings_page.dart';
@@ -40,15 +43,15 @@ class _NavigationCenterPageState extends State<NavigationCenterPage> {
       ('FINANCIAL', 'Income Tracker', Icons.trending_up, () => _tab(0)),
       ('FINANCIAL', 'Budget Planner', Icons.pie_chart_outline, () => _page(Scaffold(appBar: AppBar(title: const Text('BUDGET PLANNER')), body: const BudgetPage()))),
       ('FINANCIAL', 'Statistics', Icons.bar_chart, () => _tab(3)),
-      ('FINANCIAL', 'Virtual Money Jar', Icons.savings_outlined, null),
+      ('FINANCIAL', 'Virtual Money Jar', Icons.savings_outlined, () => _page(const VirtualJarsPage())),
       ('PRODUCTIVITY', 'Habit Tracker', Icons.checklist, () => _page(const HabitsPage())),
       ('PRODUCTIVITY', 'Kalender aktivitas', Icons.calendar_month, () => _page(const ActivityCalendarPage())),
       ('PRODUCTIVITY', 'Pencapaian & statistik mood', Icons.emoji_events_outlined, () => _page(const LifeInsightsPage())),
       ('PRODUCTIVITY', 'Saving Challenge', Icons.emoji_events_outlined, () => _page(const SavingChallengesPage())),
       ('PRODUCTIVITY', 'Wishlist', Icons.favorite_border, () => _page(const WishlistPage())),
-      ('PRODUCTIVITY', 'Financial Calendar', Icons.calendar_month, null),
+      ('PRODUCTIVITY', 'Financial Calendar', Icons.calendar_month, () => _page(const FinancialCalendarPage())),
       ('PRODUCTIVITY', 'Jurnal harian & mood', Icons.book_outlined, () => _page(const LifeJournalPage())),
-      ('PRODUCTIVITY', 'Money Journal', Icons.book_outlined, null),
+      ('PRODUCTIVITY', 'Money Journal', Icons.book_outlined, () => _page(const MoneyJournalPage())),
       ('PRODUCTIVITY', 'Simulasi tabungan', Icons.calculate_outlined, () => _page(const SavingsSimulatorPage())),
       ('REMINDERS', 'Alarm manual stop', Icons.alarm, null),
       ('REMINDERS', 'Pengingat habit', Icons.notifications_outlined, () => _page(const HabitsPage())),

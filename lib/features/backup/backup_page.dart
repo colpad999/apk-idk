@@ -143,7 +143,7 @@ class _BackupPageState extends ConsumerState<BackupPage> {
         children: [
           Text('Data lokal, tetap terjaga.', style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 6),
-          Text('Backup JSON tervalidasi berisi catatan keuangan, habit, check-in, counter, wishlist, challenge, jurnal, mood, pengaturan, dan foto target.',
+          Text('Backup JSON tervalidasi berisi catatan keuangan, habit, check-in, counter, wishlist, challenge, money journal, jurnal, mood, pengaturan, dan foto target.',
               style: TextStyle(color: palette.muted)),
           const SizedBox(height: 17),
           NeoCard(
