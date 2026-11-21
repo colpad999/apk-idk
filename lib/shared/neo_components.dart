@@ -349,4 +349,3 @@ class NeoEmptyState extends StatelessWidget {
     );
   }
 }
-

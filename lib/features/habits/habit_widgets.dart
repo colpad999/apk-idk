@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../../app/theme/neo_theme.dart';
 import '../../core/utils/civil_date.dart';
 import '../../data/habit.dart';
-import '../../shared/neo_components.dart';
 
 const habitIconOptions = <String, IconData>{
   'savings': Icons.savings_outlined,
