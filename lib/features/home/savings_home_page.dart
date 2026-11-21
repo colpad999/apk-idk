@@ -53,35 +53,23 @@ class _SavingsHomePageState extends ConsumerState<SavingsHomePage> {
       const _Destination('More', Icons.grid_view_outlined, Icons.grid_view_rounded),
     ];
     return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 18,
-        title: Row(children: [
-          Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                  color: palette.primary,
-                  borderRadius: BorderRadius.circular(12)),
-              child: Icon(Icons.bolt_rounded, color: palette.text, size: 21)),
-          const SizedBox(width: 9),
-          const Expanded(child: FittedBox(alignment: Alignment.centerLeft, fit: BoxFit.scaleDown, child: Text('COLPAD SAVINGS'))),
-        ]),
+      appBar: NeoHeader(
+        title: 'COLPAD SAVINGS',
+        leading: NeoIconButton(
+          tooltip: 'Buka pusat fitur', icon: Icons.menu_rounded,
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+            builder: (_) => NavigationCenterPage(openTab: (index) => setState(() => _selectedIndex = index)))),
+        ),
         actions: [
-          IconButton(
-              tooltip: ref.watch(hideBalanceProvider)
-                  ? 'Tampilkan saldo'
-                  : 'Sembunyikan saldo',
-              onPressed: () => ref.read(hideBalanceProvider.notifier).state =
-                  !ref.read(hideBalanceProvider),
-              icon: Icon(ref.watch(hideBalanceProvider)
-                  ? Icons.visibility_off_outlined
-                  : Icons.visibility_outlined)),
-          IconButton(
-              tooltip: 'Pengingat habit',
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
-                  builder: (_) => const HabitsPage())),
-              icon: const Icon(Icons.notifications_none_rounded)),
-          const SizedBox(width: 5),
+          NeoIconButton(
+            tooltip: ref.watch(hideBalanceProvider) ? 'Tampilkan saldo' : 'Sembunyikan saldo',
+            icon: ref.watch(hideBalanceProvider) ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+            onPressed: () => ref.read(hideBalanceProvider.notifier).state = !ref.read(hideBalanceProvider),
+          ),
+          NeoIconButton(tooltip: 'Pengingat habit', icon: Icons.notifications_none_rounded,
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const HabitsPage()))),
+          NeoIconButton(tooltip: 'Pengaturan', icon: Icons.tune_rounded,
+            onPressed: () => setState(() => _selectedIndex = 4)),
         ],
       ),
       body: IndexedStack(index: _selectedIndex, children: [
@@ -146,55 +134,41 @@ class _NeoNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = NeoPalette.of(context);
-    return SafeArea(
-      top: false,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(10, 0, 10, 8),
-        padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
-        decoration: BoxDecoration(
-            color: palette.accent,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: palette.border, width: 2),
-            boxShadow: [BoxShadow(color: palette.shadow, offset: const Offset(4, 4))]),
+    return Container(
+      decoration: BoxDecoration(
+        color: palette.surface,
+        border: Border(top: BorderSide(color: palette.border, width: 2.5)),
+      ),
+      child: SafeArea(top: false, child: Padding(
+        padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
         child: Row(children: [
           for (var index = 0; index < destinations.length; index++)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
+            Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Semantics(selected: index == selectedIndex, button: true,
                 child: InkWell(
                   onTap: () => onSelect(index),
                   child: AnimatedContainer(
-                    duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 180),
+                    duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 160),
                     curve: Curves.easeOut,
-                    padding: const EdgeInsets.symmetric(vertical: 7),
+                    constraints: const BoxConstraints(minHeight: 48),
+                    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 1),
                     decoration: BoxDecoration(
-                        color: index == selectedIndex
-                            ? [palette.primary, palette.secondary, palette.highlight, palette.accent, palette.primary][index]
-                            : Colors.transparent,
-                        border: Border.all(color: index == selectedIndex ? palette.border : Colors.transparent, width: 2),
-                        borderRadius: BorderRadius.circular(6),
-                        boxShadow: index == selectedIndex ? [BoxShadow(color: palette.shadow, offset: const Offset(2, 2))] : null),
-                    child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      Icon(
-                          index == selectedIndex
-                              ? destinations[index].selectedIcon
-                              : destinations[index].icon,
-                          size: 20,
-                          color: palette.text),
-                      const SizedBox(height: 3),
-                      Text(destinations[index].label,
-                          maxLines: 1,
-                          style: TextStyle(
-                              color: palette.text,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w900)),
+                      color: index == selectedIndex ? palette.primary : Colors.transparent,
+                      border: Border.all(color: index == selectedIndex ? palette.border : Colors.transparent, width: 2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Icon(index == selectedIndex ? destinations[index].selectedIcon : destinations[index].icon, size: 20, color: palette.text),
+                      const SizedBox(height: 2),
+                      FittedBox(fit: BoxFit.scaleDown, child: Text(destinations[index].label, maxLines: 1,
+                        style: TextStyle(color: palette.text, fontSize: 10, fontWeight: FontWeight.w900))),
                     ]),
                   ),
                 ),
               ),
-            ),
+            )),
         ]),
-      ),
+      )),
     );
   }
 }
@@ -231,7 +205,7 @@ class DashboardPage extends ConsumerWidget {
       child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
           children: [
-            NeoCard(color: palette.secondary, child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            NeoCard(child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 NeoTag('HALO, PENABUNG ✳', color: palette.primary),
                 const SizedBox(height: 8),
@@ -256,43 +230,28 @@ class DashboardPage extends ConsumerWidget {
               loading: () => const SizedBox.shrink(),
               error: (_, __) => const SizedBox.shrink(),
               data: (value) => Row(children: [
-                Expanded(child: NeoCard(color: palette.highlight, padding: const EdgeInsets.all(12), child: _HeroMetric(label: 'PEMASUKAN', value: hidden ? '••••' : formatRupiah(value.totalIncome), icon: Icons.south_west_rounded))),
+                Expanded(child: NeoCard(padding: const EdgeInsets.all(12), child: _HeroMetric(label: 'PEMASUKAN', value: hidden ? '••••' : formatRupiah(value.totalIncome), icon: Icons.south_west_rounded))),
                 const SizedBox(width: 12),
-                Expanded(child: NeoCard(color: palette.secondary, padding: const EdgeInsets.all(12), child: _HeroMetric(label: 'PENGELUARAN', value: hidden ? '••••' : formatRupiah(value.totalExpense), icon: Icons.north_east_rounded))),
+                Expanded(child: NeoCard(padding: const EdgeInsets.all(12), child: _HeroMetric(label: 'PENGELUARAN', value: hidden ? '••••' : formatRupiah(value.totalExpense), icon: Icons.north_east_rounded))),
               ]),
             ),
             const SizedBox(height: 20),
             const NeoSectionTitle('AKSI CEPAT'),
             const SizedBox(height: 9),
-            Row(children: [
-              Expanded(
-                  child: NeoActionButton(
-                      icon: Icons.south_west_rounded,
-                      label: 'Pemasukan',
-                      onPressed: () => onAdd(type: TransactionType.income),
-                      color: palette.primary)),
-              const SizedBox(width: 7),
-              Expanded(
-                  child: NeoActionButton(
-                      icon: Icons.north_east_rounded,
-                      label: 'Pengeluaran',
-                      onPressed: () => onAdd(type: TransactionType.expense),
-                      color: palette.secondary)),
-              const SizedBox(width: 7),
-              Expanded(
-                  child: NeoActionButton(
-                      icon: Icons.flag_outlined,
-                      label: 'Target',
-                      onPressed: () => onOpenTab(1),
-                      color: palette.accent)),
-              const SizedBox(width: 7),
-              Expanded(
-                  child: NeoActionButton(
-                      icon: Icons.pie_chart_outline,
-                      label: 'Anggaran',
-                      onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => Scaffold(appBar: AppBar(title: const Text('BUDGET PLANNER')), body: const BudgetPage()))),
-                      color: palette.highlight)),
-            ]),
+            LayoutBuilder(builder: (context, constraints) {
+              final columns = constraints.maxWidth < 320 ? 1 : 2;
+              final width = (constraints.maxWidth - (columns - 1) * 10) / columns;
+              final actions = [
+                (Icons.south_west_rounded, 'Pemasukan', () => onAdd(type: TransactionType.income)),
+                (Icons.north_east_rounded, 'Pengeluaran', () => onAdd(type: TransactionType.expense)),
+                (Icons.flag_outlined, 'Target', () => onOpenTab(1)),
+                (Icons.pie_chart_outline, 'Anggaran', () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => Scaffold(appBar: AppBar(title: const Text('BUDGET PLANNER')), body: const BudgetPage())))),
+              ];
+              return Wrap(spacing: 10, runSpacing: 10, children: [
+                for (final action in actions)
+                  SizedBox(width: width, child: NeoActionButton(icon: action.$1, label: action.$2, onPressed: action.$3, color: palette.surface)),
+              ]);
+            }),
             const SizedBox(height: 20),
             NeoSectionTitle('TARGET PRIORITAS',
                 trailing: TextButton(
@@ -461,7 +420,7 @@ class _HeroBalance extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = NeoPalette.of(context);
     return NeoCard(
-      color: palette.primary,
+      color: palette.surface,
       padding: const EdgeInsets.all(19),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
@@ -472,7 +431,7 @@ class _HeroBalance extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                       fontSize: 12,
                       letterSpacing: .6))),
-          Container(width: 42, height: 42, decoration: BoxDecoration(color: palette.highlight, shape: BoxShape.circle, border: Border.all(color: palette.text, width: 1.3)), child: const Icon(Icons.bolt_rounded, size: 25))
+          Container(width: 42, height: 42, decoration: BoxDecoration(color: palette.primary, shape: BoxShape.circle, border: Border.all(color: palette.text, width: 2)), child: const Icon(Icons.bolt_rounded, size: 25))
         ]),
         const SizedBox(height: 7),
         TweenAnimationBuilder<double>(

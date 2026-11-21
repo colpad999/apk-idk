@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 enum NeoThemeVariant { green, blue, orange, purple }
 
@@ -39,11 +40,11 @@ class NeoPalette {
     mutedSurface: Color(0xFFFFE8A8),
   );
   static const green = NeoPalette(
-    background: Color(0xFFF3FDE9), surface: Color(0xFFFFFFFF),
-    primary: Color(0xFFA5F23D), secondary: Color(0xFFFFE54F),
-    accent: Color(0xFFD4FA8A), highlight: Color(0xFFFFF08B),
-    text: Color(0xFF171717), border: Color(0xFF171717), shadow: Color(0xFF171717),
-    muted: Color(0xFF414141), mutedSurface: Color(0xFFE4FACD),
+    background: Color(0xFFE7F9F0), surface: Color(0xFFFFFFFF),
+    primary: Color(0xFF60E2A0), secondary: Color(0xFFFFE876),
+    accent: Color(0xFFC4F4DE), highlight: Color(0xFFFFF3B3),
+    text: Color(0xFF162621), border: Color(0xFF162621), shadow: Color(0xFF162621),
+    muted: Color(0xFF414141), mutedSurface: Color(0xFFD7F1E5),
   );
   static const blue = NeoPalette(
     background: Color(0xFFF0F9FF), surface: Color(0xFFFFFFFF),
@@ -78,13 +79,13 @@ class NeoPalette {
 class NeoTheme {
   static ThemeData light([NeoThemeVariant variant = NeoThemeVariant.green]) {
     final p = NeoPalette.forVariant(variant);
-    const ink = Color(0xFF171717);
+    const ink = Color(0xFF162621);
     final scheme = ColorScheme.fromSeed(seedColor: p.primary, brightness: Brightness.light)
         .copyWith(primary: p.primary, secondary: p.secondary, surface: p.surface,
           onPrimary: ink, onSecondary: ink, onSurface: ink);
     final border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(5),
-      borderSide: BorderSide(color: p.border, width: 2),
+      borderSide: BorderSide(color: p.border, width: 2.5),
     );
     const display = 'SpaceGrotesk';
     return ThemeData(
@@ -93,8 +94,9 @@ class NeoTheme {
       brightness: Brightness.light,
       fontFamily: 'Manrope',
       colorScheme: scheme,
-      scaffoldBackgroundColor: p.background,
-      appBarTheme: AppBarTheme(backgroundColor: p.primary, foregroundColor: ink,
+      scaffoldBackgroundColor: Colors.transparent,
+      appBarTheme: AppBarTheme(backgroundColor: p.surface, foregroundColor: ink,
+        centerTitle: true, systemOverlayStyle: SystemUiOverlayStyle.dark,
         elevation: 0, scrolledUnderElevation: 0,
         titleTextStyle: const TextStyle(fontFamily: display, color: ink, fontSize: 19, fontWeight: FontWeight.w700, letterSpacing: -.5)),
       textTheme: const TextTheme(
@@ -109,7 +111,7 @@ class NeoTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(filled: true, fillColor: p.surface,
         border: border, enabledBorder: border,
-        focusedBorder: border.copyWith(borderSide: BorderSide(color: p.border, width: 2)),
+        focusedBorder: border.copyWith(borderSide: BorderSide(color: p.border, width: 3)),
         errorBorder: border.copyWith(borderSide: const BorderSide(color: Color(0xFFB3261E), width: 1.5)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14)),
       filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(

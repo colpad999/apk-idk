@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/habits/habit_detail_page.dart';
 import '../features/home/savings_home_page.dart';
 import '../services/habit_notification_service.dart';
+import '../shared/neo_components.dart';
 import 'providers.dart';
 import 'theme/neo_theme.dart';
 
@@ -71,6 +72,7 @@ class _ColpadAppState extends ConsumerState<ColpadApp>
       title: 'Colpad Savings',
       debugShowCheckedModeBanner: false,
       navigatorKey: _navigatorKey,
+      builder: (context, child) => NeoGridBackground(child: child ?? const SizedBox.shrink()),
       theme: NeoTheme.light(ref.watch(neoThemeVariantProvider).valueOrNull ?? NeoThemeVariant.green),
       home: const SavingsHomePage(),
     );

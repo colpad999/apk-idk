@@ -122,7 +122,9 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
                         .titleLarge
                         ?.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: 17),
-                SegmentedButton<TransactionType>(
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SegmentedButton<TransactionType>(
                   segments: const [
                     ButtonSegment(
                         value: TransactionType.income,
@@ -162,7 +164,7 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
                       _categoryController.text = 'Uang saku';
                     }
                   }),
-                ),
+                )),
                 const SizedBox(height: 17),
                 TextFormField(
                   controller: _amountController,

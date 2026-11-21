@@ -18,15 +18,12 @@ class NeoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = NeoPalette.of(context);
-    final featured = color != null;
-    final radius = featured
-        ? const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8), bottomLeft: Radius.circular(8), bottomRight: Radius.circular(20))
-        : BorderRadius.circular(8);
+    final radius = BorderRadius.circular(10);
     return Container(
       decoration: BoxDecoration(
         color: color ?? palette.surface,
         borderRadius: radius,
-        border: Border.all(color: palette.border, width: 2),
+        border: Border.all(color: palette.border, width: 2.5),
         boxShadow: shadow
             ? [BoxShadow(color: palette.shadow, offset: const Offset(4, 4))]
             : null,
@@ -97,8 +94,9 @@ class NeoSectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(children: [
-        Container(width: 10, height: 22,
-          decoration: BoxDecoration(color: NeoPalette.of(context).secondary,
+        Container(width: 24, height: 12,
+          decoration: BoxDecoration(color: NeoPalette.of(context).primary,
+            borderRadius: BorderRadius.circular(99),
             border: Border.all(color: NeoPalette.of(context).border, width: 2))),
         const SizedBox(width: 8),
         Expanded(
@@ -190,7 +188,9 @@ class _NeoActionButtonState extends State<NeoActionButton> {
           onHighlightChanged: (value) => setState(() => _pressed = value),
           child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 13),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(widget.icon, color: palette.text, size: 23),
+              Container(padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: palette.primary, borderRadius: BorderRadius.circular(8), border: Border.all(color: palette.border, width: 2)),
+                child: Icon(widget.icon, color: palette.text, size: 21)),
               const SizedBox(height: 7),
               Text(widget.label, textAlign: TextAlign.center, maxLines: 1,
                 style: TextStyle(color: palette.text, fontSize: 10, fontWeight: FontWeight.w800)),
@@ -239,4 +239,74 @@ class NeoProgressRing extends StatelessWidget {
       ])),
     );
   }
+}
+
+/// Fixed, decorative background shared by every transparent Scaffold.
+class NeoGridBackground extends StatelessWidget {
+  const NeoGridBackground({required this.child, super.key});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) {
+    final p = NeoPalette.of(context);
+    return ColoredBox(color: p.background, child: CustomPaint(
+      painter: _GridPainter(p.mutedSurface), child: child));
+  }
+}
+
+class _GridPainter extends CustomPainter {
+  const _GridPainter(this.color);
+  final Color color;
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color..strokeWidth = 0.7;
+    const spacing = 28.0;
+    for (var x = 0.0; x < size.width; x += spacing) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (var y = 0.0; y < size.height; y += spacing) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+  @override
+  bool shouldRepaint(covariant _GridPainter oldDelegate) => oldDelegate.color != color;
+}
+
+class NeoIconButton extends StatelessWidget {
+  const NeoIconButton({required this.icon, required this.tooltip, required this.onPressed, this.color, super.key});
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback? onPressed;
+  final Color? color;
+  @override
+  Widget build(BuildContext context) {
+    final p = NeoPalette.of(context);
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      icon: Icon(icon, size: 21),
+      style: IconButton.styleFrom(
+        minimumSize: const Size(48, 48),
+        backgroundColor: color ?? p.secondary,
+        foregroundColor: p.text,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9), side: BorderSide(color: p.border, width: 2.5)),
+      ),
+    );
+  }
+}
+
+/// A native AppBar wrapper; back/navigation actions remain real callbacks.
+class NeoHeader extends StatelessWidget implements PreferredSizeWidget {
+  const NeoHeader({required this.title, this.leading, this.actions = const [], super.key});
+  final String title;
+  final Widget? leading;
+  final List<Widget> actions;
+  @override
+  Size get preferredSize => const Size.fromHeight(64);
+  @override
+  Widget build(BuildContext context) => AppBar(
+    toolbarHeight: 64, centerTitle: true, leadingWidth: 60,
+    leading: leading == null ? null : Padding(padding: const EdgeInsets.only(left: 8, top: 8, bottom: 8), child: leading),
+    title: FittedBox(fit: BoxFit.scaleDown, child: Text(title, maxLines: 1)),
+    actions: [for (final action in actions) Padding(padding: const EdgeInsets.only(right: 5, top: 8, bottom: 8), child: action)],
+  );
 }

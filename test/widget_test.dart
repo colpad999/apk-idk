@@ -7,6 +7,7 @@ import 'package:apk_idk/data/savings_database.dart';
 import 'support/fake_notification_gateway.dart';
 import 'package:apk_idk/app/colpad_app.dart';
 import 'package:apk_idk/app/theme/neo_theme.dart';
+import 'package:apk_idk/shared/neo_components.dart';
 import 'package:apk_idk/app/providers.dart';
 import 'package:apk_idk/data/planning_repository.dart';
 import 'package:apk_idk/data/savings_transaction.dart';
@@ -110,7 +111,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Neo Purple'));
     await tester.pumpAndSettle();
-    expect(Theme.of(tester.element(find.text('Neo Purple'))).scaffoldBackgroundColor, NeoPalette.purple.background);
+    expect(NeoPalette.of(tester.element(find.text('Neo Purple'))).background, NeoPalette.purple.background);
+    expect(find.byType(NeoGridBackground), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Cari di pusat fitur'), -200);
     await tester.tap(find.text('Cari di pusat fitur'));
     await tester.pumpAndSettle();
