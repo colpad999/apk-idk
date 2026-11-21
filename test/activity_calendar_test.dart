@@ -11,6 +11,18 @@ Habit _habit(int id, HabitFrequency frequency, Set<int> days, Set<String> done, 
   createdAt: DateTime(2026), completedDates: done, pauses: pauses);
 
 void main() {
+  test('calendar index returns the same results and reuses a day', () {
+    final date = DateTime(2026, 1, 5);
+    final habit = _habit(1, HabitFrequency.daily, allWeekdays, {'2026-01-05'});
+    final entry = LifeEntry(date: CivilDate.from(date), journal: 'Ada', mood: 3, moodNote: '');
+    final index = ActivityCalendarIndex([habit], [entry]);
+    final day = index.day(date);
+    final expected = activityForDay(date, [habit], [entry]);
+    expect(day.completed, expected.completed);
+    expect(day.entry, expected.entry);
+    expect(identical(day, index.day(DateTime(2026, 1, 5, 20))), isTrue);
+    expect(index.day(DateTime(2026, 1, 6)).entry, isNull);
+  });
   test('fixed, flexible and paused habits have distinct calendar semantics', () {
     final date = DateTime(2026, 1, 5); // Monday
     final fixed = _habit(1, HabitFrequency.weeklyDays, {1, 3}, {'2026-01-05'});

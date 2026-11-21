@@ -1,3 +1,4 @@
+import '../core/utils/civil_date.dart';
 import '../data/habit.dart';
 import '../data/life_repository.dart';
 
@@ -22,4 +23,25 @@ ActivityDay activityForDay(DateTime date, List<Habit> habits, List<LifeEntry> en
     }
   }
   return ActivityDay(scheduled: scheduled, completed: completed, flexible: flexible, entry: entry);
+}
+
+/// Per-render index: avoids scanning the full journal and recomputing the same
+/// day for calendar cells, monthly summary, weekly summary and selection.
+class ActivityCalendarIndex {
+  ActivityCalendarIndex(this.habits, List<LifeEntry> entries) {
+    for (final entry in entries) {
+      _entries.putIfAbsent(entry.date.key, () => entry);
+    }
+  }
+  final List<Habit> habits;
+  final Map<String, LifeEntry> _entries = {};
+  final Map<String, ActivityDay> _days = {};
+
+  ActivityDay day(DateTime date) {
+    final key = CivilDate.from(date).key;
+    return _days.putIfAbsent(key, () {
+      final entry = _entries[key];
+      return activityForDay(date, habits, entry == null ? const [] : [entry]);
+    });
+  }
 }
