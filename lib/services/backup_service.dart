@@ -77,14 +77,27 @@ class BackupService {
     final missing = <String>[];
     final pathMap = <String, String>{};
     final wishItems = (data['wishlist_items']! as List).cast<Map<String, Object?>>();
-    for (final goal in [...goals, ...wishItems]) {
+    final allPhotoOwners = [...goals, ...wishItems];
+    // Reserve every existing managed path before assigning aliases for older
+    // absolute paths, otherwise an alias can collide with a real filename.
+    final reservedPaths = <String>{
+      for (final owner in allPhotoOwners)
+        if (owner['cover_photo_path'] is String && GoalPhotoStorage.isManagedRelativePath(owner['cover_photo_path'] as String))
+          owner['cover_photo_path'] as String,
+    };
+    var legacyIndex = 0;
+    for (final goal in allPhotoOwners) {
       final original = goal['cover_photo_path'] as String?;
       if (original == null) continue;
       var key = pathMap[original];
       if (key == null) {
-        key = GoalPhotoStorage.isManagedRelativePath(original)
-            ? original
-            : 'goal_covers/legacy_${pathMap.length + 1}.jpg';
+        if (GoalPhotoStorage.isManagedRelativePath(original)) {
+          key = original;
+        } else {
+          do {
+            key = 'goal_covers/legacy_${++legacyIndex}.jpg';
+          } while (!reservedPaths.add(key));
+        }
         pathMap[original] = key;
         final file = await _photos.fileFor(original);
         try {

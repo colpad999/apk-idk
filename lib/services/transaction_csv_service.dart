@@ -37,7 +37,9 @@ class TransactionCsvService {
   static String _safe(String value) {
     final trimmed = value.trimLeft();
     if (value.startsWith('\t') || value.startsWith('\r') || value.startsWith('\n') ||
-        (trimmed.isNotEmpty && '=+-@'.contains(trimmed[0]))) return "'$value";
+        (trimmed.isNotEmpty && '=+-@'.contains(trimmed[0]))) {
+      return "'$value";
+    }
     return value;
   }
 

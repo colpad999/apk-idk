@@ -86,6 +86,23 @@ void main() {
     expect(await goals.isPhotoReferenced(path), isFalse);
   });
 
+  test('legacy photo aliases cannot collide with managed photo paths', () async {
+    final original = await photo();
+    final legacyFile = await photos.fileFor(original);
+    final reserved = File('${directory.path}/goal_covers/legacy_1.jpg');
+    await reserved.writeAsBytes(await legacyFile!.readAsBytes());
+    final first = await goals.create(name: 'Lama', targetAmount: 1000);
+    await db.customStatement('UPDATE saving_goals SET cover_photo_path = ? WHERE id = ?', [legacyFile.path, first]);
+    await goals.create(name: 'Baru', targetAmount: 2000, coverPhotoPath: 'goal_covers/legacy_1.jpg');
+    final exported = await BackupService(database: db, photos: photos).export();
+    final target = SavingsDatabase.forTesting(NativeDatabase.memory());
+    try {
+      final result = await BackupService(database: target, photos: photos).restore(exported.bytes);
+      expect(result.photos, 2);
+      expect(await GoalRepository(target).list(), hasLength(2));
+    } finally { await target.close(); }
+  });
+
   test('invalid and missing image sources fail gracefully', () async {
     await expectLater(processGoalPhoto(Uint8List.fromList([1, 2, 3])), throwsFormatException);
     await expectLater(photos.importFile(File('${directory.path}/missing.png')), throwsFormatException);

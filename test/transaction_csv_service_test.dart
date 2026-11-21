@@ -6,6 +6,7 @@ import 'package:apk_idk/data/savings_transaction.dart';
 import 'package:apk_idk/data/transaction_repository.dart';
 import 'package:apk_idk/services/transaction_csv_service.dart';
 import 'package:drift/native.dart';
+import 'package:drift/drift.dart' show Variable;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -14,7 +15,9 @@ void main() {
     try {
       final ledger = TransactionRepository(database);
       for (final note in ['\t123', '\r123', '\n123', '  =1+1']) {
-        await ledger.add(type: TransactionType.income, amount: 1, category: 'Saku', note: note, createdAt: DateTime(2026));
+        await ledger.add(type: TransactionType.income, amount: 1, category: 'Saku', createdAt: DateTime(2026));
+        // Legacy data may contain whitespace that current entry forms trim.
+        await database.customUpdate('UPDATE savings_transactions SET note = ? WHERE id = (SELECT MAX(id) FROM savings_transactions)', variables: [Variable.withString(note)]);
       }
       final csv = utf8.decode(await TransactionCsvService(database).export());
       for (final note in ["'\t123", "'\r123", "'\n123", "'  =1+1"]) {
