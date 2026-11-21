@@ -315,6 +315,7 @@ class BackupService {
     _uniqueIds(result, 'money_journal');
 
     final transactionIds = _ids(result['savings_transactions']!);
+    final transactionsById = {for (final row in result['savings_transactions']!) row['id'] as int: row};
     final goalIds = _ids(result['saving_goals']!);
     final habitIds = _ids(result['habits']!);
     final categoryIds = _ids(result['budget_categories']!);
@@ -375,6 +376,11 @@ class BackupService {
       }
       _amount(row['amount']);
       _integer(row['created_at'], 'created_at');
+      final transaction = transactionsById[row['transaction_id']]!;
+      final expectedType = row['direction'] == 'allocate' ? 'deposit' : 'withdrawal';
+      if (transaction['type'] != expectedType || transaction['amount'] != row['amount']) {
+        throw const FormatException('Alokasi backup tidak cocok dengan transaksi terkait.');
+      }
     }
     for (final row in result['habits']!) {
       final frequency = _frequency(_string(row['frequency']));
@@ -653,7 +659,9 @@ int? _optionalInteger(Object? value) =>
 
 void _amount(Object? value) {
   final amount = _integer(value, 'amount');
-  if (amount <= 0 || amount > 999999999999) {
+  // Closing a goal can release the sum of many deposits, which may exceed
+  // the per-entry input limit even though each deposit was valid.
+  if (amount <= 0) {
     throw const FormatException('Nominal backup tidak valid.');
   }
 }

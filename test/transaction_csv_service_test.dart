@@ -9,6 +9,19 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('neutralizes leading control characters and padded formulas', () async {
+    final database = SavingsDatabase.forTesting(NativeDatabase.memory());
+    try {
+      final ledger = TransactionRepository(database);
+      for (final note in ['\t123', '\r123', '\n123', '  =1+1']) {
+        await ledger.add(type: TransactionType.income, amount: 1, category: 'Saku', note: note, createdAt: DateTime(2026));
+      }
+      final csv = utf8.decode(await TransactionCsvService(database).export());
+      for (final note in ["'\t123", "'\r123", "'\n123", "'  =1+1"]) {
+        expect(csv, contains('"$note"'));
+      }
+    } finally { await database.close(); }
+  });
   test('exports all transactions, allocation metadata and safe escaped text', () async {
     final database = SavingsDatabase.forTesting(NativeDatabase.memory());
     try {

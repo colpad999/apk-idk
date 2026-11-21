@@ -101,6 +101,9 @@ jobs:
           fi
           exit "$result"
 
+      - name: Test calendar across daylight saving time
+        run: TZ=America/New_York flutter test test/transaction_repository_test.dart
+
       - name: Build release APK
         shell: bash
         run: |

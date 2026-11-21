@@ -118,14 +118,24 @@ class _BackupPageState extends ConsumerState<BackupPage> {
       ref.invalidate(habitsProvider);
       ref.invalidate(habitNotificationsEnabledProvider);
       ref.invalidate(neoThemeVariantProvider);
+      ref.invalidate(financialMonthProvider);
+      ref.invalidate(lifeEntriesProvider);
+      ref.invalidate(wishlistProvider);
+      ref.invalidate(savingChallengesProvider);
+      ref.invalidate(moneyJournalProvider);
+      ref.invalidate(habitCheckinsProvider);
+      ref.invalidate(habitCounterProvider);
+      ref.invalidate(habitCounterHistoryProvider);
+      var reminderWarning = false;
       try {
-        await ref.read(habitNotificationServiceProvider).syncAll();
+        final sync = await ref.read(habitNotificationServiceProvider).syncAll();
+        reminderWarning = sync.permissionDenied;
       } catch (_) {
-        // Data restore succeeded even if this device cannot schedule alarms.
+        reminderWarning = true;
       }
       if (mounted) {
         showNeoMessage(context,
-            'Backup dipulihkan. ${result.photos} foto tersedia${result.missingPhotos > 0 ? '; ${result.missingPhotos} foto ditandai hilang di backup, target tetap dibuat tanpa foto' : ''}.');
+            'Backup dipulihkan. ${result.photos} foto tersedia${result.missingPhotos > 0 ? '; ${result.missingPhotos} foto ditandai hilang di backup, target tetap dibuat tanpa foto' : ''}.${reminderWarning ? ' Jadwal pengingat belum dapat disinkronkan; periksa izin dan sinkronkan ulang.' : ''}');
       }
     } catch (error) {
       if (mounted) showNeoMessage(context, friendlyError(error));

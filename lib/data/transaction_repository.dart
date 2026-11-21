@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../core/utils/civil_date.dart';
 import 'savings_database.dart';
 import 'savings_transaction.dart';
 
@@ -46,11 +47,9 @@ class TransactionRepository {
   }
 
   Future<WeeklyFinancialActivity> weeklyActivity(DateTime date) async {
-    final today = DateTime(date.year, date.month, date.day);
-    final mondayOffset = today.weekday - DateTime.monday;
-    final weekStart = today.subtract(Duration(days: mondayOffset));
-    final previousStart = weekStart.subtract(const Duration(days: 7));
-    final nextWeek = weekStart.add(const Duration(days: 7));
+    final weekStart = CivilDate.from(date).weekStart;
+    final previousStart = weekStart.addDays(-7);
+    final nextWeek = weekStart.addDays(7);
     final rows = await _database.customSelect('''
       SELECT date(created_at / 1000, 'unixepoch', 'localtime') AS activity_day,
         SUM(CASE WHEN type = 'deposit' THEN amount ELSE 0 END) AS deposits,
@@ -59,8 +58,8 @@ class TransactionRepository {
       WHERE created_at >= ? AND created_at < ? AND type IN ('deposit', 'expense')
       GROUP BY activity_day
     ''', variables: [
-      Variable.withInt(previousStart.millisecondsSinceEpoch),
-      Variable.withInt(nextWeek.millisecondsSinceEpoch),
+      Variable.withInt(previousStart.value.millisecondsSinceEpoch),
+      Variable.withInt(nextWeek.value.millisecondsSinceEpoch),
     ]).get();
 
     final byDay = <String, (int, int)>{};
@@ -72,16 +71,15 @@ class TransactionRepository {
     var previousDeposits = 0;
     var previousExpenses = 0;
     for (var offset = -7; offset < 7; offset++) {
-      final day = weekStart.add(Duration(days: offset));
-      final key =
-          '${day.year.toString().padLeft(4, '0')}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
+      final day = weekStart.addDays(offset);
+      final key = day.key;
       final (deposits, expenses) = byDay[key] ?? (0, 0);
       if (offset < 0) {
         previousDeposits += deposits;
         previousExpenses += expenses;
       } else {
         days.add(DailyFinancialActivity(
-            date: day, deposits: deposits, expenses: expenses));
+            date: day.value, deposits: deposits, expenses: expenses));
       }
     }
     return WeeklyFinancialActivity(

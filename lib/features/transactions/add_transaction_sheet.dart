@@ -70,6 +70,7 @@ class _AddTransactionSheetState extends ConsumerState<AddTransactionSheet> {
           );
       ref.invalidate(savingsSummaryProvider);
       ref.invalidate(transactionsProvider);
+      ref.invalidate(financialMonthProvider);
       ref.invalidate(weeklyActivityProvider);
       ref.invalidate(incomeSourcesProvider);
       if (_type == TransactionType.expense) ref.invalidate(budgetsProvider);

@@ -4,6 +4,8 @@ import 'dart:typed_data';
 
 import 'package:apk_idk/data/goal_repository.dart';
 import 'package:apk_idk/data/habit_repository.dart';
+import 'package:apk_idk/data/transaction_repository.dart';
+import 'package:apk_idk/data/savings_transaction.dart';
 import 'package:apk_idk/data/wishlist_repository.dart';
 import 'package:apk_idk/data/savings_database.dart';
 import 'package:apk_idk/services/backup_service.dart';
@@ -151,6 +153,41 @@ void main() {
     } finally {
       await source.close();
     }
+  });
+
+  test('restore rejects allocations that disagree with the ledger', () async {
+    final ledger = TransactionRepository(db);
+    final goal = await goals.create(name: 'Dana', targetAmount: 1000);
+    await ledger.add(type: TransactionType.income, amount: 1000, category: 'Gaji', createdAt: DateTime(2026));
+    await ledger.add(type: TransactionType.deposit, amount: 300, category: 'Tabungan', goalId: goal, createdAt: DateTime(2026, 1, 2));
+    final exported = await BackupService(database: db, photos: photos).export();
+    for (final badField in ['amount', 'direction']) {
+      final doc = jsonDecode(utf8.decode(exported.bytes)) as Map<String, dynamic>;
+      final allocation = ((doc['data'] as Map<String, dynamic>)['goal_allocations'] as List).single as Map<String, dynamic>;
+      allocation[badField] = badField == 'amount' ? 301 : 'release';
+      final target = SavingsDatabase.forTesting(NativeDatabase.memory());
+      try {
+        await expectLater(BackupService(database: target, photos: photos).restore(Uint8List.fromList(utf8.encode(jsonEncode(doc)))), throwsFormatException);
+        expect(await TransactionRepository(target).listLatest(), isEmpty);
+        expect(await GoalRepository(target).list(), isEmpty);
+      } finally { await target.close(); }
+    }
+  });
+
+  test('backup accepts a legitimate large goal closure withdrawal', () async {
+    final ledger = TransactionRepository(db);
+    final goal = await goals.create(name: 'Dana besar', targetAmount: 1000);
+    for (var i = 0; i < 2; i++) {
+      await ledger.add(type: TransactionType.income, amount: 800000000000, category: 'Gaji', createdAt: DateTime(2026, 1, i + 1));
+      await ledger.add(type: TransactionType.deposit, amount: 800000000000, category: 'Tabungan', goalId: goal, createdAt: DateTime(2026, 1, i + 1));
+    }
+    await goals.delete(goal);
+    final backup = await BackupService(database: db, photos: photos).export();
+    final target = SavingsDatabase.forTesting(NativeDatabase.memory());
+    try {
+      await BackupService(database: target, photos: photos).restore(backup.bytes);
+      expect((await TransactionRepository(target).summary()).cashBalance, 1600000000000);
+    } finally { await target.close(); }
   });
 
   test('corrupt backup is rejected without modifying the database', () async {

@@ -133,7 +133,7 @@ object HabitAlarm {
         }
         return cal.timeInMillis
     }
-    fun reconcile(c: Context) {
+    fun reconcile(c: Context, recoverInterrupted: Boolean) {
         for (key in keys(c, "schedule_")) {
             val r = record(c, key) ?: continue
             val id = r.getInt("id")
@@ -150,11 +150,13 @@ object HabitAlarm {
         }
         // A reboot does not restart foreground audio; make an interrupted alarm
         // deliver again through AlarmManager rather than starting FGS from boot.
-        val interrupted = active(c); setActive(c, emptyList())
-        for (r in interrupted) {
-            val id = r.getInt("id"); r.put("snoozeAt", System.currentTimeMillis() + 2000)
-            prefs(c).edit().putString("snooze_$id", r.toString()).commit()
-            scheduleAt(c, id, SNOOZE_FIRE, r.getLong("snoozeAt"))
+        if (recoverInterrupted) {
+            val interrupted = active(c); setActive(c, emptyList())
+            for (r in interrupted) {
+                val id = r.getInt("id"); r.put("snoozeAt", System.currentTimeMillis() + 2000)
+                prefs(c).edit().putString("snooze_$id", r.toString()).commit()
+                scheduleAt(c, id, SNOOZE_FIRE, r.getLong("snoozeAt"))
+            }
         }
     }
     fun action(c: Context, snooze: Boolean) {
@@ -199,8 +201,8 @@ class HabitAlarmReceiver : BroadcastReceiver() {
                 HabitAlarm.SNOOZE_FIRE -> HabitAlarm.deliver(context, intent.getIntExtra("id", -1), true)
                 HabitAlarm.STOP -> HabitAlarm.action(context, false)
                 HabitAlarm.SNOOZE -> HabitAlarm.action(context, true)
-                Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED,
-                Intent.ACTION_TIME_CHANGED, Intent.ACTION_TIMEZONE_CHANGED -> HabitAlarm.reconcile(context)
+                Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED -> HabitAlarm.reconcile(context, true)
+                Intent.ACTION_TIME_CHANGED, Intent.ACTION_TIMEZONE_CHANGED -> HabitAlarm.reconcile(context, false)
             }
         } catch (e: Exception) { Log.e("HabitAlarm", "Alarm receiver failed", e) }
     }

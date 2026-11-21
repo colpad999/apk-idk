@@ -47,7 +47,7 @@ Backup mencakup transaksi, anggaran, tujuan, habit, check-in, counter, wishlist,
 
 ## Izin dan batas Android
 
-Minimum Android 7 (SDK 24), target SDK 36. `POST_NOTIFICATIONS` diperlukan untuk notifikasi pada Android 13+, dan `RECEIVE_BOOT_COMPLETED` untuk menjadwalkan ulang notifikasi setelah reboot. Pengingat bersifat inexact dan dapat ditunda oleh sistem; force-stop dan kebijakan perangkat dapat menghambatnya. Aplikasi tidak meminta izin exact alarm atau full-screen intent karena alarm manual-stop belum diimplementasikan. Foto dipilih melalui photo picker, tanpa izin penyimpanan luas. Uji pada perangkat nyata sebelum distribusi.
+Minimum Android 7 (SDK 24), target SDK 36. `POST_NOTIFICATIONS` diperlukan untuk notifikasi pada Android 13+, dan `RECEIVE_BOOT_COMPLETED` untuk menjadwalkan ulang notifikasi setelah reboot. Pengingat biasa bersifat inexact. Mode alarm dapat memakai izin alarm presisi opsional; tanpa izin ini Android dapat menundanya. Force-stop dan kebijakan perangkat dapat menghambat alarm. Aplikasi tidak meminta full-screen intent. Foto dipilih melalui photo picker, tanpa izin penyimpanan luas. Uji pada perangkat nyata sebelum distribusi.
 
 ### Profil, impor, dan riwayat alarm
 Profil lokal menyimpan nama dan catatan opsional dalam pengaturan dan termasuk backup. Import Data membuka pemulihan backup JSON Colpad yang tervalidasi, hanya pada database kosong; impor CSV belum didukung. Riwayat menampilkan 200 peristiwa terakhir dari mode alarm Android sejak fitur ini dipasang (bukan notifikasi biasa). Log tersimpan lokal terpisah, tidak ikut backup dan tidak membuktikan suara terdengar.

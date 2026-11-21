@@ -38,6 +38,7 @@ class GoalDetailPage extends ConsumerWidget {
       ref.invalidate(savingGoalsProvider);
       ref.invalidate(savingsSummaryProvider);
       ref.invalidate(transactionsProvider);
+      ref.invalidate(financialMonthProvider);
       ref.invalidate(weeklyActivityProvider);
       return true;
     }, success: 'Target ditutup; riwayat keuangan tetap aman.');

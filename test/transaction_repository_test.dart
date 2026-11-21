@@ -17,6 +17,17 @@ void main() {
 
   tearDown(() async => database.close());
 
+  test('weekly activity uses local calendar midnights across clock changes', () async {
+    await repository.add(type: TransactionType.income, amount: 100, category: 'Gaji', createdAt: DateTime(2026, 3, 1));
+    await repository.add(type: TransactionType.expense, amount: 10, category: 'Makan', createdAt: DateTime(2026, 3, 8, 23, 30));
+    await repository.add(type: TransactionType.expense, amount: 20, category: 'Makan', createdAt: DateTime(2026, 3, 9, 0, 30));
+    final week = await repository.weeklyActivity(DateTime(2026, 3, 9));
+    expect(week.days.map((day) => day.date.hour), everyElement(0));
+    expect(week.days.first.date, DateTime(2026, 3, 9));
+    expect(week.days.first.expenses, 20);
+    expect(week.previousExpenses, 10);
+  });
+
   test('cash, allocation, and assets remain consistent', () async {
     await repository.add(
         type: TransactionType.income,
