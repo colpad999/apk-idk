@@ -49,22 +49,22 @@ class _ActivityCalendarPageState extends ConsumerState<ActivityCalendarPage> {
     final count = DateTime(_month.year, _month.month + 1, 0).day;
     final leading = first.weekday - 1;
     final rows = ((leading + count) / 7).ceil();
-    final index = ActivityCalendarIndex(habits, entries);
-    final selected = index.day(_selected);
+    final calendarIndex = ActivityCalendarIndex(habits, entries);
+    final selected = calendarIndex.day(_selected);
     var monthDone = 0, monthTotal = 0, weekDone = 0, weekTotal = 0;
     final today = CivilDate.today();
     final weekStart = CivilDate.from(_selected).weekStart;
     for (var day = 1; day <= count; day++) {
       final date = CivilDate(DateTime(_month.year, _month.month, day));
       if (date.isAfter(today)) { continue; }
-      final item = index.day(date.value);
+      final item = calendarIndex.day(date.value);
       monthDone += item.completed.length;
       monthTotal += item.scheduled.length;
     }
     for (var offset = 0; offset < 7; offset++) {
       final date = weekStart.addDays(offset);
       if (date.isAfter(today)) { continue; }
-      final item = index.day(date.value);
+      final item = calendarIndex.day(date.value);
       weekDone += item.completed.length;
       weekTotal += item.scheduled.length;
     }
@@ -83,7 +83,7 @@ class _ActivityCalendarPageState extends ConsumerState<ActivityCalendarPage> {
             final number = index - leading + 1;
             if (number < 1 || number > count) { return const SizedBox.shrink(); }
             final date = DateTime(_month.year, _month.month, number);
-            final item = index.day(date);
+            final item = calendarIndex.day(date);
             final isFuture = CivilDate.from(date).isAfter(today);
             final Color background;
             if (item.scheduled.isEmpty || isFuture) {
