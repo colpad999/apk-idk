@@ -97,6 +97,7 @@ class NeoTheme {
       scaffoldBackgroundColor: Colors.transparent,
       appBarTheme: AppBarTheme(backgroundColor: p.surface, foregroundColor: ink,
         centerTitle: true, systemOverlayStyle: SystemUiOverlayStyle.dark,
+        shape: Border(bottom: BorderSide(color: p.border, width: 2.5)),
         elevation: 0, scrolledUnderElevation: 0,
         titleTextStyle: const TextStyle(fontFamily: display, color: ink, fontSize: 19, fontWeight: FontWeight.w700, letterSpacing: -.5)),
       textTheme: const TextTheme(

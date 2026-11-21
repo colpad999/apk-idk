@@ -248,8 +248,10 @@ class NeoGridBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = NeoPalette.of(context);
-    return ColoredBox(color: p.background, child: CustomPaint(
-      painter: _GridPainter(p.mutedSurface), child: child));
+    return ColoredBox(color: p.background, child: Stack(fit: StackFit.expand, children: [
+      RepaintBoundary(child: CustomPaint(painter: _GridPainter(p.mutedSurface))),
+      child,
+    ]));
   }
 }
 
@@ -310,3 +312,41 @@ class NeoHeader extends StatelessWidget implements PreferredSizeWidget {
     actions: [for (final action in actions) Padding(padding: const EdgeInsets.only(right: 5, top: 8, bottom: 8), child: action)],
   );
 }
+
+class NeoEmptyState extends StatelessWidget {
+  const NeoEmptyState({
+    required this.icon,
+    required this.title,
+    required this.message,
+    required this.actionLabel,
+    required this.onAction,
+    super.key,
+  });
+  final IconData icon;
+  final String title, message, actionLabel;
+  final VoidCallback onAction;
+  @override
+  Widget build(BuildContext context) {
+    final palette = NeoPalette.of(context);
+    return NeoCard(
+      color: palette.highlight,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(icon, size: 34, color: const Color(0xFF171717)),
+        const SizedBox(height: 12),
+        Text(title,
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(color: const Color(0xFF171717))),
+        const SizedBox(height: 7),
+        Text(message, style: const TextStyle(color: Color(0xFF171717))),
+        const SizedBox(height: 15),
+        FilledButton.icon(
+            onPressed: onAction,
+            icon: const Icon(Icons.add),
+            label: Text(actionLabel)),
+      ]),
+    );
+  }
+}
+
