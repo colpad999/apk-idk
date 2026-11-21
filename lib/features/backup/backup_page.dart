@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../../app/providers.dart';
 import '../../app/theme/neo_theme.dart';
 import '../../services/backup_service.dart';
+import '../../services/backup_file_reader.dart';
 import '../../services/transaction_csv_service.dart';
 import '../../shared/neo_components.dart';
 import '../../shared/neo_feedback.dart';
@@ -95,7 +96,7 @@ class _BackupPageState extends ConsumerState<BackupPage> {
       if (file.bytes != null) {
         bytes = file.bytes!;
       } else if (file.path != null) {
-        bytes = await File(file.path!).readAsBytes();
+        bytes = await readBackupFile(File(file.path!));
       } else {
         throw const FormatException('Berkas backup tidak dapat dibaca.');
       }

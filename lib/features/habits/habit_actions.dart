@@ -17,7 +17,7 @@ Future<bool> ensureHabitNotificationPermission(
     message:
         'Colpad memakai notifikasi untuk mengingatkan jadwal yang kamu pilih. '
         'Data tetap di perangkat. Pengingat biasa dapat tertunda oleh penghematan '
-        'baterai Android; aplikasi tidak meminta izin alarm presisi.',
+        'baterai Android. Izin alarm presisi opsional tersedia untuk mode alarm.',
     confirmLabel: 'Lanjut ke izin',
   );
   if (!accepted) return false;
@@ -90,9 +90,16 @@ Future<bool> deleteHabit(
   if (!confirmed || !context.mounted) return false;
   final result = await guardNeoAction<bool>(context, () async {
     await ref.read(habitRepositoryProvider).delete(habit.id);
-    await ref.read(habitNotificationServiceProvider).cancelHabit(habit.id);
     ref.invalidate(habitsProvider);
+    try {
+      await ref.read(habitNotificationServiceProvider).cancelHabit(habit.id);
+      if (context.mounted) showNeoMessage(context, 'Habit dihapus.');
+    } catch (_) {
+      if (context.mounted) {
+        showNeoMessage(context, 'Habit dihapus, tetapi pembatalan pengingat gagal. Periksa pengaturan dan sinkronkan ulang.');
+      }
+    }
     return true;
-  }, success: 'Habit dihapus.');
+  });
   return result ?? false;
 }
