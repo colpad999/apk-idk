@@ -119,6 +119,7 @@ class _BackupPageState extends ConsumerState<BackupPage> {
       ref.invalidate(habitsProvider);
       ref.invalidate(habitNotificationsEnabledProvider);
       ref.invalidate(neoThemeVariantProvider);
+      ref.invalidate(localProfileProvider);
       ref.invalidate(financialMonthProvider);
       ref.invalidate(lifeEntriesProvider);
       ref.invalidate(wishlistProvider);

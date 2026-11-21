@@ -41,7 +41,7 @@ class NeoPalette {
   );
   static const green = NeoPalette(
     background: Color(0xFFE7F9F0), surface: Color(0xFFFFFFFF),
-    primary: Color(0xFF60E2A0), secondary: Color(0xFFFFE876),
+    primary: Color(0xFF60EFA6), secondary: Color(0xFFFFE876),
     accent: Color(0xFFC4F4DE), highlight: Color(0xFFFFF3B3),
     text: Color(0xFF162621), border: Color(0xFF162621), shadow: Color(0xFF162621),
     muted: Color(0xFF414141), mutedSurface: Color(0xFFD7F1E5),

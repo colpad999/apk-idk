@@ -191,6 +191,7 @@ class DashboardPage extends ConsumerWidget {
     final palette = NeoPalette.of(context);
     final dateLabel =
         DateFormat('EEEE, d MMMM', 'id_ID').format(DateTime.now());
+    final profileName = ref.watch(localProfileProvider).valueOrNull?.name.trim();
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -207,7 +208,7 @@ class DashboardPage extends ConsumerWidget {
           children: [
             NeoCard(child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                NeoTag('HALO, PENABUNG ✳', color: palette.primary),
+                NeoTag(profileName == null || profileName.isEmpty ? 'HALO, PENABUNG ✳' : 'HALO, $profileName ✳', color: palette.primary),
                 const SizedBox(height: 8),
                 Text('Uangmu,\nceritamu.', style: Theme.of(context).textTheme.headlineLarge),
                 const SizedBox(height: 6),
@@ -235,6 +236,12 @@ class DashboardPage extends ConsumerWidget {
                 Expanded(child: NeoCard(padding: const EdgeInsets.all(12), child: _HeroMetric(label: 'PENGELUARAN', value: hidden ? '••••' : formatRupiah(value.totalExpense), icon: Icons.north_east_rounded))),
               ]),
             ),
+            const SizedBox(height: 16),
+            NeoCard(shadow: false, color: palette.highlight, child: Row(children: [
+              Icon(Icons.phone_android_rounded, color: palette.text),
+              const SizedBox(width: 10),
+              const Expanded(child: Text('Data tersimpan di perangkat. File backup tidak terenkripsi; simpan secara pribadi.', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12))),
+            ])),
             const SizedBox(height: 20),
             const NeoSectionTitle('AKSI CEPAT'),
             const SizedBox(height: 9),

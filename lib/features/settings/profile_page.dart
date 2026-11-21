@@ -30,6 +30,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     setState(() => _saving = true);
     try {
       await ref.read(appSettingsRepositoryProvider).saveProfile(name: _name.text, note: _note.text);
+      ref.invalidate(localProfileProvider);
       if (mounted) { showNeoMessage(context, 'Profil tersimpan di perangkat.'); }
     } catch (error) { if (mounted) { showNeoMessage(context, friendlyError(error)); } }
     finally { if (mounted) { setState(() => _saving = false); } }

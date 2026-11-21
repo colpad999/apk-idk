@@ -31,6 +31,7 @@ final goalRepositoryProvider = Provider<GoalRepository>(
     (ref) => GoalRepository(ref.watch(savingsDatabaseProvider)));
 final appSettingsRepositoryProvider = Provider<AppSettingsRepository>(
     (ref) => AppSettingsRepository(ref.watch(savingsDatabaseProvider)));
+final localProfileProvider = FutureProvider<LocalProfile>((ref) => ref.watch(appSettingsRepositoryProvider).profile());
 final habitRepositoryProvider = Provider<HabitRepository>(
     (ref) => HabitRepository(ref.watch(savingsDatabaseProvider)));
 
